@@ -1,0 +1,36 @@
+# Git & GitHub
+.git
+.gitignore
+.github
+
+# Virtualenvs & Cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+env
+
+# Tests and Coverage
+tests/
+.pytest_cache
+htmlcov/
+.coverage
+coverage.xml
+
+# IDEs
+.vscode
+.idea
+
+# Local env & secrets
+.env
+.env.*
+!.env.example
+
+# Vector databases / Local data
+chroma_db/
+faiss_index/
+data/
+*.index
+*.faiss

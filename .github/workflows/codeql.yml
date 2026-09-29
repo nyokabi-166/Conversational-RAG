@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
   schedule:
-    # Run every Sunday at 03:30 UTC
     - cron: '30 3 * * 0'
 
 jobs:
@@ -21,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
+        language: [ 'python', 'javascript-typescript' ]
 
     steps:
       - name: Checkout repository

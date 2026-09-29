@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Maintain GitHub Actions dependencies
+  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -10,20 +10,36 @@ updates:
         patterns:
           - "*"
 
-  # Maintain Python (Poetry) dependencies
+  # Backend (Python / Poetry)
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/backend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
-      dev-dependencies:
-        dependency-type: "development"
-      production-dependencies:
-        dependency-type: "production"
+      backend-dependencies:
+        patterns:
+          - "*"
 
-  # Maintain Dockerfile base images
+  # Frontend (Next.js / npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*"
+
+  # Backend Dockerfile
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+
+  # Frontend Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/frontend"
     schedule:
       interval: "weekly"

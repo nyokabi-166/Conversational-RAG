@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "rag-project"
+name = "rag-backend"
 version = "0.1.0"
-description = "Production-ready Retrieval-Augmented Generation (RAG) system"
+description = "FastAPI & LangChain/LlamaIndex RAG service"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [{include = "src"}]

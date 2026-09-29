@@ -1,4 +1,4 @@
-"""Unit tests for RAG application entrypoint."""
+"""Unit tests for backend main entrypoint."""
 
 import os
 from unittest import mock
@@ -10,11 +10,11 @@ def test_get_application_status_default():
     """Test default application status output."""
     status = get_application_status()
     assert status["status"] == "healthy"
-    assert status["service"] == "rag-project"
+    assert status["service"] == "rag-backend"
 
 
 def test_get_application_status_custom_env():
-    """Test status reflects custom APP_ENV."""
-    with mock.patch.dict(os.environ, {"APP_ENV": "production"}):
+    """Test custom environment detection."""
+    with mock.patch.dict(os.environ, {"APP_ENV": "staging"}):
         status = get_application_status()
-        assert status["environment"] == "production"
+        assert status["environment"] == "staging"
