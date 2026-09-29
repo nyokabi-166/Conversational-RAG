@@ -1,0 +1,30 @@
+# Auto detect text files and perform LF normalization on checkin
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted to LF on checkin
+*.py text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.txt text eol=lf
+*.cfg text eol=lf
+Dockerfile text eol=lf
+.gitignore text eol=lf
+.editorconfig text eol=lf
+
+# Declare binary files to avoid git corrupting them with line ending conversions
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.faiss binary
+*.index binary
+*.bin binary
+*.pt binary
+*.pth binary
+*.onnx binary
