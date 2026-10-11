@@ -3,7 +3,9 @@
 from ..logger import logger
 
 
-def query_chain(chain, user_input: str, context: str = "", source_docs: list = None) -> dict:
+def query_chain(
+    chain, user_input: str, context: str = "", source_docs: list = None
+) -> dict:
     """Executes the LLM chain passing user input and retrieved context."""
     try:
         logger.debug(f"Running chain for input: {user_input}")
@@ -16,7 +18,12 @@ def query_chain(chain, user_input: str, context: str = "", source_docs: list = N
             result = chain({"question": user_input, "context": context})
 
         if isinstance(result, dict):
-            answer = result.get("result") or result.get("answer") or result.get("output_text") or ""
+            answer = (
+                result.get("result")
+                or result.get("answer")
+                or result.get("output_text")
+                or ""
+            )
         else:
             answer = getattr(result, "content", str(result))
 

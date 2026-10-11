@@ -1,9 +1,11 @@
 """Authentication and Role-Based Access Control (RBAC) dependencies."""
 
 from typing import Any, List, Optional
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
+
 from src.core.database import get_db
 from src.core.security import decode_access_token
 from src.models.entities import PassengerAccount, StaffAccount
@@ -50,7 +52,11 @@ async def get_current_user_optional(
         return None
 
     if user_type == "passenger":
-        passenger = db.query(PassengerAccount).filter(PassengerAccount.passenger_id == user_id).first()
+        passenger = (
+            db.query(PassengerAccount)
+            .filter(PassengerAccount.passenger_id == user_id)
+            .first()
+        )
         if not passenger:
             return None
         return AuthUser(
@@ -92,7 +98,9 @@ async def get_current_user(
 def require_role(allowed_roles: List[str]):
     """Enforces Role-Based Access Control (RBAC); raises 403 Forbidden if role is unauthorized."""
 
-    async def role_checker(current_user: AuthUser = Depends(get_current_user)) -> AuthUser:
+    async def role_checker(
+        current_user: AuthUser = Depends(get_current_user),
+    ) -> AuthUser:
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

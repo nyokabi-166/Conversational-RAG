@@ -3,15 +3,20 @@
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
+
 import bcrypt
 import jwt
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "capstone_airline_rag_super_secret_jwt_key_2026")
+SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY", "capstone_airline_rag_super_secret_jwt_key_2026"
+)
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 24 hours
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440")
+)  # 24 hours
 
 
 def hash_password(password: str) -> str:

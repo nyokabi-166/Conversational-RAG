@@ -1,6 +1,7 @@
 """SQLAlchemy ORM entity models implementing Table 4.1 from Capstone documentation."""
 
 import uuid
+
 from sqlalchemy import (
     BigInteger,
     Column,
@@ -13,6 +14,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import relationship
+
 from src.core.database import Base
 
 
@@ -150,7 +152,9 @@ class EvaluationScore(Base):
         index=True,
     )
     system_variant = Column(String(20), nullable=False)  # 'RAG' vs 'BASELINE'
-    pillar = Column(String(50), nullable=False, index=True)  # 'Baggage', 'Rebooking', etc.
+    pillar = Column(
+        String(50), nullable=False, index=True
+    )  # 'Baggage', 'Rebooking', etc.
     faithfulness_score = Column(Float, nullable=True)
     answer_relevancy_score = Column(Float, nullable=True)
     context_recall_score = Column(Float, nullable=True)

@@ -1,7 +1,9 @@
 """Automated integration tests for FastAPI RAG endpoints."""
 
 import io
+
 from fastapi.testclient import TestClient
+
 from src.main import app
 
 client = TestClient(app)
@@ -16,7 +18,11 @@ def create_valid_test_pdf(text: str) -> io.BytesIO:
     obj2 = b"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
     obj3 = b"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
     obj4 = b"4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
-    obj5 = f"5 0 obj\n<< /Length {length} >>\nstream\n".encode("latin-1") + stream_content + b"\nendstream\nendobj\n"
+    obj5 = (
+        f"5 0 obj\n<< /Length {length} >>\nstream\n".encode("latin-1")
+        + stream_content
+        + b"\nendstream\nendobj\n"
+    )
 
     header = b"%PDF-1.4\n"
     pos1 = len(header)
@@ -51,7 +57,9 @@ def test_root_health_check():
 
 def test_ask_endpoint():
     """Verify POST /ask/ returns a structured answer from the LLM."""
-    response = client.post("/ask/", data={"question": "What is the policy for carry-on luggage?"})
+    response = client.post(
+        "/ask/", data={"question": "What is the policy for carry-on luggage?"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert "response" in data
@@ -83,7 +91,10 @@ def test_upload_and_retrieve_e2e():
     assert "files_indexed" in upload_data
 
     # 3. Test asking question based on the uploaded rule
-    ask_res = client.post("/ask/", data={"question": "How many free checked bags do economy passengers receive?"})
+    ask_res = client.post(
+        "/ask/",
+        data={"question": "How many free checked bags do economy passengers receive?"},
+    )
     assert ask_res.status_code == 200
     ask_data = ask_res.json()
     assert "response" in ask_data

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import List, Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -78,10 +79,16 @@ class SessionDTO(BaseModel):
 class ChatQueryRequest(BaseModel):
     """API payload for passenger queries sent to POST /api/chat."""
 
-    session_id: Optional[str] = Field(None, description="Existing session ID; created if omitted")
-    conversation_id: Optional[str] = Field(None, description="Existing conversation thread ID")
+    session_id: Optional[str] = Field(
+        None, description="Existing session ID; created if omitted"
+    )
+    conversation_id: Optional[str] = Field(
+        None, description="Existing conversation thread ID"
+    )
     message: str = Field(..., min_length=1, description="Customer question")
-    system_variant: str = Field("RAG", description="Switch between RAG pipeline and Baseline control")
+    system_variant: str = Field(
+        "RAG", description="Switch between RAG pipeline and Baseline control"
+    )
 
 
 class ChatQueryResponse(BaseModel):
