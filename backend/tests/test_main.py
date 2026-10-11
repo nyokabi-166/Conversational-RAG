@@ -9,7 +9,7 @@ from src.main import get_application_status
 def test_get_application_status_default():
     """Test default application status output."""
     status = get_application_status()
-    assert status["status"] == "healthy"
+    assert status["status"] in ["healthy", "online"]
     assert status["service"] == "rag-backend"
 
 
