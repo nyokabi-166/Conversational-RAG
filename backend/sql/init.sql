@@ -7,11 +7,13 @@
 -- Relational Schema: 8 Core Tables (Table 4.1 Specification)
 -- =====================================================================
 
--- 1. Passenger Accounts (Optional guest or registered passenger)
+-- 1. Passenger Accounts (Registered passenger)
 CREATE TABLE IF NOT EXISTS passenger_accounts (
     passenger_id VARCHAR(36) PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'passenger',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

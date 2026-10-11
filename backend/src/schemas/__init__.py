@@ -1,5 +1,13 @@
 """Schemas package exporting all Pydantic DTOs."""
 
+from src.schemas.auth import (
+    ConversationHistoryDetail,
+    ConversationHistorySummary,
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UserProfile,
+)
 from src.schemas.chat import (
     ChatQueryRequest,
     ChatQueryResponse,
@@ -40,4 +48,10 @@ __all__ = [
     "EvaluationScoreCreate",
     "EvaluationScoreDTO",
     "PillarBenchmarkSummary",
+    "RegisterRequest",
+    "LoginRequest",
+    "TokenResponse",
+    "UserProfile",
+    "ConversationHistorySummary",
+    "ConversationHistoryDetail",
 ]

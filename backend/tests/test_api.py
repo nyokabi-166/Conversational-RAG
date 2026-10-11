@@ -64,16 +64,25 @@ def test_upload_and_retrieve_e2e():
     policy_text = "Kenya Airways Baggage Rule: Economy passengers are entitled to 2 free checked bags of 23kg each."
     pdf_stream = create_valid_test_pdf(policy_text)
 
-    # 1. Test upload
+    # 1. Login as staff to get RBAC authorization token
+    staff_login = client.post(
+        "/auth/login",
+        json={"username_or_email": "staff", "password": "staff123"},
+    )
+    assert staff_login.status_code == 200
+    token = staff_login.json()["access_token"]
+
+    # 2. Test upload with staff credentials
     upload_res = client.post(
         "/upload_pdfs/",
         files={"files": ("Kenya_Airways_Policy.pdf", pdf_stream, "application/pdf")},
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert upload_res.status_code == 200
     upload_data = upload_res.json()
     assert "files_indexed" in upload_data
 
-    # 2. Test asking question based on the uploaded rule
+    # 3. Test asking question based on the uploaded rule
     ask_res = client.post("/ask/", data={"question": "How many free checked bags do economy passengers receive?"})
     assert ask_res.status_code == 200
     ask_data = ask_res.json()
