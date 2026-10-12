@@ -3,7 +3,6 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from src.core.database import Base
 from src.models.entities import (
     Conversation,

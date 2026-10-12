@@ -1,14 +1,12 @@
 import os
 import shutil
-from typing import List
 
 from fastapi import UploadFile
 
 UPLOAD_DIR = "./uploads"
 
 
-def save_uploaded_files(files: List[UploadFile]) -> List[str]:
-    """Saves uploaded files to the uploads directory and returns their file paths."""
+def save_uploaded_files(files: list[UploadFile]) -> list[str]:
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     file_paths = []
     for file in files:

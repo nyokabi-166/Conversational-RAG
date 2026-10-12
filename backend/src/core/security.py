@@ -1,63 +1,81 @@
-"""Security utilities for password hashing and JWT token handling."""
+"""Password hashing and JWT helpers for API authentication."""
 
+import hashlib
+import hmac
 import os
+import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-import bcrypt
 import jwt
-from dotenv import load_dotenv
 
-load_dotenv()
-
-SECRET_KEY = os.getenv(
-    "JWT_SECRET_KEY", "capstone_airline_rag_super_secret_jwt_key_2026"
-)
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440")
-)  # 24 hours
+_PASSWORD_SCHEME = "pbkdf2_sha256"
+_PASSWORD_ITERATIONS = 600_000
+_DEVELOPMENT_SECRET = "local-development-secret-do-not-use-in-production"
+_TOKEN_ALGORITHM = "HS256"
+_TOKEN_LIFETIME = timedelta(minutes=60)
 
 
 def hash_password(password: str) -> str:
-    """Hashes a plaintext password using bcrypt."""
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
-    return hashed.decode("utf-8")
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifies a plaintext password against its bcrypt hash."""
-    try:
-        return bcrypt.checkpw(
-            plain_password.encode("utf-8"),
-            hashed_password.encode("utf-8"),
+    """Return a salted PBKDF2 hash suitable for storing in the database."""
+    salt = secrets.token_bytes(16)
+    digest = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, _PASSWORD_ITERATIONS
+    )
+    return "$".join(
+        (
+            _PASSWORD_SCHEME,
+            str(_PASSWORD_ITERATIONS),
+            salt.hex(),
+            digest.hex(),
         )
-    except Exception:
+    )
+
+
+def verify_password(password: str, stored_hash: str) -> bool:
+    """Verify a password hash, returning False for malformed stored values."""
+    try:
+        scheme, iterations, salt_hex, digest_hex = stored_hash.split("$", maxsplit=3)
+        if scheme != _PASSWORD_SCHEME:
+            return False
+        iteration_count = int(iterations)
+        if iteration_count < 1:
+            return False
+        salt = bytes.fromhex(salt_hex)
+        expected = bytes.fromhex(digest_hex)
+    except (AttributeError, TypeError, ValueError):
         return False
+
+    actual = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, iteration_count
+    )
+    return hmac.compare_digest(actual, expected)
+
+
+def _jwt_secret() -> str:
+    secret = os.getenv("JWT_SECRET_KEY")
+    if secret:
+        if len(secret) < 32:
+            raise RuntimeError("JWT_SECRET_KEY must contain at least 32 characters.")
+        return secret
+    if os.getenv("APP_ENV", "production").lower() == "development":
+        return _DEVELOPMENT_SECRET
+    raise RuntimeError("JWT_SECRET_KEY must be set outside development and test.")
 
 
 def create_access_token(
-    data: Dict[str, Any],
-    expires_delta: Optional[timedelta] = None,
+    data: dict[str, Any], expires_delta: Optional[timedelta] = None
 ) -> str:
-    """Generates a signed JWT access token containing user claims."""
-    to_encode = data.copy()
+    """Create a signed bearer token with an expiration claim."""
     now = datetime.now(timezone.utc)
-    if expires_delta:
-        expire = now + expires_delta
-    else:
-        expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    to_encode.update({"exp": expire, "iat": now})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    claims = {**data, "iat": now, "exp": now + (expires_delta or _TOKEN_LIFETIME)}
+    return jwt.encode(claims, _jwt_secret(), algorithm=_TOKEN_ALGORITHM)
 
 
-def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
-    """Decodes and validates a JWT token. Returns payload dict or None if invalid/expired."""
+def decode_access_token(token: str) -> Optional[dict[str, Any]]:
+    """Decode and validate a bearer token, returning None when it is invalid."""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except (jwt.PyJWTError, Exception):
+        claims = jwt.decode(token, _jwt_secret(), algorithms=[_TOKEN_ALGORITHM])
+    except (jwt.InvalidTokenError, RuntimeError):
         return None
+    return claims if isinstance(claims, dict) else None

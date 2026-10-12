@@ -14,7 +14,6 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import relationship
-
 from src.core.database import Base
 
 
@@ -24,7 +23,7 @@ def generate_uuid() -> str:
 
 
 class PassengerAccount(Base):
-    """Optional registered or guest passenger account."""
+    """Registered passenger account with credentials and role."""
 
     __tablename__ = "passenger_accounts"
 
@@ -32,7 +31,7 @@ class PassengerAccount(Base):
     email = Column(String(255), unique=True, nullable=True, index=True)
     password_hash = Column(String(255), nullable=True)
     full_name = Column(String(255), nullable=True)
-    role = Column(String(50), default="passenger")
+    role = Column(String(50), default="passenger")  # 'passenger'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     sessions = relationship("Session", back_populates="passenger")

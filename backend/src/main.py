@@ -18,7 +18,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langchain_chroma import Chroma
 from sqlalchemy.orm import Session
-
 from src.core.auth import (
     AuthUser,
     get_current_user,
@@ -54,7 +53,11 @@ from .modules.query_handlers import query_chain
 
 
 def seed_default_accounts():
-    """Seeds default staff administrator accounts if they do not exist."""
+    """Seed demo staff accounts in development only."""
+    if os.getenv("APP_ENV", "production").lower() != "development":
+        logger.info("Skipping demo staff account seed outside development")
+        return
+
     db = SessionLocal()
     try:
         # 1. Super Admin
@@ -86,7 +89,7 @@ def seed_default_accounts():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initializes tables and seeds administrator accounts on application boot."""
+    """Initialize tables and seed development demo accounts on startup."""
     init_db()
     seed_default_accounts()
     yield
@@ -320,10 +323,11 @@ def list_documents(
 
 @app.get("/history/conversations", response_model=List[ConversationHistorySummary])
 def get_passenger_conversations(
-    current_user: AuthUser = Depends(require_role(["passenger", "super_admin"])),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
     """Retrieves all past conversation threads for the logged-in passenger."""
+    # Find all sessions belonging to this passenger
     passenger_sessions = (
         db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
     )
@@ -357,7 +361,7 @@ def get_passenger_conversations(
 )
 def get_conversation_detail(
     conversation_id: str,
-    current_user: AuthUser = Depends(require_role(["passenger", "super_admin"])),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
     """Retrieves full dialogue history and citation metadata for a specific conversation."""
@@ -369,14 +373,13 @@ def get_conversation_detail(
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found.")
 
-    if current_user.role != "super_admin":
-        session_obj = (
-            db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
+    session_obj = (
+        db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
+    )
+    if not session_obj or session_obj.passenger_id != current_user.user_id:
+        raise HTTPException(
+            status_code=403, detail="Access denied to this conversation."
         )
-        if not session_obj or session_obj.passenger_id != current_user.user_id:
-            raise HTTPException(
-                status_code=403, detail="Access denied to this conversation."
-            )
 
     message_dtos = []
     for m in conv.messages:
@@ -430,6 +433,7 @@ async def ask_question(
             f"Query: '{question}' | User: {current_user.identifier if current_user else 'Guest'}"
         )
 
+        # 1. Resolve or Create Session & Conversation
         passenger_id = (
             current_user.user_id
             if current_user and current_user.role == "passenger"
@@ -455,7 +459,7 @@ async def ask_question(
             db.commit()
             db.refresh(conv)
 
-        # Record User Message
+        # 2. Record User Message
         user_msg = Message(
             conversation_id=conv.conversation_id,
             role="user",
@@ -464,7 +468,7 @@ async def ask_question(
         db.add(user_msg)
         db.commit()
 
-        # Retrieve Context from ChromaDB
+        # 3. Retrieve Context from ChromaDB
         context = ""
         source_docs = []
         if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
@@ -475,12 +479,12 @@ async def ask_question(
             source_docs = vectorstore.similarity_search(question, k=4)
             context = "\n\n---\n\n".join(doc.page_content for doc in source_docs)
 
-        # Generate Answer via Groq LLM
+        # 4. Generate Answer via Groq LLM
         chain = get_llm_chain()
         result = query_chain(chain, question, context=context, source_docs=source_docs)
         answer_text = result.get("response", "")
 
-        # Record Assistant Message
+        # 5. Record Assistant Message
         assistant_msg = Message(
             conversation_id=conv.conversation_id,
             role="assistant",
@@ -490,7 +494,7 @@ async def ask_question(
         db.commit()
         db.refresh(assistant_msg)
 
-        # Record Retrieval Citations
+        # 6. Record Retrieval Citations
         citations_data = []
         for i, doc in enumerate(source_docs):
             doc_source = doc.metadata.get("source", "Policy Document")

@@ -1,111 +1,116 @@
-"""Authentication and Role-Based Access Control (RBAC) dependencies."""
+"""FastAPI dependencies for authenticating users and enforcing roles."""
 
-from typing import Any, List, Optional
+from dataclasses import dataclass
+from typing import Callable, Optional, Sequence
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-
 from src.core.database import get_db
 from src.core.security import decode_access_token
 from src.models.entities import PassengerAccount, StaffAccount
 
-security = HTTPBearer(auto_error=False)
+_bearer_scheme = HTTPBearer(auto_error=False)
 
 
+@dataclass(frozen=True)
 class AuthUser:
-    """Standardized authenticated user representation for RBAC."""
+    """Authenticated account details used by route dependencies."""
 
-    def __init__(
-        self,
-        user_id: str,
-        role: str,
-        identifier: str,
-        full_name: Optional[str] = None,
-        db_entity: Any = None,
-    ):
-        self.user_id = user_id
-        self.role = role
-        self.identifier = identifier
-        self.full_name = full_name
-        self.db_entity = db_entity
+    user_id: str
+    user_type: str
+    role: str
+    identifier: str
+    full_name: Optional[str] = None
 
 
-async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: Session = Depends(get_db),
+def _unauthorized() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Valid bearer authentication is required.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def _resolve_user(
+    credentials: Optional[HTTPAuthorizationCredentials], db: Session
 ) -> Optional[AuthUser]:
-    """Extracts and validates JWT token if provided; returns None for anonymous guest mode."""
-    if not credentials or not credentials.credentials:
+    if credentials is None or credentials.scheme.lower() != "bearer":
         return None
 
-    token = credentials.credentials
-    payload = decode_access_token(token)
-    if not payload:
+    claims = decode_access_token(credentials.credentials)
+    if not claims:
         return None
 
-    user_id = payload.get("sub")
-    user_type = payload.get("user_type")
-    role = payload.get("role", "passenger")
-
-    if not user_id or not user_type:
+    user_id = claims.get("sub")
+    user_type = claims.get("user_type")
+    if not isinstance(user_id, str):
         return None
 
     if user_type == "passenger":
-        passenger = (
-            db.query(PassengerAccount)
-            .filter(PassengerAccount.passenger_id == user_id)
-            .first()
-        )
-        if not passenger:
+        account = db.query(PassengerAccount).filter_by(passenger_id=user_id).first()
+        if account is None:
             return None
         return AuthUser(
-            user_id=passenger.passenger_id,
-            role=passenger.role,
-            identifier=passenger.email,
-            full_name=passenger.full_name,
-            db_entity=passenger,
+            user_id=account.passenger_id,
+            user_type="passenger",
+            role=account.role or "passenger",
+            identifier=account.email or account.passenger_id,
+            full_name=account.full_name,
         )
 
-    elif user_type == "staff":
-        staff = db.query(StaffAccount).filter(StaffAccount.staff_id == user_id).first()
-        if not staff:
+    if user_type == "staff":
+        account = db.query(StaffAccount).filter_by(staff_id=user_id).first()
+        if account is None:
             return None
         return AuthUser(
-            user_id=staff.staff_id,
-            role=staff.role,
-            identifier=staff.username,
-            full_name=staff.full_name,
-            db_entity=staff,
+            user_id=account.staff_id,
+            user_type="staff",
+            role=account.role or "policy_admin",
+            identifier=account.username,
+            full_name=account.full_name,
         )
 
     return None
 
 
-async def get_current_user(
-    user: Optional[AuthUser] = Depends(get_current_user_optional),
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer_scheme),
+    db: Session = Depends(get_db),
 ) -> AuthUser:
-    """Enforces authentication; raises 401 Unauthorized if token is absent or invalid."""
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required. Please provide a valid Bearer token.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    """Require a valid token whose account still exists in the database."""
+    user = _resolve_user(credentials, db)
+    if user is None:
+        raise _unauthorized()
     return user
 
 
-def require_role(allowed_roles: List[str]):
-    """Enforces Role-Based Access Control (RBAC); raises 403 Forbidden if role is unauthorized."""
+def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer_scheme),
+    db: Session = Depends(get_db),
+) -> Optional[AuthUser]:
+    """Return no user for anonymous requests; reject supplied invalid tokens."""
+    if credentials is None:
+        return None
+    user = _resolve_user(credentials, db)
+    if user is None:
+        raise _unauthorized()
+    return user
 
-    async def role_checker(
-        current_user: AuthUser = Depends(get_current_user),
-    ) -> AuthUser:
-        if current_user.role not in allowed_roles:
+
+def require_role(roles: Sequence[str]) -> Callable[..., AuthUser]:
+    """Build a dependency that allows only authenticated users in ``roles``."""
+    allowed_roles = frozenset(roles)
+
+    def role_dependency(user: AuthUser = Depends(get_current_user)) -> AuthUser:
+        role_matches_account_type = (user.role == "passenger") == (
+            user.user_type == "passenger"
+        )
+        if user.role not in allowed_roles or not role_matches_account_type:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied: role '{current_user.role}' lacks permissions for this resource.",
+                detail="You do not have permission to perform this action.",
             )
-        return current_user
+        return user
 
-    return role_checker
+    return role_dependency

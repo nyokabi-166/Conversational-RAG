@@ -1,53 +1,50 @@
-"""Pydantic schemas for user authentication, registration, profiles, and chat history."""
+"""Request and response schemas for authentication and conversation history."""
 
+import re
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from src.schemas.chat import MessageDTO
 
 
 class RegisterRequest(BaseModel):
-    """Passenger account registration."""
+    email: str = Field(..., min_length=3, max_length=255)
+    password: str = Field(..., min_length=8, max_length=128)
+    full_name: Optional[str] = Field(None, max_length=255)
 
-    email: str = Field(..., min_length=5, description="Passenger email address")
-    password: str = Field(..., min_length=6, description="Password (min 6 characters)")
-    full_name: Optional[str] = None
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", normalized):
+            raise ValueError("A valid email address is required.")
+        return normalized
 
 
 class LoginRequest(BaseModel):
-    """Universal login request for both passengers (via email) and staff (via username)."""
-
-    username_or_email: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=4)
+    username_or_email: str = Field(..., min_length=1, max_length=255)
+    password: str = Field(..., min_length=1, max_length=128)
 
 
 class TokenResponse(BaseModel):
-    """JWT response payload."""
-
     access_token: str
     token_type: str = "bearer"
     user_id: str
-    role: str  # 'passenger', 'policy_admin', 'super_admin'
-    identifier: str  # email or username
+    role: str
+    identifier: str
     full_name: Optional[str] = None
 
 
 class UserProfile(BaseModel):
-    """Current authenticated user profile."""
-
-    model_config = ConfigDict(from_attributes=True)
-
     user_id: str
     identifier: str
     role: str
     full_name: Optional[str] = None
-    created_at: Optional[datetime] = None
 
 
 class ConversationHistorySummary(BaseModel):
-    """Summary of a past conversation thread for passenger history drawer."""
+    model_config = ConfigDict(from_attributes=True)
 
     conversation_id: str
     session_id: str
@@ -58,7 +55,7 @@ class ConversationHistorySummary(BaseModel):
 
 
 class ConversationHistoryDetail(BaseModel):
-    """Detailed conversation thread with all dialog turns and citations."""
+    model_config = ConfigDict(from_attributes=True)
 
     conversation_id: str
     session_id: str
