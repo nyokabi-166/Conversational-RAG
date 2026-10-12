@@ -51,6 +51,7 @@ jobs:
           restore-keys: |
             venv-${{ runner.os }}-${{ matrix.python-version }}-
 
+      # Ensure Poetry syncs dependencies even on cache hit
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with dev
 
