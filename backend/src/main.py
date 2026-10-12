@@ -126,10 +126,20 @@ async def catch_exception_middleware(request: Request, call_next):
 # =====================================================================
 
 
+def get_application_status() -> dict:
+    """Return health and environment status."""
+    env = os.getenv("APP_ENV", "development")
+    return {
+        "status": "healthy",
+        "environment": env,
+        "service": "rag-backend",
+    }
+
+
 @app.get("/")
 def root():
     """Health check endpoint."""
-    return {"status": "online", "service": "Airline Customer Support RAG API"}
+    return get_application_status()
 
 
 # =====================================================================

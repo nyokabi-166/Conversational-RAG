@@ -44,6 +44,8 @@ yarn-error.log*
 
 # Vector DBs, Embedding Indexes, and Document Stores
 chroma_db/
+backend/data/
+backend/uploads/
 .chroma/
 faiss_index/
 *.faiss

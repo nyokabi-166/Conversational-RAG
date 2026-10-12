@@ -1,5 +1,9 @@
 """Unit tests for LangChain RAG pipeline components."""
 
+import os
+from unittest import mock
+
+from src.main import get_application_status
 from src.rag_pipeline import LangChainRAGPipeline, MiniLMEmbeddings
 
 
@@ -16,6 +20,20 @@ class FakeSentenceTransformer:
         if isinstance(texts, list):
             return FakeVector([[0.0] * 384 for _ in texts])
         return FakeVector([0.0] * 384)
+
+
+def test_get_application_status_default():
+    """Test default health status output."""
+    status = get_application_status()
+    assert status["status"] in ["healthy", "online"]
+    assert status["service"] == "rag-backend"
+
+
+def test_get_application_status_custom_env():
+    """Test custom environment detection."""
+    with mock.patch.dict(os.environ, {"APP_ENV": "staging"}):
+        status = get_application_status()
+        assert status["environment"] == "staging"
 
 
 def test_minilm_embeddings(monkeypatch):

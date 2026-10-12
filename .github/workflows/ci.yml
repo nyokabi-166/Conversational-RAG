@@ -17,9 +17,6 @@ jobs:
   backend-ci:
     name: Backend (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     strategy:
       fail-fast: false
       matrix:
@@ -47,30 +44,29 @@ jobs:
         uses: actions/cache@v4
         with:
           path: backend/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('backend/poetry.lock') }}
+          key: poetry-v3-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('backend/poetry.lock') }}
           restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.python-version }}-
+            poetry-v3-${{ runner.os }}-${{ matrix.python-version }}-
 
+      # Explicitly point Poetry to the backend directory from the root
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --with dev
-
-      - name: Install project root
-        run: poetry install --no-interaction
+        run: poetry -C backend install --no-interaction --no-root --with dev
 
       - name: Lint with flake8
         run: |
-          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+          poetry -C backend run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry -C backend run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
       - name: Format check with Black
-        run: poetry run black --check .
+        run: poetry -C backend run black --check .
 
       - name: Import sort check with isort
-        run: poetry run isort --check-only --profile black .
+        run: poetry -C backend run isort --check-only --profile black .
 
       - name: Run unit tests with pytest
-        run: poetry run pytest --cov=src --cov-report=xml --cov-report=term-missing tests/
+        run: poetry -C backend run pytest --cov=src --cov-report=xml --cov-report=term-missing tests/
+        env:
+          PYTHONPATH: backend/src
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -94,12 +90,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set upNode.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
-          cache-dependency-path: frontend/package.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm install
