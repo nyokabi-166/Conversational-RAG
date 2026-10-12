@@ -1,6 +1,7 @@
 """Authentication and role-based access tests."""
 
 import pytest
+
 from src.core.security import hash_password
 from src.main import seed_default_accounts
 from src.models.entities import DocumentUpload, StaffAccount
