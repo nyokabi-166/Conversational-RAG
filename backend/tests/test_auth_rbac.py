@@ -1,0 +1,133 @@
+"""Authentication and role-based access tests."""
+
+import pytest
+from src.core.security import hash_password
+from src.main import seed_default_accounts
+from src.models.entities import StaffAccount
+
+
+def create_staff(test_session_factory, role="policy_admin"):
+    with test_session_factory() as db:
+        staff = StaffAccount(
+            username=f"{role}_user",
+            password_hash=hash_password("staff-password"),
+            full_name="Test Staff",
+            role=role,
+        )
+        db.add(staff)
+        db.commit()
+        db.refresh(staff)
+        return staff.staff_id
+
+
+def test_register_login_and_profile(client):
+    registered = client.post(
+        "/auth/register",
+        json={
+            "email": "Passenger@example.com",
+            "password": "passenger-password",
+            "full_name": "Test Passenger",
+        },
+    )
+    assert registered.status_code == 201
+    token = registered.json()["access_token"]
+    assert registered.json()["role"] == "passenger"
+    profile = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert profile.status_code == 200
+    assert profile.json() == {
+        "user_id": registered.json()["user_id"],
+        "identifier": "passenger@example.com",
+        "role": "passenger",
+        "full_name": "Test Passenger",
+    }
+
+    login = client.post(
+        "/auth/login",
+        json={
+            "username_or_email": "passenger@example.com",
+            "password": "passenger-password",
+        },
+    )
+    assert login.status_code == 200
+    assert login.json()["user_id"] == registered.json()["user_id"]
+
+
+def test_registration_normalizes_email_and_rejects_duplicates(client):
+    payload = {"email": "Passenger@example.com", "password": "passenger-password"}
+    first = client.post("/auth/register", json=payload)
+    second = client.post(
+        "/auth/register", json={**payload, "email": "passenger@example.com"}
+    )
+    assert first.status_code == 201
+    assert second.status_code == 400
+
+
+def test_invalid_credentials_and_tokens_are_rejected(client):
+    login = client.post(
+        "/auth/login",
+        json={"username_or_email": "missing@example.com", "password": "wrong-password"},
+    )
+    assert login.status_code == 401
+    assert client.get("/auth/me").status_code == 401
+    assert (
+        client.get(
+            "/auth/me", headers={"Authorization": "Bearer not-a-valid-token"}
+        ).status_code
+        == 401
+    )
+
+
+def test_document_routes_require_staff_roles(client, test_session_factory, monkeypatch):
+    import src.main as main
+
+    monkeypatch.setattr(main, "load_vectorstore", lambda files: None)
+    payload = {"files": ("policy.pdf", b"test pdf", "application/pdf")}
+
+    assert client.post("/upload_pdfs/", files=payload).status_code == 401
+
+    passenger = client.post(
+        "/auth/register",
+        json={"email": "passenger@example.com", "password": "passenger-password"},
+    ).json()
+    passenger_headers = {"Authorization": f"Bearer {passenger['access_token']}"}
+    assert (
+        client.post(
+            "/upload_pdfs/", files=payload, headers=passenger_headers
+        ).status_code
+        == 403
+    )
+    assert client.get("/documents/", headers=passenger_headers).status_code == 403
+
+    for role in ("policy_admin", "super_admin"):
+        create_staff(test_session_factory, role=role)
+        login = client.post(
+            "/auth/login",
+            json={"username_or_email": f"{role}_user", "password": "staff-password"},
+        )
+        assert login.status_code == 200
+        headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+        uploaded = client.post("/upload_pdfs/", files=payload, headers=headers)
+        assert uploaded.status_code == 200
+        assert uploaded.json()["files_indexed"] == ["policy.pdf"]
+        assert client.get("/documents/", headers=headers).status_code == 200
+
+
+@pytest.mark.parametrize("role", ["policy_admin", "super_admin"])
+def test_staff_cannot_access_passenger_history(client, test_session_factory, role):
+    create_staff(test_session_factory, role=role)
+    login = client.post(
+        "/auth/login",
+        json={"username_or_email": f"{role}_user", "password": "staff-password"},
+    )
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    assert client.get("/history/conversations", headers=headers).status_code == 403
+
+
+def test_demo_staff_accounts_are_not_seeded_outside_development(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "test")
+
+    def unexpected_database_access():
+        pytest.fail("Non-development startup must not connect to seed demo accounts")
+
+    monkeypatch.setattr("src.main.SessionLocal", unexpected_database_access)
+    seed_default_accounts()

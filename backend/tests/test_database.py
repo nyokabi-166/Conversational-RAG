@@ -27,9 +27,13 @@ from src.schemas.staff import DocumentUploadDTO, StaffDTO
 @pytest.fixture
 def db_session():
     """Provides an isolated in-memory SQLite database session for unit testing."""
-    test_engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    test_engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(bind=test_engine)
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+    TestingSessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=test_engine
+    )
     session = TestingSessionLocal()
     try:
         yield session
@@ -93,7 +97,10 @@ def test_full_conversation_and_retrieval_flow(db_session):
     # Verify relationships
     assert len(conversation.messages) == 2
     assert len(msg_assistant.retrieval_metadata) == 1
-    assert msg_assistant.retrieval_metadata[0].document_source == "Kenya_Airways_Baggage_Policy_2026.pdf"
+    assert (
+        msg_assistant.retrieval_metadata[0].document_source
+        == "Kenya_Airways_Baggage_Policy_2026.pdf"
+    )
 
     # Verify Pydantic DTO serialization
     session_dto = SessionDTO.model_validate(session)
@@ -113,7 +120,9 @@ def test_cascade_delete_session(db_session):
     db_session.add(conversation)
     db_session.commit()
 
-    message = Message(conversation_id=conversation.conversation_id, role="user", content="Test")
+    message = Message(
+        conversation_id=conversation.conversation_id, role="user", content="Test"
+    )
     db_session.add(message)
     db_session.commit()
 

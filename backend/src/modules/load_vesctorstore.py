@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 from typing import List
+
 from fastapi import UploadFile
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
@@ -32,7 +33,9 @@ def load_vectorstore(uploaded_files: List[UploadFile]) -> Chroma:
         docs.extend(loader.load())
 
     if not docs:
-        raise ValueError("No readable text could be extracted from the uploaded PDF files.")
+        raise ValueError(
+            "No readable text could be extracted from the uploaded PDF files."
+        )
 
     # 500-token chunks with 50-token overlap per Capstone specification
     splitter = RecursiveCharacterTextSplitter(

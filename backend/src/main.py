@@ -3,12 +3,27 @@
 import os
 from contextlib import asynccontextmanager
 from typing import List, Optional
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
+
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langchain_chroma import Chroma
 from sqlalchemy.orm import Session
-from src.core.auth import AuthUser, get_current_user, get_current_user_optional, require_role
+from src.core.auth import (
+    AuthUser,
+    get_current_user,
+    get_current_user_optional,
+    require_role,
+)
 from src.core.database import SessionLocal, get_db, init_db
 from src.core.security import create_access_token, hash_password, verify_password
 from src.models.entities import (
@@ -17,9 +32,9 @@ from src.models.entities import (
     Message,
     PassengerAccount,
     RetrievalMetadata,
-    Session as DbSession,
-    StaffAccount,
 )
+from src.models.entities import Session as DbSession
+from src.models.entities import StaffAccount
 from src.rag_pipeline import MiniLMEmbeddings
 from src.schemas.auth import (
     ConversationHistoryDetail,
@@ -30,6 +45,7 @@ from src.schemas.auth import (
     UserProfile,
 )
 from src.schemas.chat import MessageDTO, RetrievalMetadataDTO
+
 from .logger import logger
 from .modules.llm import get_llm_chain
 from .modules.load_vesctorstore import PERSIST_DIR, load_vectorstore
@@ -37,7 +53,11 @@ from .modules.query_handlers import query_chain
 
 
 def seed_default_accounts():
-    """Seeds default staff administrator accounts if they do not exist."""
+    """Seed demo staff accounts in development only."""
+    if os.getenv("APP_ENV", "production").lower() != "development":
+        logger.info("Skipping demo staff account seed outside development")
+        return
+
     db = SessionLocal()
     try:
         # 1. Super Admin
@@ -69,7 +89,7 @@ def seed_default_accounts():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initializes tables and seeds administrator accounts on application boot."""
+    """Initialize tables and seed development demo accounts on startup."""
     init_db()
     seed_default_accounts()
     yield
@@ -105,6 +125,7 @@ async def catch_exception_middleware(request: Request, call_next):
 # General Endpoints
 # =====================================================================
 
+
 @app.get("/")
 def root():
     """Health check endpoint."""
@@ -115,10 +136,17 @@ def root():
 # Authentication & User Management
 # =====================================================================
 
-@app.post("/auth/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+
+@app.post(
+    "/auth/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
 def register_passenger(payload: RegisterRequest, db: Session = Depends(get_db)):
     """Registers a new passenger account and returns an authenticated JWT session."""
-    existing = db.query(PassengerAccount).filter(PassengerAccount.email == payload.email).first()
+    existing = (
+        db.query(PassengerAccount)
+        .filter(PassengerAccount.email == payload.email)
+        .first()
+    )
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -136,7 +164,11 @@ def register_passenger(payload: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(passenger)
 
     token = create_access_token(
-        data={"sub": passenger.passenger_id, "user_type": "passenger", "role": "passenger"}
+        data={
+            "sub": passenger.passenger_id,
+            "user_type": "passenger",
+            "role": "passenger",
+        }
     )
     return TokenResponse(
         access_token=token,
@@ -151,10 +183,18 @@ def register_passenger(payload: RegisterRequest, db: Session = Depends(get_db)):
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     """Authenticates both passengers (via email) and staff members (via username)."""
     # 1. Check Passenger Account
-    passenger = db.query(PassengerAccount).filter(PassengerAccount.email == payload.username_or_email).first()
+    passenger = (
+        db.query(PassengerAccount)
+        .filter(PassengerAccount.email == payload.username_or_email)
+        .first()
+    )
     if passenger and verify_password(payload.password, passenger.password_hash):
         token = create_access_token(
-            data={"sub": passenger.passenger_id, "user_type": "passenger", "role": passenger.role}
+            data={
+                "sub": passenger.passenger_id,
+                "user_type": "passenger",
+                "role": passenger.role,
+            }
         )
         return TokenResponse(
             access_token=token,
@@ -165,7 +205,11 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         )
 
     # 2. Check Staff Account
-    staff = db.query(StaffAccount).filter(StaffAccount.username == payload.username_or_email).first()
+    staff = (
+        db.query(StaffAccount)
+        .filter(StaffAccount.username == payload.username_or_email)
+        .first()
+    )
     if staff and verify_password(payload.password, staff.password_hash):
         token = create_access_token(
             data={"sub": staff.staff_id, "user_type": "staff", "role": staff.role}
@@ -199,6 +243,7 @@ def get_profile(current_user: AuthUser = Depends(get_current_user)):
 # Document Management (RBAC Protected: policy_admin / super_admin)
 # =====================================================================
 
+
 @app.post("/upload_pdfs/")
 async def upload_pdfs(
     files: List[UploadFile] = File(...),
@@ -228,7 +273,9 @@ async def upload_pdfs(
             indexed_files.append(file.filename)
 
         db.commit()
-        logger.info("Documents successfully indexed into ChromaDB and recorded in database")
+        logger.info(
+            "Documents successfully indexed into ChromaDB and recorded in database"
+        )
 
         return {
             "message": "Files processed and indexed into knowledge base successfully.",
@@ -263,14 +310,17 @@ def list_documents(
 # Passenger Chat History
 # =====================================================================
 
+
 @app.get("/history/conversations", response_model=List[ConversationHistorySummary])
 def get_passenger_conversations(
-    current_user: AuthUser = Depends(require_role(["passenger", "super_admin"])),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
     """Retrieves all past conversation threads for the logged-in passenger."""
     # Find all sessions belonging to this passenger
-    passenger_sessions = db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
+    passenger_sessions = (
+        db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
+    )
     session_ids = [s.session_id for s in passenger_sessions]
 
     conversations = (
@@ -296,22 +346,30 @@ def get_passenger_conversations(
     return summaries
 
 
-@app.get("/history/conversations/{conversation_id}", response_model=ConversationHistoryDetail)
+@app.get(
+    "/history/conversations/{conversation_id}", response_model=ConversationHistoryDetail
+)
 def get_conversation_detail(
     conversation_id: str,
-    current_user: AuthUser = Depends(require_role(["passenger", "super_admin"])),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
     """Retrieves full dialogue history and citation metadata for a specific conversation."""
-    conv = db.query(Conversation).filter(Conversation.conversation_id == conversation_id).first()
+    conv = (
+        db.query(Conversation)
+        .filter(Conversation.conversation_id == conversation_id)
+        .first()
+    )
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found.")
 
-    # Validate ownership (unless super_admin)
-    if current_user.role != "super_admin":
-        session_obj = db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
-        if not session_obj or session_obj.passenger_id != current_user.user_id:
-            raise HTTPException(status_code=403, detail="Access denied to this conversation.")
+    session_obj = (
+        db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
+    )
+    if not session_obj or session_obj.passenger_id != current_user.user_id:
+        raise HTTPException(
+            status_code=403, detail="Access denied to this conversation."
+        )
 
     message_dtos = []
     for m in conv.messages:
@@ -351,6 +409,7 @@ def get_conversation_detail(
 # RAG Chat & Retrieval (Persisted to Database)
 # =====================================================================
 
+
 @app.post("/ask/")
 async def ask_question(
     question: str = Form(...),
@@ -360,14 +419,24 @@ async def ask_question(
 ):
     """Retrieves relevant policy chunks, streams verified answer, and records dialog in PostgreSQL."""
     try:
-        logger.info(f"Query: '{question}' | User: {current_user.identifier if current_user else 'Guest'}")
+        logger.info(
+            f"Query: '{question}' | User: {current_user.identifier if current_user else 'Guest'}"
+        )
 
         # 1. Resolve or Create Session & Conversation
-        passenger_id = current_user.user_id if current_user and current_user.role == "passenger" else None
+        passenger_id = (
+            current_user.user_id
+            if current_user and current_user.role == "passenger"
+            else None
+        )
 
         conv = None
         if conversation_id:
-            conv = db.query(Conversation).filter(Conversation.conversation_id == conversation_id).first()
+            conv = (
+                db.query(Conversation)
+                .filter(Conversation.conversation_id == conversation_id)
+                .first()
+            )
 
         if not conv:
             db_session = DbSession(passenger_id=passenger_id)
@@ -427,10 +496,12 @@ async def ask_question(
                 chunk_text=doc.page_content[:300],
             )
             db.add(citation_record)
-            citations_data.append({
-                "chunk_id": chunk_id,
-                "document_source": doc_source,
-            })
+            citations_data.append(
+                {
+                    "chunk_id": chunk_id,
+                    "document_source": doc_source,
+                }
+            )
         db.commit()
 
         return {

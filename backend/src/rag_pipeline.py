@@ -10,14 +10,14 @@ Aligned with Capstone specifications:
 
 import os
 from typing import Generator, List
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+from langchain_chroma import Chroma
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
 
@@ -28,7 +28,9 @@ class MiniLMEmbeddings(Embeddings):
         self.model = SentenceTransformer(model_name)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        embeddings = self.model.encode(texts, batch_size=32, show_progress_bar=False, convert_to_numpy=True)
+        embeddings = self.model.encode(
+            texts, batch_size=32, show_progress_bar=False, convert_to_numpy=True
+        )
         return embeddings.tolist()
 
     def embed_query(self, text: str) -> List[float]:
@@ -58,17 +60,22 @@ class LangChainRAGPipeline:
             )
 
         # Standard RAG prompt template grounded in retrieved context
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", (
-                "You are an expert customer support assistant for an airline. "
-                "Answer the passenger's question accurately based ONLY on the provided policy documents below. "
-                "If the answer cannot be found in the context, explicitly respond: "
-                "'The document does not contain information on this topic.' "
-                "Do not make assumptions or fabricate policies.\n\n"
-                "Retrieved Context:\n{context}"
-            )),
-            ("human", "{question}")
-        ])
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    (
+                        "You are an expert customer support assistant for an airline. "
+                        "Answer the passenger's question accurately based ONLY on the provided policy documents below. "
+                        "If the answer cannot be found in the context, explicitly respond: "
+                        "'The document does not contain information on this topic.' "
+                        "Do not make assumptions or fabricate policies.\n\n"
+                        "Retrieved Context:\n{context}"
+                    ),
+                ),
+                ("human", "{question}"),
+            ]
+        )
 
     def index_pdf(self, pdf_path: str) -> int:
         """
@@ -132,7 +139,9 @@ class LangChainRAGPipeline:
                         temperature=0.2,
                     )
                     fallback_chain = self.prompt | fallback_llm
-                    for chunk in fallback_chain.stream({"context": context_text, "question": query}):
+                    for chunk in fallback_chain.stream(
+                        {"context": context_text, "question": query}
+                    ):
                         if chunk.content:
                             yield chunk.content
                     return

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -10,7 +11,9 @@ class EvaluationScoreCreate(BaseModel):
 
     conversation_id: str
     system_variant: str = Field(..., description="'RAG' or 'BASELINE'")
-    pillar: str = Field(..., description="'Baggage', 'Rebooking', 'Travel Docs', 'Disruptions'")
+    pillar: str = Field(
+        ..., description="'Baggage', 'Rebooking', 'Travel Docs', 'Disruptions'"
+    )
     faithfulness_score: Optional[float] = Field(None, ge=0.0, le=1.0)
     answer_relevancy_score: Optional[float] = Field(None, ge=0.0, le=1.0)
     context_recall_score: Optional[float] = Field(None, ge=0.0, le=1.0)
