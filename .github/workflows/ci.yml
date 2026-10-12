@@ -47,13 +47,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: backend/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('backend/poetry.lock') }}
+          key: venv-v2-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('backend/poetry.lock') }}
           restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.python-version }}-
+            venv-v2-${{ runner.os }}-${{ matrix.python-version }}-
 
-      # Ensure Poetry syncs dependencies even on cache hit
+      # Ensure Poetry syncs dependencies and updates environment accurately
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev
+        run: poetry install --no-interaction --no-root --sync --with dev
 
       - name: Lint with flake8
         run: |
