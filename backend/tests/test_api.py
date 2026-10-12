@@ -19,7 +19,7 @@ def test_ask_endpoint(client, monkeypatch, tmp_path):
     monkeypatch.setattr("src.main.get_llm_chain", lambda: object())
     monkeypatch.setattr(
         "src.main.query_chain",
-        lambda chain, question, context, source_docs: {
+        lambda chain, question, context, source_docs, conversation_history: {
             "response": "The policy permits two checked bags.",
             "sources": ["baggage-policy.pdf"],
         },
@@ -38,7 +38,11 @@ def test_upload_and_retrieve_e2e(client, test_session_factory, monkeypatch, tmp_
     """Verify authenticated upload and query integration without external services."""
     import src.main as main
 
-    monkeypatch.setattr(main, "load_vectorstore", lambda files: None)
+    monkeypatch.setattr(
+        main,
+        "load_vectorstore",
+        lambda files: [(upload.filename, 1) for upload in files],
+    )
     monkeypatch.setattr(main, "PERSIST_DIR", str(tmp_path / "missing-index"))
     monkeypatch.setattr(main, "get_llm_chain", lambda: object())
     monkeypatch.setattr(
@@ -69,7 +73,13 @@ def test_upload_and_retrieve_e2e(client, test_session_factory, monkeypatch, tmp_
     # 2. Test upload with staff credentials
     upload_res = client.post(
         "/upload_pdfs/",
-        files={"files": ("Kenya_Airways_Policy.pdf", b"test pdf", "application/pdf")},
+        files={
+            "files": (
+                "Kenya_Airways_Policy.pdf",
+                b"%PDF-1.4\nmocked test document",
+                "application/pdf",
+            )
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert upload_res.status_code == 200
