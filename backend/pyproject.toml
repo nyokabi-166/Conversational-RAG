@@ -3,7 +3,7 @@ name = "rag-backend"
 version = "0.1.0"
 description = "FastAPI & LangChain/LlamaIndex RAG service"
 authors = ["Your Name <you@example.com>"]
-readme = "README.md"
+
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
