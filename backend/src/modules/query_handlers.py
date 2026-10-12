@@ -8,9 +8,7 @@ from ..logger import logger
 def build_retrieval_query(user_input: str, conversation_history: list = None) -> str:
     """Add recent passenger questions to resolve follow-up references."""
     previous_questions = [
-        content
-        for role, content in conversation_history or []
-        if role == "user"
+        content for role, content in conversation_history or [] if role == "user"
     ][-2:]
     if not previous_questions:
         return user_input
