@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build virtual environment
 # ==========================================
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim AS builder
 
 ENV POETRY_VERSION=1.8.2 \
     POETRY_HOME="/opt/poetry" \
@@ -29,7 +29,7 @@ RUN poetry install --no-root --only main
 # ==========================================
 # Stage 2: Runtime Production Image
 # ==========================================
-FROM python:3.11-slim AS runner
+FROM python:3.14-slim AS runner
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
