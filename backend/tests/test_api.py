@@ -48,7 +48,7 @@ def test_upload_and_retrieve_e2e(client, test_session_factory, monkeypatch, tmp_
     monkeypatch.setattr(
         main,
         "query_chain",
-        lambda chain, question, context, source_docs: {
+        lambda chain, question, context, source_docs, conversation_history: {
             "response": "Economy passengers receive 2 free checked bags of 23kg each.",
             "sources": ["Kenya_Airways_Policy.pdf"],
         },
