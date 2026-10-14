@@ -2,6 +2,7 @@
 
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import (
@@ -18,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langchain_chroma import Chroma
 from sqlalchemy.orm import Session
+
 from src.core.auth import (
     AuthUser,
     get_current_user,
@@ -48,8 +50,13 @@ from src.schemas.chat import MessageDTO, RetrievalMetadataDTO
 
 from .logger import logger
 from .modules.llm import get_llm_chain
-from .modules.load_vesctorstore import PERSIST_DIR, load_vectorstore
-from .modules.query_handlers import query_chain
+from .modules.load_vesctorstore import (
+    PERSIST_DIR,
+    UploadValidationError,
+    load_vectorstore,
+    validate_uploaded_files,
+)
+from .modules.query_handlers import build_retrieval_query, query_chain
 
 
 def seed_default_accounts():
@@ -101,6 +108,8 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+
+MAX_CONVERSATION_HISTORY_MESSAGES = 10
 
 # Allow frontend CORS
 app.add_middleware(
@@ -260,27 +269,35 @@ async def upload_pdfs(
     current_user: AuthUser = Depends(require_role(["policy_admin", "super_admin"])),
     db: Session = Depends(get_db),
 ):
-    """Accepts policy PDF files, parses, chunks, embeds, and logs into PostgreSQL audit trail."""
+    """Accept PDF/HTML policy documents and log successful or failed ingestion."""
+    try:
+        prepared_files = validate_uploaded_files(files)
+    except UploadValidationError as exc:
+        db.add(
+            DocumentUpload(
+                staff_id=current_user.user_id,
+                filename=exc.filename,
+                file_size_bytes=exc.file_size_bytes,
+                status="FAILED",
+            )
+        )
+        db.commit()
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
     try:
         logger.info(f"Staff '{current_user.identifier}' uploading {len(files)} files")
-        load_vectorstore(files)
+        indexed_files = load_vectorstore(prepared_files)
 
         # Log uploads in database
-        indexed_files = []
-        for file in files:
-            file_size = None
-            if hasattr(file, "size"):
-                file_size = file.size
-
+        for upload, (filename, chunk_count) in zip(prepared_files, indexed_files):
             upload_record = DocumentUpload(
                 staff_id=current_user.user_id,
-                filename=file.filename,
-                file_size_bytes=file_size,
-                chunk_count=0,
+                filename=filename,
+                file_size_bytes=len(upload.content),
+                chunk_count=chunk_count,
                 status="INDEXED",
             )
             db.add(upload_record)
-            indexed_files.append(file.filename)
 
         db.commit()
         logger.info(
@@ -289,12 +306,30 @@ async def upload_pdfs(
 
         return {
             "message": "Files processed and indexed into knowledge base successfully.",
-            "files_indexed": indexed_files,
+            "files_indexed": [filename for filename, _ in indexed_files],
+            "chunk_counts": [
+                {"filename": filename, "chunk_count": count}
+                for filename, count in indexed_files
+            ],
             "uploaded_by": current_user.identifier,
         }
-    except Exception as e:
-        logger.error(f"Error processing files: {e}")
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    except Exception:
+        db.rollback()
+        for upload in prepared_files:
+            db.add(
+                DocumentUpload(
+                    staff_id=current_user.user_id,
+                    filename=upload.filename,
+                    file_size_bytes=len(upload.content),
+                    status="FAILED",
+                )
+            )
+        db.commit()
+        logger.exception("Document processing failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Document processing failed.",
+        )
 
 
 @app.get("/documents/")
@@ -309,6 +344,7 @@ def list_documents(
             "upload_id": r.upload_id,
             "filename": r.filename,
             "file_size_bytes": r.file_size_bytes,
+            "chunk_count": r.chunk_count,
             "status": r.status,
             "uploaded_at": r.uploaded_at,
         }
@@ -447,6 +483,38 @@ async def ask_question(
                 .filter(Conversation.conversation_id == conversation_id)
                 .first()
             )
+            if not conv:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Conversation not found.",
+                )
+            owner_session = (
+                db.query(DbSession)
+                .filter(DbSession.session_id == conv.session_id)
+                .first()
+            )
+            if not owner_session:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Conversation not found.",
+                )
+            if current_user and current_user.role != "passenger":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only passengers can continue passenger conversations.",
+                )
+            if current_user and owner_session.passenger_id != current_user.user_id:
+                # Do not reveal whether a conversation belongs to another passenger.
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Conversation not found.",
+                )
+            if not current_user and owner_session.passenger_id is not None:
+                # Guest conversation IDs can continue only unowned guest sessions.
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Conversation not found.",
+                )
 
         if not conv:
             db_session = DbSession(passenger_id=passenger_id)
@@ -459,11 +527,26 @@ async def ask_question(
             db.commit()
             db.refresh(conv)
 
+        previous_messages = (
+            db.query(Message)
+            .filter(Message.conversation_id == conv.conversation_id)
+            .order_by(Message.created_at.desc(), Message.message_id.desc())
+            .limit(MAX_CONVERSATION_HISTORY_MESSAGES)
+            .all()
+        )
+        previous_messages.reverse()
+        conversation_history = [
+            (message.role, message.content)
+            for message in previous_messages
+            if message.role in {"user", "assistant"}
+        ]
+
         # 2. Record User Message
         user_msg = Message(
             conversation_id=conv.conversation_id,
             role="user",
             content=question,
+            created_at=datetime.now(timezone.utc),
         )
         db.add(user_msg)
         db.commit()
@@ -471,17 +554,24 @@ async def ask_question(
         # 3. Retrieve Context from ChromaDB
         context = ""
         source_docs = []
+        retrieval_query = build_retrieval_query(question, conversation_history)
         if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
             vectorstore = Chroma(
                 persist_directory=PERSIST_DIR,
                 embedding_function=MiniLMEmbeddings(),
             )
-            source_docs = vectorstore.similarity_search(question, k=4)
+            source_docs = vectorstore.similarity_search(retrieval_query, k=4)
             context = "\n\n---\n\n".join(doc.page_content for doc in source_docs)
 
         # 4. Generate Answer via Groq LLM
         chain = get_llm_chain()
-        result = query_chain(chain, question, context=context, source_docs=source_docs)
+        result = query_chain(
+            chain,
+            question,
+            context=context,
+            source_docs=source_docs,
+            conversation_history=conversation_history,
+        )
         answer_text = result.get("response", "")
 
         # 5. Record Assistant Message
@@ -489,6 +579,7 @@ async def ask_question(
             conversation_id=conv.conversation_id,
             role="assistant",
             content=answer_text,
+            created_at=datetime.now(timezone.utc),
         )
         db.add(assistant_msg)
         db.commit()
@@ -521,6 +612,8 @@ async def ask_question(
             "sources": result.get("sources", []),
             "citations": citations_data,
         }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error processing query: {e}")
         return JSONResponse(content={"error": str(e)}, status_code=500)

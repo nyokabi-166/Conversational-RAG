@@ -14,6 +14,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import relationship
+
 from src.core.database import Base
 
 
