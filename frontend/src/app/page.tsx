@@ -109,7 +109,11 @@ export default function Home() {
       setConversationId(detail.conversation_id);
       setMessages(
         detail.messages
-          .filter((message) => message.role === "user" || message.role === "assistant")
+          .filter(
+            (message) =>
+              message.role === "user" ||
+              (message.role === "assistant" && message.content.trim()),
+          )
           .map((message) => ({
             id: message.message_id,
             role: message.role as "user" | "assistant",
@@ -153,6 +157,9 @@ export default function Home() {
         method: "POST",
         body: form,
       }, passengerToken);
+      if (typeof result.response !== "string" || !result.response.trim()) {
+        throw new Error("The assistant returned an empty answer. Please try again.");
+      }
       const nextConversationId = result.conversation_id;
       setConversationId(nextConversationId);
       if (user?.role !== "passenger") {

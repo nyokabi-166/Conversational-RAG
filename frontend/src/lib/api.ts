@@ -150,6 +150,19 @@ export interface TripAssistantResult {
   sources: string[];
 }
 
+export interface ActiveNotification {
+  id: string;
+  trip_id: string;
+  flight_number: string;
+  route: string;
+  title: string;
+  message: string;
+  remind_at?: string;
+  created_at?: string;
+  completed?: boolean;
+  type: "advisory" | "reminder";
+}
+
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},

@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Bell, Bot, ExternalLink, Plane, Plus, Search, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  BellRing,
+  Bot,
+  CheckCircle2,
+  ExternalLink,
+  Mail,
+  Plane,
+  Plus,
+  Search,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { AssistantMarkdown } from "@/components/assistant-markdown";
 import {
   apiRequest,
+  type ActiveNotification,
   type FlightOfferResult,
   type FlightSearchResult,
   type FlightStatusResult,
@@ -79,9 +93,25 @@ export default function TripsPage() {
   const [assistantSources, setAssistantSources] = useState<string[]>([]);
   const [reminderTitle, setReminderTitle] = useState<Record<string, string>>({});
   const [reminderTime, setReminderTime] = useState<Record<string, string>>({});
+  const [notifications, setNotifications] = useState<ActiveNotification[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<string>("default");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const loadNotifications = useCallback(async () => {
+    if (user?.role !== "passenger" || !token) {
+      setNotifications([]);
+      return;
+    }
+    try {
+      const list = await apiRequest<ActiveNotification[]>("/trips/notifications/active", {}, token);
+      setNotifications(list);
+    } catch {
+      // non-blocking
+    }
+  }, [user, token]);
 
   const loadTrips = useCallback(async () => {
     if (user?.role !== "passenger" || !token) {
@@ -90,14 +120,69 @@ export default function TripsPage() {
     }
     try {
       setTrips(await apiRequest<SavedTrip[]>("/trips", {}, token));
+      void loadNotifications();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load your trips.");
     }
-  }, [user, token]);
+  }, [user, token, loadNotifications]);
 
   useEffect(() => {
     if (ready) void loadTrips();
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPermission(Notification.permission);
+    }
   }, [ready, loadTrips]);
+
+  const requestNotificationPermission = async () => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      const perm = await Notification.requestPermission();
+      setNotifPermission(perm);
+      if (perm === "granted") {
+        new Notification("Kenya Airways Trip Assistant", {
+          body: "Real-time flight alerts and reminders are enabled!",
+        });
+      }
+    }
+  };
+
+  const triggerTestAlert = async (tripId: string) => {
+    if (!token) return;
+    setBusy(true); setError(null); setNotice(null);
+    try {
+      const res = await apiRequest<{ status: string; recipient: string; provider?: string; message?: string }>(
+        `/trips/${encodeURIComponent(tripId)}/test-alert`,
+        { method: "POST" },
+        token
+      );
+      setNotice(`✈️ Flight alert dispatched to ${res.recipient} (${res.provider || 'email'})! Check your inbox.`);
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("✈️ Kenya Airways Flight Alert Dispatched", {
+          body: `Advisory sent to ${res.recipient}`,
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send flight alert.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const triggerReminderTest = async (tripId: string, reminderId: string) => {
+    if (!token) return;
+    setBusy(true); setError(null); setNotice(null);
+    try {
+      const res = await apiRequest<{ status: string; recipient: string; provider?: string }>(
+        `/trips/${encodeURIComponent(tripId)}/reminders/${encodeURIComponent(reminderId)}/test`,
+        { method: "POST" },
+        token
+      );
+      setNotice(`🔔 Reminder alert sent to ${res.recipient}! Check your inbox.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send reminder alert.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const submitStatus = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -241,10 +326,60 @@ export default function TripsPage() {
           <div>
             <Link href="/" className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Back to chat</Link>
             <h1 className="text-2xl font-semibold">Plan and manage your trip</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Find verified KQ information, save trip details, and set reminders.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Find verified KQ information, save trip details, and receive proactive reminders.</p>
           </div>
-          <a className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-accent" href={KQ_BOOKING_URL} target="_blank" rel="noreferrer">Kenya Airways booking <ExternalLink className="h-4 w-4" /></a>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative"
+            >
+              <Bell className="h-4 w-4 mr-1 text-primary" />
+              Alerts
+              {notifications.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.2 text-[11px] text-primary-foreground font-bold">
+                  {notifications.length}
+                </span>
+              )}
+            </Button>
+            <a className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-accent" href={KQ_BOOKING_URL} target="_blank" rel="noreferrer">Kenya Airways booking <ExternalLink className="h-4 w-4" /></a>
+          </div>
         </header>
+
+        {showNotifications && (
+          <section className="rounded-xl border bg-card p-5 shadow-sm space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <BellRing className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Active Flight Alerts & Advisories</h2>
+              </div>
+              {notifPermission !== "granted" && (
+                <Button size="sm" variant="outline" onClick={() => void requestNotificationPermission()}>
+                  Enable Desktop Push Alerts
+                </Button>
+              )}
+            </div>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No active flight advisories or reminders right now. Save a trip below to activate automated alerts.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {notifications.map((n) => (
+                  <div key={n.id} className="rounded-lg border bg-background p-3.5 text-sm space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                        {n.type}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-mono">{n.route}</span>
+                    </div>
+                    <p className="font-semibold text-foreground pt-1">{n.title}</p>
+                    <p className="text-xs text-muted-foreground">{n.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {error && <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
         {notice && <div role="status" className="rounded-lg border border-green-600/30 bg-green-600/5 px-4 py-3 text-sm">{notice}</div>}
@@ -327,15 +462,40 @@ export default function TripsPage() {
             </form>
             <div className="mt-6 space-y-4">
               {trips.length === 0 && <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">No saved trips yet. Save an itinerary to keep its reminders here.</p>}
-              {trips.map((trip) => <article key={trip.trip_id} className="rounded-lg border p-4">
+              {trips.map((trip) => <article key={trip.trip_id} className="rounded-lg border p-4 bg-background">
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div><h3 className="font-semibold">{trip.label || `${trip.origin} → ${trip.destination}`}</h3><p className="mt-1 text-sm text-muted-foreground">{formatDate(trip.departure_date)}{trip.return_date ? ` – ${formatDate(trip.return_date)}` : " · One way"}{trip.flight_number ? ` · ${trip.flight_number}` : ""}</p></div>
-                  <Button variant="ghost" size="sm" onClick={() => void deleteTrip(trip.trip_id)} aria-label="Delete trip"><Trash2 />Delete</Button>
+                  <div>
+                    <h3 className="font-semibold">{trip.label || `${trip.origin} → ${trip.destination}`}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{formatDate(trip.departure_date)}{trip.return_date ? ` – ${formatDate(trip.return_date)}` : " · One way"}{trip.flight_number ? ` · ${trip.flight_number}` : ""}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void triggerTestAlert(trip.trip_id)}
+                      disabled={busy}
+                      title="Send real email flight alert & advisory"
+                    >
+                      <Mail className="h-3.5 w-3.5 mr-1 text-primary" />
+                      Email Alert
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => void deleteTrip(trip.trip_id)} aria-label="Delete trip"><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </div>
                 {trip.reminders.length > 0 && <ul className="mt-4 space-y-2">
                   {trip.reminders.map((reminder) => <li key={reminder.reminder_id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2 text-sm">
                     <label className="flex items-center gap-2"><input type="checkbox" checked={reminder.completed} onChange={(event) => void updateReminder(trip.trip_id, reminder.reminder_id, event.target.checked)} /><span className={reminder.completed ? "line-through text-muted-foreground" : ""}>{reminder.title} · {formatDateTime(reminder.remind_at)}</span></label>
-                    <button type="button" className="text-muted-foreground hover:text-destructive" onClick={() => void deleteReminder(trip.trip_id, reminder.reminder_id)} aria-label="Delete reminder"><Trash2 className="h-4 w-4" /></button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="rounded p-1 text-muted-foreground hover:text-primary hover:bg-muted"
+                        onClick={() => void triggerReminderTest(trip.trip_id, reminder.reminder_id)}
+                        title="Send this reminder to email now"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                      </button>
+                      <button type="button" className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-muted" onClick={() => void deleteReminder(trip.trip_id, reminder.reminder_id)} aria-label="Delete reminder"><Trash2 className="h-3.5 w-3.5" /></button>
+                    </div>
                   </li>)}
                 </ul>}
                 <form onSubmit={(event) => void createReminder(event, trip.trip_id)} className="mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
