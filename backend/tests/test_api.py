@@ -64,8 +64,8 @@ def test_upload_and_retrieve_e2e(client, test_session_factory, monkeypatch, tmp_
         db.commit()
 
     staff_login = client.post(
-        "/auth/login",
-        json={"username_or_email": "staff", "password": "staff123"},
+        "/auth/staff/login",
+        json={"username": "staff", "password": "staff123"},
     )
     assert staff_login.status_code == 200
     token = staff_login.json()["access_token"]

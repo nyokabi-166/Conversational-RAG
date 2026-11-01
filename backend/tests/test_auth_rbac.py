@@ -43,9 +43,9 @@ def test_register_login_and_profile(client):
     }
 
     login = client.post(
-        "/auth/login",
+        "/auth/passenger/login",
         json={
-            "username_or_email": "passenger@example.com",
+            "email": "passenger@example.com",
             "password": "passenger-password",
         },
     )
@@ -65,8 +65,8 @@ def test_registration_normalizes_email_and_rejects_duplicates(client):
 
 def test_invalid_credentials_and_tokens_are_rejected(client):
     login = client.post(
-        "/auth/login",
-        json={"username_or_email": "missing@example.com", "password": "wrong-password"},
+        "/auth/passenger/login",
+        json={"email": "missing@example.com", "password": "wrong-password"},
     )
     assert login.status_code == 401
     assert client.get("/auth/me").status_code == 401
@@ -108,8 +108,8 @@ def test_document_routes_require_staff_roles(client, test_session_factory, monke
     for role in ("policy_admin", "super_admin"):
         create_staff(test_session_factory, role=role)
         login = client.post(
-            "/auth/login",
-            json={"username_or_email": f"{role}_user", "password": "staff-password"},
+            "/auth/staff/login",
+            json={"username": f"{role}_user", "password": "staff-password"},
         )
         assert login.status_code == 200
         headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
@@ -134,8 +134,8 @@ def test_html_upload_uses_safe_filename_and_records_chunks(
     )
     staff_id = create_staff(test_session_factory)
     login = client.post(
-        "/auth/login",
-        json={"username_or_email": "policy_admin_user", "password": "staff-password"},
+        "/auth/staff/login",
+        json={"username": "policy_admin_user", "password": "staff-password"},
     )
     headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
 
@@ -167,8 +167,8 @@ def test_unsupported_upload_is_rejected_and_logged(
 ):
     staff_id = create_staff(test_session_factory)
     login = client.post(
-        "/auth/login",
-        json={"username_or_email": "policy_admin_user", "password": "staff-password"},
+        "/auth/staff/login",
+        json={"username": "policy_admin_user", "password": "staff-password"},
     )
     headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
 
@@ -193,8 +193,8 @@ def test_failed_indexing_is_logged_without_exposing_internal_errors(
 
     staff_id = create_staff(test_session_factory)
     login = client.post(
-        "/auth/login",
-        json={"username_or_email": "policy_admin_user", "password": "staff-password"},
+        "/auth/staff/login",
+        json={"username": "policy_admin_user", "password": "staff-password"},
     )
     headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
 
@@ -227,8 +227,8 @@ def test_failed_indexing_is_logged_without_exposing_internal_errors(
 def test_staff_cannot_access_passenger_history(client, test_session_factory, role):
     create_staff(test_session_factory, role=role)
     login = client.post(
-        "/auth/login",
-        json={"username_or_email": f"{role}_user", "password": "staff-password"},
+        "/auth/staff/login",
+        json={"username": f"{role}_user", "password": "staff-password"},
     )
     headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
     assert client.get("/history/conversations", headers=headers).status_code == 403

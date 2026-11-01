@@ -5,13 +5,16 @@ import uuid
 from sqlalchemy import (
     BigInteger,
     Column,
+    Date,
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     func,
+    text,
 )
 from sqlalchemy.orm import relationship
 
@@ -36,6 +39,9 @@ class PassengerAccount(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     sessions = relationship("Session", back_populates="passenger")
+    saved_trips = relationship(
+        "SavedTrip", back_populates="passenger", cascade="all, delete-orphan"
+    )
 
 
 class Session(Base):
@@ -167,6 +173,15 @@ class StaffAccount(Base):
     """Airline administrator / support staff account with password hashing for document uploads."""
 
     __tablename__ = "staff_accounts"
+    __table_args__ = (
+        Index(
+            "uq_staff_accounts_single_super_admin",
+            "role",
+            unique=True,
+            postgresql_where=text("role = 'super_admin'"),
+            sqlite_where=text("role = 'super_admin'"),
+        ),
+    )
 
     staff_id = Column(String(36), primary_key=True, default=generate_uuid)
     username = Column(String(100), unique=True, nullable=False, index=True)
@@ -197,3 +212,49 @@ class DocumentUpload(Base):
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
 
     staff = relationship("StaffAccount", back_populates="document_uploads")
+
+
+class SavedTrip(Base):
+    """Passenger-owned trip details; intentionally excludes booking credentials."""
+
+    __tablename__ = "saved_trips"
+
+    trip_id = Column(String(36), primary_key=True, default=generate_uuid)
+    passenger_id = Column(
+        String(36),
+        ForeignKey("passenger_accounts.passenger_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    origin = Column(String(3), nullable=False)
+    destination = Column(String(3), nullable=False)
+    departure_date = Column(Date, nullable=False)
+    return_date = Column(Date, nullable=True)
+    flight_number = Column(String(12), nullable=True)
+    label = Column(String(120), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    reminders = relationship(
+        "TripReminder", back_populates="trip", cascade="all, delete-orphan"
+    )
+    passenger = relationship("PassengerAccount", back_populates="saved_trips")
+
+
+class TripReminder(Base):
+    """A passenger-created, in-app reminder for a saved trip."""
+
+    __tablename__ = "trip_reminders"
+
+    reminder_id = Column(String(36), primary_key=True, default=generate_uuid)
+    trip_id = Column(
+        String(36),
+        ForeignKey("saved_trips.trip_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    title = Column(String(160), nullable=False)
+    remind_at = Column(DateTime(timezone=True), nullable=False)
+    completed = Column(Integer, default=0, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    trip = relationship("SavedTrip", back_populates="reminders")

@@ -9,9 +9,7 @@ from typing import List, Optional, Tuple
 
 from fastapi import UploadFile
 from langchain_chroma import Chroma
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.rag_pipeline import MiniLMEmbeddings
 
@@ -51,7 +49,7 @@ class PreparedUpload:
 
 
 class _HTMLTextExtractor(HTMLParser):
-    """Extract readable text while ignoring script and style contents."""
+    """Extract page text while preserving table rows and their column labels."""
 
     _IGNORED_TAGS = {"script", "style", "noscript"}
 
@@ -59,22 +57,78 @@ class _HTMLTextExtractor(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.parts: List[str] = []
         self._ignored_depth = 0
+        self._table_depth = 0
+        self._table_headers: Optional[List[str]] = None
+        self._current_row: Optional[List[str]] = None
+        self._current_cell: Optional[List[str]] = None
+        self._row_has_header_cells = False
 
     def handle_starttag(self, tag: str, attrs):
-        if tag.lower() in self._IGNORED_TAGS:
+        tag = tag.lower()
+        if tag in self._IGNORED_TAGS:
             self._ignored_depth += 1
-        elif tag.lower() in {"br", "p", "div", "li", "h1", "h2", "h3"}:
+        elif self._ignored_depth:
+            return
+        elif tag == "table":
+            self._table_depth += 1
+            if self._table_depth == 1:
+                self._table_headers = None
+                self.parts.append("\n")
+        elif self._table_depth:
+            if tag == "tr":
+                self._current_row = []
+                self._row_has_header_cells = False
+            elif tag in {"td", "th"}:
+                self._current_cell = []
+                self._row_has_header_cells |= tag == "th"
+        elif tag in {"br", "p", "div", "li", "h1", "h2", "h3"}:
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str):
-        if tag.lower() in self._IGNORED_TAGS and self._ignored_depth:
+        tag = tag.lower()
+        if tag in self._IGNORED_TAGS and self._ignored_depth:
             self._ignored_depth -= 1
-        elif tag.lower() in {"p", "div", "li", "h1", "h2", "h3"}:
+        elif self._ignored_depth:
+            return
+        elif (
+            self._table_depth and tag in {"td", "th"} and self._current_cell is not None
+        ):
+            cell_text = " ".join(" ".join(self._current_cell).split())
+            if self._current_row is not None:
+                self._current_row.append(cell_text)
+            self._current_cell = None
+        elif self._table_depth and tag == "tr" and self._current_row:
+            row = [cell for cell in self._current_row if cell]
+            if row:
+                row_text = " ".join(row).casefold()
+                is_header = self._row_has_header_cells or (
+                    "routing" in row_text
+                    and ("business" in row_text or "economy" in row_text)
+                )
+                if is_header:
+                    self._table_headers = row
+                elif self._table_headers and len(self._table_headers) == len(row):
+                    row = [
+                        f"{header}: {value}"
+                        for header, value in zip(self._table_headers, row)
+                    ]
+                self.parts.extend(["\n", " | ".join(row), "\n"])
+            self._current_row = None
+            self._row_has_header_cells = False
+        elif tag == "table" and self._table_depth:
+            self._table_depth -= 1
+            if self._table_depth == 0:
+                self.parts.append("\n")
+        elif not self._table_depth and tag in {"p", "div", "li", "h1", "h2", "h3"}:
             self.parts.append("\n")
 
     def handle_data(self, data: str):
-        if not self._ignored_depth and data.strip():
-            self.parts.append(data.strip())
+        if self._ignored_depth or not data.strip():
+            return
+        if self._current_cell is not None:
+            self._current_cell.append(data.strip())
+        else:
+            self.parts.append(data)
 
 
 def _safe_display_filename(filename: str) -> str:
@@ -160,7 +214,11 @@ def _load_html_document(path: str, display_name: str) -> Document:
     content = Path(path).read_text(encoding="utf-8-sig")
     extractor = _HTMLTextExtractor()
     extractor.feed(content)
-    text = " ".join(" ".join(extractor.parts).split())
+    text = "\n".join(
+        " ".join(line.split())
+        for line in "".join(extractor.parts).splitlines()
+        if line.strip()
+    )
     if not text:
         raise ValueError(f"No readable text could be extracted from {display_name}.")
     return Document(page_content=text, metadata={"source": display_name})
@@ -170,12 +228,17 @@ def load_vectorstore(
     uploaded_files: List[PreparedUpload],
 ) -> List[Tuple[str, int]]:
     """Index validated PDF/HTML uploads and return each filename's chunk count."""
+    # These imports also load Transformers' package discovery; defer them until a
+    # staff member actually submits a document for indexing.
+    from langchain_community.document_loaders import PyPDFLoader
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
     Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
     all_chunks = []
     indexed_files: List[Tuple[str, int]] = []
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=1000,
+        chunk_overlap=150,
         separators=["\n\n", "\n", " ", ""],
     )
 
@@ -202,9 +265,11 @@ def load_vectorstore(
     if not all_chunks:
         raise ValueError("No readable text could be extracted from the uploaded files.")
 
-    Chroma.from_documents(
-        documents=all_chunks,
-        embedding=MiniLMEmbeddings(),
+    vectorstore = Chroma(
         persist_directory=PERSIST_DIR,
+        embedding_function=MiniLMEmbeddings(),
     )
+    source_names = sorted({upload.filename for upload in uploaded_files})
+    vectorstore.delete(where={"source": {"$in": source_names}})
+    vectorstore.add_documents(all_chunks)
     return indexed_files

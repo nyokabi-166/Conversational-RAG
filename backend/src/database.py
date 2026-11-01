@@ -1,19 +1,5 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+"""Compatibility exports for the application's shared database configuration."""
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:Bright#1270@localhost/fastapi"
+from src.core.database import Base, SessionLocal, engine, get_db
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+__all__ = ["Base", "SessionLocal", "engine", "get_db"]

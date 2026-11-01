@@ -5,7 +5,7 @@ Aligned with Capstone specifications:
 - Chunking: RecursiveCharacterTextSplitter (chunk_size=500, chunk_overlap=50)
 - Embeddings: SentenceTransformer (all-MiniLM-L6-v2)
 - Vector Store: ChromaDB
-- Generator: Groq API (ChatGroq) with real-time streaming
+- Generator: Configured OpenAI-compatible model provider with real-time streaming
 """
 
 import os
@@ -13,18 +13,30 @@ from typing import Generator, List
 
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_groq import ChatGroq
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
+
+from src.modules.llm import (
+    DEFAULT_DEEPINFRA_MODEL,
+    get_chat_model,
+    get_model_name,
+    get_model_provider,
+)
+
+
+def SentenceTransformer(model_name: str):
+    """Lazy import proxy that keeps the embedding runtime out of API startup."""
+    from sentence_transformers import SentenceTransformer as SentenceTransformerClass
+
+    return SentenceTransformerClass(model_name)
 
 
 class MiniLMEmbeddings(Embeddings):
     """LangChain-compatible embedding wrapper for Sentence Transformers all-MiniLM-L6-v2."""
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        # Load the heavyweight embedding runtime only when an embedding operation
+        # is actually needed. Importing the API should not initialize Torch.
         self.model = SentenceTransformer(model_name)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
@@ -39,25 +51,23 @@ class MiniLMEmbeddings(Embeddings):
 
 
 class LangChainRAGPipeline:
-    """Orchestrates LangChain document indexing, ChromaDB retrieval, and Groq streaming."""
+    """Orchestrates LangChain indexing, retrieval, and configured-model streaming."""
 
-    def __init__(self, model_name: str = "openai/gpt-oss-20b"):
+    def __init__(self, model_name: str = DEFAULT_DEEPINFRA_MODEL):
         load_dotenv()
-        self.api_key = os.environ.get("GROQ_API_KEY")
-        self.model_name = os.environ.get("GROQ_MODEL", model_name)
+        configured_model = get_model_name()
+        self.model_name = configured_model
+        if not self.model_name and get_model_provider() == "openrouter":
+            self.model_name = model_name
         self.embeddings = MiniLMEmbeddings()
         self.vectorstore: Chroma | None = None
         self.retriever = None
 
-        if not self.api_key:
-            print("[LangChainRAGPipeline] WARNING: GROQ_API_KEY is not set.")
+        try:
+            self.llm = get_chat_model()
+        except RuntimeError as error:
+            print(f"[LangChainRAGPipeline] WARNING: {error}")
             self.llm = None
-        else:
-            self.llm = ChatGroq(
-                model=self.model_name,
-                api_key=self.api_key,
-                temperature=0.2,
-            )
 
         # Standard RAG prompt template grounded in retrieved context
         self.prompt = ChatPromptTemplate.from_messages(
@@ -65,12 +75,32 @@ class LangChainRAGPipeline:
                 (
                     "system",
                     (
-                        "You are an expert customer support assistant for an airline. "
-                        "Answer the passenger's question accurately based ONLY on the provided policy documents below. "
-                        "If the answer cannot be found in the context, explicitly respond: "
-                        "'The document does not contain information on this topic.' "
-                        "Do not make assumptions or fabricate policies.\n\n"
-                        "Retrieved Context:\n{context}"
+                        "You are a clear, helpful Kenya Airways customer-support "
+                        "assistant. Start with the answer the passenger asked for. Be "
+                        "concise but complete enough that the passenger can act without "
+                        "another turn. Use only "
+                        "the supplied policy context for airline-specific facts; never "
+                        "guess.\n\n"
+                        "Give all relevant general facts even when an exact personal "
+                        "answer depends on trip details. Explain briefly how the "
+                        "passenger can identify which option applies. Do not ask a "
+                        "follow-up question if you can provide a useful answer by "
+                        "listing the relevant options or conditions. Ask only when the "
+                        "context gives no useful answer without that detail.\n\n"
+                        "Read tables by combining each value with its column heading "
+                        "and row label. For baggage questions, state the allowance "
+                        "values and their route/cabin labels when present. If the "
+                        "passenger has not given a route or cabin and the table contains "
+                        "several options, show the relevant options and explain that "
+                        "their ticket or itinerary determines which applies; do not end "
+                        "by asking them to provide it. For broad baggage questions, "
+                        "include both checked and cabin allowances when the context "
+                        "supplies both.\n\n"
+                        "Do not dump long lists or repeat the question. Preserve "
+                        "important conditions such as 'may' and 'if required'. If the "
+                        "supplied context has no relevant answer, say so plainly and "
+                        "suggest the most useful next step.\n\n"
+                        "Retrieved policy context:\n{context}"
                     ),
                 ),
                 ("human", "{question}"),
@@ -82,6 +112,10 @@ class LangChainRAGPipeline:
         Load PDF, split into chunks (~500 tokens with 50-token overlap),
         and index into ChromaDB. Returns the number of chunks indexed.
         """
+        # Defer optional ingestion dependencies until an indexing request arrives.
+        from langchain_community.document_loaders import PyPDFLoader
+        from langchain_text_splitters import RecursiveCharacterTextSplitter
+
         # 1. Load document pages
         loader = PyPDFLoader(pdf_path)
         pages = loader.load()
@@ -108,10 +142,10 @@ class LangChainRAGPipeline:
 
     def stream_answer(self, query: str) -> Generator[str, None, None]:
         """
-        Retrieve relevant chunks from ChromaDB and stream the answer from Groq.
+        Retrieve relevant chunks from ChromaDB and stream the answer from the configured provider.
         """
         if not self.llm:
-            yield "⚠️ **GROQ_API_KEY is missing!** Please add your key to `backend/.env`."
+            yield "⚠️ Configure the selected LLM provider in `backend/.env` to use chat."
             return
 
         if not self.retriever:
@@ -130,22 +164,5 @@ class LangChainRAGPipeline:
                 if chunk.content:
                     yield chunk.content
         except Exception as e:
-            # Fallback to alternative model if needed
-            if "model" in str(e).lower() and self.model_name != "openai/gpt-oss-120b":
-                try:
-                    fallback_llm = ChatGroq(
-                        model="openai/gpt-oss-120b",
-                        api_key=self.api_key,
-                        temperature=0.2,
-                    )
-                    fallback_chain = self.prompt | fallback_llm
-                    for chunk in fallback_chain.stream(
-                        {"context": context_text, "question": query}
-                    ):
-                        if chunk.content:
-                            yield chunk.content
-                    return
-                except Exception as fb_err:
-                    yield f"⚠️ Groq API Error: {fb_err}"
-            else:
-                yield f"⚠️ Groq API Error: {e}"
+            provider = get_model_provider().title()
+            yield f"⚠️ {provider} API Error: {e}"
