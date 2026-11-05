@@ -1,0 +1,7 @@
+system,metric,mean,standard_deviation,ci_95_low,ci_95_high,n
+RAG,faithfulness,0.8000,0.2739,0.6000,1.0000,5
+RAG,context_recall,1.0000,0.0000,1.0000,1.0000,5
+RAG,answer_relevancy,0.9374,0.0557,0.8908,0.9738,5
+RAG,answer_correctness,0.7842,0.1189,0.6880,0.8708,5
+Baseline,answer_relevancy,0.1787,0.3997,0.0000,0.5362,5
+Baseline,answer_correctness,0.1162,0.0903,0.0555,0.1945,5

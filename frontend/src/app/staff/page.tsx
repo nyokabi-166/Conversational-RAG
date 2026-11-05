@@ -7,15 +7,14 @@ import {
   ArrowLeft,
   CheckCircle2,
   FileText,
-  LogOut,
   RefreshCw,
   ShieldCheck,
   Upload,
-  Users,
   XCircle,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
+import { StaffWorkspaceSidebar } from "@/components/staff-workspace-sidebar";
 import {
   apiRequest,
   type DocumentRecord,
@@ -130,7 +129,7 @@ export default function StaffPage() {
 
   if (!ready || !user) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
+      <main className="flex min-h-screen items-center justify-center px-4">
         <p className="text-sm text-muted-foreground">Opening staff workspace…</p>
       </main>
     );
@@ -138,15 +137,15 @@ export default function StaffPage() {
 
   if (!STAFF_ROLES.has(user.role)) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
-        <section className="w-full max-w-md rounded-2xl border bg-card p-7 text-center shadow-sm">
+      <main className="flex min-h-screen items-center justify-center px-4">
+        <section className="w-full max-w-md rounded-3xl border bg-card/90 p-7 text-center shadow-lg shadow-primary/5 backdrop-blur">
           <ShieldCheck className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
           <h1 className="mt-4 text-xl font-semibold">Staff access required</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This area is available to authorised policy staff only.
           </p>
           <div className="mt-5 flex justify-center gap-3">
-            <Button variant="outline" onClick={() => router.push("/")}>Back to chat</Button>
+            <Button variant="outline" onClick={() => router.push("/chat")}>Back to chat</Button>
             <Button onClick={() => { signOut(); router.replace("/staff/login"); }}>Sign in as staff</Button>
           </div>
         </section>
@@ -155,37 +154,11 @@ export default function StaffPage() {
   }
 
   return (
-    <main className="min-h-screen bg-muted/40 text-foreground">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <p className="font-semibold">Staff workspace</p>
-              <p className="text-xs text-muted-foreground">Knowledge base management</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {user.role === "super_admin" && (
-              <Button variant="outline" size="sm" onClick={() => router.push("/staff/team")}>
-                <Users className="h-4 w-4" aria-hidden="true" />
-                <span className="ml-2">Manage staff</span>
-              </Button>
-            )}
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              {user.full_name || user.identifier}
-            </span>
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+    <main className="min-h-screen text-foreground md:flex md:gap-4 md:p-4">
+      <StaffWorkspaceSidebar active="documents" />
+      <div className="min-w-0 flex-1">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-2">
+        <Link href="/chat" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Passenger chat
         </Link>
         <div className="mb-7">
@@ -196,9 +169,9 @@ export default function StaffPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <section className="rounded-xl border bg-card p-5 shadow-sm sm:p-6">
+          <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6">
             <div className="mb-5 flex items-start gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
                 <Upload className="h-4 w-4" aria-hidden="true" />
               </div>
               <div>
@@ -212,7 +185,7 @@ export default function StaffPage() {
             <form onSubmit={upload} className="space-y-4">
               <label
                 htmlFor="policy-files"
-                className="flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-background px-5 py-6 text-center transition hover:bg-accent/50"
+                className="flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-background px-5 py-6 text-center transition hover:bg-accent/50"
               >
                 <Upload className="mb-2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 <span className="text-sm font-medium">Choose policy files</span>
@@ -230,7 +203,7 @@ export default function StaffPage() {
               {files.length > 0 && (
                 <ul className="space-y-2" aria-label="Selected files">
                   {files.map((file) => (
-                    <li key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm">
+                    <li key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2 text-sm">
                       <span className="flex min-w-0 items-center gap-2 truncate">
                         <FileText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                         <span className="truncate">{file.name}</span>
@@ -241,8 +214,8 @@ export default function StaffPage() {
                 </ul>
               )}
 
-              {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-              {notice && <p role="status" className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{notice}</p>}
+              {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+              {notice && <p role="status" className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{notice}</p>}
               <Button type="submit" className="w-full" disabled={uploading || files.length === 0}>
                 {uploading ? "Uploading and indexing…" : "Upload and index"}
               </Button>
@@ -252,7 +225,7 @@ export default function StaffPage() {
             </form>
           </section>
 
-          <section className="rounded-xl border bg-card shadow-sm">
+          <section className="rounded-3xl border bg-card/90 shadow-lg shadow-primary/5 backdrop-blur">
             <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
               <div>
                 <h2 className="font-semibold">Uploaded documents</h2>
@@ -303,6 +276,7 @@ export default function StaffPage() {
             )}
           </section>
         </div>
+      </div>
       </div>
     </main>
   );

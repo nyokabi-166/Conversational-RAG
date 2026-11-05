@@ -35,6 +35,7 @@ from src.core.auth import (
     require_role,
 )
 from src.core.database import (  # noqa: F401 - retained for test monkeypatching
+    engine,
     SessionLocal,
     get_db,
     init_db,
@@ -79,10 +80,10 @@ from .modules.load_vesctorstore import (
     validate_uploaded_files,
 )
 from .modules.query_handlers import (
-    build_retrieval_queries,
+    format_policy_context,
     get_kq_booking_guidance,
     query_chain,
-    rank_documents_lexically,
+    retrieve_policy_documents,
 )
 from .modules.reminder_worker import start_reminder_worker, stop_reminder_worker
 
@@ -118,10 +119,19 @@ app.include_router(trips_router)
 
 MAX_CONVERSATION_HISTORY_MESSAGES = 10
 
-# Allow frontend CORS
+def _configured_cors_origins() -> list[str]:
+    """Read the explicit browser origins allowed to call this API."""
+    configured = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+    return [
+        origin.strip().rstrip("/")
+        for origin in configured.split(",")
+        if origin.strip()
+    ]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_configured_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -132,9 +142,11 @@ app.add_middleware(
 async def catch_exception_middleware(request: Request, call_next):
     try:
         return await call_next(request)
-    except Exception as exc:
+    except Exception:
         logger.exception("UNHANDLED_EXCEPTION")
-        return JSONResponse(content={"error": str(exc)}, status_code=500)
+        return JSONResponse(
+            content={"error": "An internal server error occurred."}, status_code=500
+        )
 
 
 # =====================================================================
@@ -158,6 +170,24 @@ def get_application_status() -> dict:
 def root():
     """Health check endpoint."""
     return get_application_status()
+
+
+@app.get("/health/live", include_in_schema=False)
+def liveness():
+    """Lightweight process check for the container platform."""
+    return {"status": "alive"}
+
+
+@app.get("/health/ready", include_in_schema=False)
+def readiness():
+    """Verify the API can reach its relational database."""
+    try:
+        with engine.connect() as connection:
+            connection.exec_driver_sql("SELECT 1")
+    except Exception:
+        logger.exception("Readiness check failed: database unavailable")
+        raise HTTPException(status_code=503, detail="Service is not ready")
+    return {"status": "ready"}
 
 
 # =====================================================================
@@ -594,15 +624,20 @@ def list_documents(
 
 @app.get("/history/conversations", response_model=List[ConversationHistorySummary])
 def get_passenger_conversations(
-    current_user: AuthUser = Depends(require_role(["passenger"])),
+    current_user: AuthUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Retrieves all past conversation threads for the logged-in passenger."""
-    # Find all sessions belonging to this passenger
-    passenger_sessions = (
-        db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
-    )
-    session_ids = [s.session_id for s in passenger_sessions]
+    """Retrieves conversations owned by the authenticated passenger or staff user."""
+    sessions_query = db.query(DbSession)
+    if current_user.user_type == "passenger":
+        sessions_query = sessions_query.filter(
+            DbSession.passenger_id == current_user.user_id
+        )
+    elif current_user.user_type == "staff":
+        sessions_query = sessions_query.filter(DbSession.staff_id == current_user.user_id)
+    else:
+        raise HTTPException(status_code=403, detail="Conversation history is unavailable.")
+    session_ids = [session.session_id for session in sessions_query.all()]
 
     conversations = (
         db.query(Conversation)
@@ -632,10 +667,10 @@ def get_passenger_conversations(
 )
 def get_conversation_detail(
     conversation_id: str,
-    current_user: AuthUser = Depends(require_role(["passenger"])),
+    current_user: AuthUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Retrieves full dialogue history and citation metadata for a specific conversation."""
+    """Retrieves full dialogue history owned by the authenticated account."""
     conv = (
         db.query(Conversation)
         .filter(Conversation.conversation_id == conversation_id)
@@ -647,9 +682,20 @@ def get_conversation_detail(
     session_obj = (
         db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
     )
-    if not session_obj or session_obj.passenger_id != current_user.user_id:
+    if current_user.user_type == "passenger":
+        owns_conversation = (
+            session_obj is not None
+            and session_obj.passenger_id == current_user.user_id
+        )
+    elif current_user.user_type == "staff":
+        owns_conversation = (
+            session_obj is not None and session_obj.staff_id == current_user.user_id
+        )
+    else:
+        owns_conversation = False
+    if not owns_conversation:
         raise HTTPException(
-            status_code=403, detail="Access denied to this conversation."
+            status_code=404, detail="Conversation not found."
         )
 
     message_dtos = []
@@ -707,7 +753,12 @@ async def ask_question(
         # 1. Resolve or Create Session & Conversation
         passenger_id = (
             current_user.user_id
-            if current_user and current_user.role == "passenger"
+            if current_user and current_user.user_type == "passenger"
+            else None
+        )
+        staff_id = (
+            current_user.user_id
+            if current_user and current_user.user_type == "staff"
             else None
         )
 
@@ -733,18 +784,22 @@ async def ask_question(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Conversation not found.",
                 )
-            if current_user and current_user.role != "passenger":
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Only passengers can continue passenger conversations.",
-                )
-            if current_user and owner_session.passenger_id != current_user.user_id:
+            if current_user and current_user.user_type == "passenger":
+                owns_conversation = owner_session.passenger_id == current_user.user_id
+            elif current_user and current_user.user_type == "staff":
+                owns_conversation = owner_session.staff_id == current_user.user_id
+            else:
+                owns_conversation = False
+            if current_user and not owns_conversation:
                 # Do not reveal whether a conversation belongs to another passenger.
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Conversation not found.",
                 )
-            if not current_user and owner_session.passenger_id is not None:
+            if not current_user and (
+                owner_session.passenger_id is not None
+                or owner_session.staff_id is not None
+            ):
                 # Guest conversation IDs can continue only unowned guest sessions.
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -752,7 +807,7 @@ async def ask_question(
                 )
 
         if not conv:
-            db_session = DbSession(passenger_id=passenger_id)
+            db_session = DbSession(passenger_id=passenger_id, staff_id=staff_id)
             db.add(db_session)
             db.commit()
             db.refresh(db_session)
@@ -789,12 +844,10 @@ async def ask_question(
         # 3. Retrieve Context from ChromaDB
         context = ""
         source_docs = []
-        booking_guidance = get_kq_booking_guidance(question)
+        booking_guidance = get_kq_booking_guidance(question, conversation_history)
         if booking_guidance:
             source_docs = [booking_guidance["document"]]
             context = source_docs[0].page_content
-        else:
-            retrieval_queries = build_retrieval_queries(question, conversation_history)
         if (
             not booking_guidance
             and os.path.exists(PERSIST_DIR)
@@ -804,41 +857,10 @@ async def ask_question(
                 persist_directory=PERSIST_DIR,
                 embedding_function=MiniLMEmbeddings(),
             )
-            seen_chunks = set()
-            indexed = vectorstore.get(include=["documents", "metadatas"])
-            indexed_documents = [
-                Document(page_content=content, metadata=metadata or {})
-                for content, metadata in zip(
-                    indexed.get("documents") or [], indexed.get("metadatas") or []
-                )
-                if content
-            ]
-            lexical_docs = rank_documents_lexically(
-                retrieval_queries[0], indexed_documents, limit=4
+            source_docs = retrieve_policy_documents(
+                vectorstore, question, conversation_history
             )
-            for doc in lexical_docs:
-                chunk_key = (doc.metadata.get("source", ""), doc.page_content)
-                if chunk_key not in seen_chunks:
-                    seen_chunks.add(chunk_key)
-                    source_docs.append(doc)
-            for retrieval_query in retrieval_queries:
-                for doc in vectorstore.similarity_search(retrieval_query, k=4):
-                    chunk_key = (
-                        doc.metadata.get("source", ""),
-                        doc.page_content,
-                    )
-                    if chunk_key not in seen_chunks:
-                        seen_chunks.add(chunk_key)
-                        source_docs.append(doc)
-                    if len(source_docs) >= 8:
-                        break
-                if len(source_docs) >= 8:
-                    break
-            context = "\n\n---\n\n".join(
-                f"Source: {doc.metadata.get('source', 'Policy document')}\n"
-                f"{doc.page_content}"
-                for doc in source_docs
-            )
+            context = format_policy_context(source_docs)
         retrieved_sources = sorted(
             {doc.metadata.get("source", "Unknown source") for doc in source_docs}
         )

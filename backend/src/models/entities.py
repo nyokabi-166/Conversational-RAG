@@ -56,6 +56,12 @@ class Session(Base):
         nullable=True,
         index=True,
     )
+    staff_id = Column(
+        String(36),
+        ForeignKey("staff_accounts.staff_id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_active = Column(
         DateTime(timezone=True),
@@ -64,6 +70,7 @@ class Session(Base):
     )
 
     passenger = relationship("PassengerAccount", back_populates="sessions")
+    staff = relationship("StaffAccount", back_populates="sessions")
     conversations = relationship(
         "Conversation",
         back_populates="session",
@@ -191,6 +198,7 @@ class StaffAccount(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     document_uploads = relationship("DocumentUpload", back_populates="staff")
+    sessions = relationship("Session", back_populates="staff")
 
 
 class DocumentUpload(Base):

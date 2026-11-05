@@ -11,10 +11,11 @@ from fastapi import UploadFile
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
+from src.modules.policy_sources import UNVERIFIED_POLICY_SOURCES
 from src.rag_pipeline import MiniLMEmbeddings
 
-PERSIST_DIR = "./data/chroma_db"
-UPLOAD_DIR = "./uploads"
+PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIRECTORY", "./data/chroma_db")
+UPLOAD_DIR = os.getenv("UPLOAD_DIRECTORY", "./uploads")
 MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024
 MAX_TOTAL_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024
 MAX_UPLOAD_FILES = 10
@@ -226,8 +227,21 @@ def _load_html_document(path: str, display_name: str) -> Document:
 
 def load_vectorstore(
     uploaded_files: List[PreparedUpload],
+    embedding_function=None,
 ) -> List[Tuple[str, int]]:
     """Index validated PDF/HTML uploads and return each filename's chunk count."""
+    excluded_names = {name.casefold() for name in UNVERIFIED_POLICY_SOURCES}
+    unverified = sorted(
+        upload.filename
+        for upload in uploaded_files
+        if upload.filename.casefold() in excluded_names
+    )
+    if unverified:
+        raise ValueError(
+            "These sources are excluded until their official provenance is verified: "
+            + ", ".join(unverified)
+        )
+
     # These imports also load Transformers' package discovery; defer them until a
     # staff member actually submits a document for indexing.
     from langchain_community.document_loaders import PyPDFLoader
@@ -265,9 +279,10 @@ def load_vectorstore(
     if not all_chunks:
         raise ValueError("No readable text could be extracted from the uploaded files.")
 
+    embedding_function = embedding_function or MiniLMEmbeddings()
     vectorstore = Chroma(
         persist_directory=PERSIST_DIR,
-        embedding_function=MiniLMEmbeddings(),
+        embedding_function=embedding_function,
     )
     source_names = sorted({upload.filename for upload in uploaded_files})
     vectorstore.delete(where={"source": {"$in": source_names}})

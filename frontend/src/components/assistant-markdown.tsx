@@ -11,7 +11,7 @@ const markdownComponents: Components = {
   li: ({ children }) => <li className="pl-0.5">{children}</li>,
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   blockquote: ({ children }) => (
-    <blockquote className="my-3 border-l-2 pl-3 text-muted-foreground">
+    <blockquote className="my-3 border-l-2 border-primary/30 pl-3 text-muted-foreground">
       {children}
     </blockquote>
   ),
@@ -26,7 +26,7 @@ const markdownComponents: Components = {
     </a>
   ),
   table: ({ children }) => (
-    <div className="my-3 max-w-full overflow-x-auto rounded-md border">
+    <div className="my-3 max-w-full overflow-x-auto rounded-xl border">
       <table className="w-full border-collapse text-left text-xs">{children}</table>
     </div>
   ),
@@ -34,6 +34,11 @@ const markdownComponents: Components = {
   th: ({ children }) => <th className="border-b px-3 py-2 font-semibold">{children}</th>,
   td: ({ children }) => <td className="border-t px-3 py-2 align-top">{children}</td>,
   hr: () => <hr className="my-3 border-border" />,
+  pre: ({ children }) => (
+    <pre className="my-3 overflow-x-auto rounded-xl bg-muted p-3 text-xs [&_code]:bg-transparent [&_code]:p-0">
+      {children}
+    </pre>
+  ),
   code: ({ children }) => (
     <code className="rounded bg-muted px-1 py-0.5 font-mono text-[0.9em]">
       {children}

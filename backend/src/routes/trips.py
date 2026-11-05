@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session, joinedload
 from src.core.auth import AuthUser, require_role
 from src.core.database import get_db
 from src.models.entities import PassengerAccount, SavedTrip, TripReminder
-from src.modules.flight_services import get_flight_status
 from src.modules.notifications import send_flight_alert
 from src.schemas.trips import (
     SavedTripCreate,
@@ -189,13 +188,6 @@ def send_test_trip_alert(
             detail="Your passenger account does not have a valid email address configured.",
         )
 
-    flight_status_data = None
-    if trip.flight_number:
-        try:
-            flight_status_data = get_flight_status(trip.flight_number, trip.departure_date)
-        except Exception:
-            pass
-
     result = send_flight_alert(
         to_email=recipient_email,
         passenger_name=passenger.full_name or "Passenger" if passenger else "Passenger",
@@ -204,7 +196,6 @@ def send_test_trip_alert(
         destination=trip.destination,
         departure_date=trip.departure_date.isoformat(),
         reminder_title=f"Instant Flight Alert & Preparation Advisory ({trip.origin} → {trip.destination})",
-        flight_status=flight_status_data,
     )
     return {
         "status": "success" if result.get("sent") else "failed",
@@ -242,13 +233,6 @@ def send_test_reminder_alert(
             detail="Your passenger account does not have a valid email address configured.",
         )
 
-    flight_status_data = None
-    if trip.flight_number:
-        try:
-            flight_status_data = get_flight_status(trip.flight_number, trip.departure_date)
-        except Exception:
-            pass
-
     result = send_flight_alert(
         to_email=recipient_email,
         passenger_name=passenger.full_name or "Passenger" if passenger else "Passenger",
@@ -257,7 +241,6 @@ def send_test_reminder_alert(
         destination=trip.destination,
         departure_date=trip.departure_date.isoformat(),
         reminder_title=reminder.title,
-        flight_status=flight_status_data,
     )
     return {
         "status": "success" if result.get("sent") else "failed",

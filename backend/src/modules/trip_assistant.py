@@ -13,6 +13,7 @@ from src.modules.flight_services import get_flight_status as lookup_flight_statu
 from src.modules.flight_services import search_kq_flights as lookup_kq_flights
 from src.modules.llm import get_chat_model
 from src.modules.load_vesctorstore import PERSIST_DIR
+from src.modules.query_handlers import retrieve_policy_documents
 from src.rag_pipeline import MiniLMEmbeddings
 from src.schemas.trips import FlightSearchRequest, FlightStatusRequest
 
@@ -104,7 +105,7 @@ def answer_trip_question(message: str, history: list) -> dict:
             persist_directory=PERSIST_DIR,
             embedding_function=MiniLMEmbeddings(),
         )
-        documents = store.similarity_search(message, k=4)
+        documents = retrieve_policy_documents(store, message, limit=8)
         context = "\n\n---\n\n".join(document.page_content for document in documents)
         sources = list(
             dict.fromkeys(

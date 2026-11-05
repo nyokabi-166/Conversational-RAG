@@ -61,8 +61,8 @@ export default function FirstAdminSetupPage() {
   const setupDisabled = status?.setup_required && !status.setup_enabled;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10">
-      <section className="w-full max-w-lg rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
+      <section className="w-full max-w-lg rounded-3xl border bg-card/90 p-6 shadow-lg shadow-primary/5 backdrop-blur sm:p-8">
         <Link href="/staff/login" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Staff sign in
         </Link>
@@ -81,37 +81,37 @@ export default function FirstAdminSetupPage() {
         {status === null ? (
           <p className="mt-6 text-sm text-muted-foreground">Checking whether first-time setup is available…</p>
         ) : setupClosed ? (
-            <p className="mt-6 rounded-md bg-muted px-3 py-3 text-sm">
+            <p className="mt-6 rounded-xl bg-muted px-3 py-3 text-sm">
               An administrator account already exists, and recovery is not enabled. Sign in with that account.
             </p>
         ) : setupDisabled ? (
-          <p className="mt-6 rounded-md bg-muted px-3 py-3 text-sm">
+          <p className="mt-6 rounded-xl bg-muted px-3 py-3 text-sm">
             First-time setup is not enabled yet. The backend operator must configure the setup secret before an administrator can be created.
           </p>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div className="space-y-2">
               <label htmlFor="setup-token" className="text-sm font-medium">One-time setup secret</label>
-              <input id="setup-token" type="password" autoComplete="off" minLength={32} required value={setupToken} onChange={(event) => setSetupToken(event.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="setup-token" type="password" autoComplete="off" minLength={32} required value={setupToken} onChange={(event) => setSetupToken(event.target.value)} className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40" />
             </div>
             <div className="space-y-2">
               <label htmlFor="admin-name" className="text-sm font-medium">Your name</label>
-              <input id="admin-name" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="admin-name" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40" />
             </div>
             <div className="space-y-2">
               <label htmlFor="admin-username" className="text-sm font-medium">Administrator username</label>
-              <input id="admin-username" autoComplete="username" minLength={3} maxLength={100} required value={username} onChange={(event) => setUsername(event.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="admin-username" autoComplete="username" minLength={3} maxLength={100} required value={username} onChange={(event) => setUsername(event.target.value)} className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40" />
             </div>
             <div className="space-y-2">
               <label htmlFor="admin-password" className="text-sm font-medium">Password</label>
-              <input id="admin-password" type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={password} onChange={(event) => setPassword(event.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="admin-password" type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={password} onChange={(event) => setPassword(event.target.value)} className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40" />
               <p className="text-xs text-muted-foreground">Use at least 12 characters.</p>
             </div>
             <div className="space-y-2">
               <label htmlFor="admin-confirm-password" className="text-sm font-medium">Confirm password</label>
-              <input id="admin-confirm-password" type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="admin-confirm-password" type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40" />
             </div>
-            {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+            {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting
                 ? status.setup_required ? "Creating administrator…" : "Resetting administrator password…"

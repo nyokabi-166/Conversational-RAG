@@ -26,6 +26,7 @@ frontend/.next/
 out/
 frontend/out/
 *.log
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -67,3 +68,4 @@ qdrant_storage/
 Thumbs.db
 desktop.ini
 /backend/uploads/
+/backend/evaluation/.ragas_judge_cache*/

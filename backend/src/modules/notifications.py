@@ -29,13 +29,13 @@ def render_flight_email_html(
     flight_status: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Generate a responsive HTML email branded for Kenya Airways."""
-    status_label = "Scheduled"
-    terminal_info = "Terminal 1A (JKIA)" if origin.upper() == "NBO" else "Check flight status"
+    status_label = "Not checked with Kenya Airways"
+    terminal_info = "Check KQ Flight Status"
     departure_time_str = departure_date
 
     if flight_status and flight_status.get("flight"):
         flight_info = flight_status["flight"]
-        status_label = (flight_info.get("status") or "Scheduled").capitalize()
+        status_label = (flight_info.get("status") or "Status not provided").capitalize()
         if flight_info.get("terminal"):
             terminal_info = f"Terminal {flight_info.get('terminal')}"
         if flight_info.get("departure_at"):

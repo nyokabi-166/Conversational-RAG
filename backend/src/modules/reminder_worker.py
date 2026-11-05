@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session, joinedload
 from ..core.database import SessionLocal
 from ..logger import logger
 from ..models.entities import PassengerAccount, SavedTrip, TripReminder
-from .flight_services import get_flight_status
 from .notifications import send_flight_alert
 
 _worker_task: asyncio.Task | None = None
@@ -49,17 +48,6 @@ async def process_due_reminders() -> int:
                     reminder.completed = 1
                     continue
 
-                # Live flight status check if flight number is provided
-                flight_status_data = None
-                if trip.flight_number:
-                    try:
-                        flight_status_data = get_flight_status(
-                            flight_number=trip.flight_number,
-                            departure_date=trip.departure_date,
-                        )
-                    except Exception as exc:
-                        logger.warning("Could not query live status for flight %s: %s", trip.flight_number, exc)
-
                 # Dispatch email notification
                 result = send_flight_alert(
                     to_email=passenger_email,
@@ -69,7 +57,6 @@ async def process_due_reminders() -> int:
                     destination=trip.destination,
                     departure_date=trip.departure_date.isoformat(),
                     reminder_title=reminder.title,
-                    flight_status=flight_status_data,
                 )
 
                 reminder.completed = 1

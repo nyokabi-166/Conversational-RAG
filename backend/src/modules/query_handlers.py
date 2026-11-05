@@ -8,27 +8,92 @@ from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 
 from ..logger import logger
+from .policy_sources import is_verified_policy_source
 
 KQ_BOOKING_PAGE = "https://www.kenya-airways.com/en-us/book-a-flight/"
+KQ_STATUS_PAGE = "https://www.kenya-airways.com/en/book-manage/flight-status/"
+KQ_MANAGE_PAGE = "https://www.kenya-airways.com/en/book-manage/"
+KQ_CHECKIN_PAGE = "https://www.kenya-airways.com/en/book-manage/post-booking/check-in/"
 
 
-def get_kq_booking_guidance(user_input: str):
-    """Return verified, actionable booking guidance for direct booking how-to asks."""
+def get_kq_booking_guidance(user_input: str, conversation_history: list = None):
+    """Return a direct KQ hand-off only when the passenger asks for flight help."""
     question = user_input.casefold()
-    if any(
+    previous_assistant_messages = [
+        content.casefold()
+        for role, content in conversation_history or []
+        if role == "assistant" and isinstance(content, str)
+    ]
+    is_waiting_for_flight_intent = (
+        previous_assistant_messages
+        and "are you looking to **book a new flight**"
+        in previous_assistant_messages[-1]
+    )
+    if is_waiting_for_flight_intent:
+        short_answer = question.strip(" .!?\t\n")
+        if short_answer in {"book", "booking", "new flight", "book a new flight"}:
+            question = "book a flight"
+        elif short_answer in {"status", "flight status", "check status"}:
+            question = "flight status"
+        elif short_answer in {
+            "manage",
+            "manage booking",
+            "existing booking",
+            "change",
+            "cancel",
+        }:
+            question = "manage booking"
+    asks_status = any(
+        term in question
+        for term in (
+            "flight status",
+            "status of kq",
+            "status of my flight",
+            "check my flight",
+            "check flight status",
+            "is my flight delayed",
+            "has my flight landed",
+            "flight arrival time",
+        )
+    )
+
+    asks_manage = any(
         term in question
         for term in (
             "change booking",
             "change my booking",
             "manage booking",
-            "flight status",
-            "check my flight",
+            "manage my booking",
+            "manage existing booking",
             "cancel my booking",
-            "cancel flight",
+            "cancel my flight",
         )
-    ):
-        return None
+    )
+    asks_checkin = any(
+        term in question
+        for term in ("online check-in", "online check in", "check in for my flight")
+    )
 
+    asks_find_flights = any(
+        term in question
+        for term in (
+            "find a flight",
+            "find flights",
+            "search flights",
+            "available flights",
+            "flight availability",
+            "flight prices",
+            "flight fares",
+            "book me a flight",
+            "i want to book",
+            "i need to book",
+            "new flight booking",
+            "book a new flight",
+            "new booking",
+            "book a ticket",
+            "buy a ticket",
+        )
+    )
     asks_how_to_book = any(
         term in question
         for term in (
@@ -41,30 +106,67 @@ def get_kq_booking_guidance(user_input: str):
             "book flights",
         )
     )
-    if not asks_how_to_book:
-        return None
 
-    content = (
-        "Official Kenya Airways online booking instructions: On the Book a Flight "
-        "page, enter the departure and arrival city or airport. Choose one-way, "
-        "return, or multi-city; enter travel dates, cabin class, and passenger count; "
-        "then select Search Flights. Compare the available fares and continue on the "
-        "Kenya Airways website to complete the booking. Official source: "
-        f"{KQ_BOOKING_PAGE}"
+    if asks_status:
+        page_url = KQ_STATUS_PAGE
+        page_name = "Flight Status"
+        answer = (
+            "For the current status of a Kenya Airways flight, check the "
+            f"[official KQ Flight Status page]({page_url}). I can’t access KQ’s "
+            "live status system from this chat."
+        )
+    elif asks_manage:
+        page_url = KQ_MANAGE_PAGE
+        page_name = "Manage Booking"
+        answer = (
+            "To change or manage an existing booking, continue on Kenya Airways’ "
+            f"[Manage Booking page]({page_url}). You’ll need the booking details "
+            "requested there; don’t share your booking reference or personal "
+            "documents in this chat."
+        )
+    elif asks_checkin:
+        page_url = KQ_CHECKIN_PAGE
+        page_name = "Online Check-in"
+        answer = (
+            f"Use Kenya Airways’ [online check-in page]({page_url}) for current "
+            "check-in availability and instructions."
+        )
+    elif asks_find_flights or asks_how_to_book:
+        page_url = KQ_BOOKING_PAGE
+        page_name = "Book a Flight"
+        answer = (
+            "I can help with KQ travel policies, but I can’t see live fares or "
+            "availability. Search and complete the booking on Kenya Airways’ "
+            f"[Book a Flight page]({page_url}). Enter your route, dates, and "
+            "passenger details there to see current options."
+        )
+    else:
+        asks_general_flight_help = any(
+            term in question
+            for term in (
+                "help me with my flight",
+                "help with my flight",
+                "help me plan my trip",
+                "help me plan a trip",
+                "help with my trip",
+                "plan my flight",
+            )
+        )
+        if not asks_general_flight_help:
+            return None
+        page_name = "Flight help"
+        answer = (
+            "Sure. Are you looking to **book a new flight**, **check a flight’s "
+            "status**, or **manage an existing booking**? I’ll point you to the "
+            "right Kenya Airways page."
+        )
+        page_url = "https://www.kenya-airways.com/en/book-manage/"
+
+    document = Document(
+        page_content=f"Official Kenya Airways {page_name} page: {page_url}",
+        metadata={"source": f"Kenya Airways — {page_name} (official website)"},
     )
-    answer = (
-        f"To book a Kenya Airways flight, go to [Book a Flight]({KQ_BOOKING_PAGE}). "
-        "Enter your departure and arrival cities or airports, choose one-way, return, "
-        "or multi-city, then add your travel dates, cabin class, and passenger count. "
-        "Select **Search Flights**, compare the available fares, and continue on the "
-        "Kenya Airways website to complete your booking. This assistant does not "
-        "purchase tickets or take payment."
-    )
-    source = Document(
-        page_content=content,
-        metadata={"source": "Kenya Airways — Book a Flight (official website)"},
-    )
-    return {"answer": answer, "document": source}
+    return {"answer": answer, "document": document}
 
 
 def build_retrieval_query(user_input: str, conversation_history: list = None) -> str:
@@ -170,6 +272,73 @@ def rank_documents_lexically(query: str, documents: list, limit: int = 4) -> lis
 
     scores.sort(reverse=True)
     return [documents[index] for _, index in scores[:limit]]
+
+
+def retrieve_policy_documents(
+    vectorstore,
+    user_input: str,
+    conversation_history: list = None,
+    limit: int = 8,
+) -> list[Document]:
+    """Use hybrid search and collapse duplicates before building the context."""
+    retrieval_queries = build_retrieval_queries(user_input, conversation_history)
+    indexed = vectorstore.get(include=["documents", "metadatas"])
+    indexed_documents = []
+    indexed_keys = set()
+    for content, metadata in zip(
+        indexed.get("documents") or [], indexed.get("metadatas") or []
+    ):
+        if not content:
+            continue
+        metadata = metadata or {}
+        if not is_verified_policy_source(metadata.get("source")):
+            continue
+        content_key = " ".join(content.split()).casefold()
+        if content_key in indexed_keys:
+            continue
+        indexed_keys.add(content_key)
+        indexed_documents.append(Document(page_content=content, metadata=metadata))
+
+    source_docs = []
+    seen_chunks = set()
+
+    def add_if_new(doc: Document) -> None:
+        if not is_verified_policy_source(doc.metadata.get("source", "")):
+            return
+        content_key = " ".join(doc.page_content.split()).casefold()
+        if content_key and content_key not in seen_chunks:
+            seen_chunks.add(content_key)
+            source_docs.append(doc)
+
+    for doc in rank_documents_lexically(
+        retrieval_queries[0], indexed_documents, limit=4
+    ):
+        add_if_new(doc)
+
+    # Extra candidates let the filter skip stale PDFs and repeated chunks without
+    # allowing them to occupy all top-k results and hide a relevant HTML table.
+    candidate_count = max(limit * 4, 20)
+    for retrieval_query in retrieval_queries:
+        try:
+            candidates = vectorstore.similarity_search(
+                retrieval_query, k=candidate_count
+            )
+        except TypeError:
+            candidates = vectorstore.similarity_search(retrieval_query, k=4)
+        for doc in candidates:
+            add_if_new(doc)
+            if len(source_docs) >= limit:
+                return source_docs
+    return source_docs
+
+
+def format_policy_context(source_docs: list[Document]) -> str:
+    """Format retrieved chunks with their source names for grounded answering."""
+    return "\n\n---\n\n".join(
+        f"Source: {doc.metadata.get('source', 'Policy document')}\n"
+        f"{doc.page_content}"
+        for doc in source_docs
+    )
 
 
 def query_chain(

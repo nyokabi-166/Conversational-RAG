@@ -49,7 +49,7 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Arial", "sans-serif"],
+        sans: ["var(--font-sans)", "Arial", "sans-serif"],
       },
     },
   },

@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (ready && user) router.replace(user.role === "passenger" ? "/" : "/staff");
+    if (ready && user) router.replace(user.role === "passenger" ? "/chat" : "/staff");
   }, [ready, user, router]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -25,7 +25,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const profile = await signIn("passenger", identity.trim(), password);
-      router.replace(profile.role === "passenger" ? "/" : "/staff");
+      router.replace(profile.role === "passenger" ? "/chat" : "/staff");
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Sign in failed.");
     } finally {
@@ -34,9 +34,9 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10">
-      <section className="w-full max-w-md rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
-        <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
+      <section className="w-full max-w-md rounded-3xl border bg-card/90 p-6 shadow-lg shadow-primary/5 backdrop-blur sm:p-8">
+        <Link href="/chat" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to chat
         </Link>
         <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -48,8 +48,8 @@ export default function LoginPage() {
         </p>
 
         <a
-          href="/auth/login?connection=google-oauth2&returnTo=%2F"
-          className="mt-6 flex h-10 w-full items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition hover:bg-muted"
+          href="/auth/login?connection=google-oauth2&returnTo=%2Fchat"
+          className="mt-6 flex h-10 w-full items-center justify-center rounded-full border bg-background px-4 text-sm font-medium transition hover:bg-accent"
         >
           Continue with Google
         </a>
@@ -69,7 +69,7 @@ export default function LoginPage() {
               required
               value={identity}
               onChange={(event) => setIdentity(event.target.value)}
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
           <div className="space-y-2">
@@ -81,10 +81,10 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
-          {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={submitting || !ready}>
             {submitting ? "Signing in…" : "Sign in"}
           </Button>

@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { AssistantMarkdown } from "@/components/assistant-markdown";
 import {
   apiRequest,
@@ -32,8 +32,8 @@ import {
 const KQ_BOOKING_URL = "https://www.kenya-airways.com/en/book-manage/";
 const KQ_STATUS_URL = "https://www.kenya-airways.com/en/book-manage/flight-status/";
 
-function fieldClass() {
-  return "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+function fieldClass(inline = false) {
+  return `${inline ? "" : "mt-1.5 "}h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40`;
 }
 
 function formatDate(value: string | null) {
@@ -48,7 +48,7 @@ function formatDateTime(value: string | null) {
 
 function OfferCard({ offer }: { offer: FlightOfferResult }) {
   return (
-    <article className="rounded-lg border bg-background p-4">
+    <article className="rounded-2xl border bg-background p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-semibold">{offer.segments.map((segment) => segment.flight_number).join(" · ")}</p>
@@ -320,11 +320,11 @@ export default function TripsPage() {
       .booking_url as string | undefined) || KQ_BOOKING_URL;
 
   return (
-    <main className="min-h-screen bg-muted/30 px-4 py-6 text-foreground md:px-8">
+    <main className="min-h-screen px-4 py-6 text-foreground md:px-8">
       <div className="mx-auto max-w-5xl space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Link href="/" className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Back to chat</Link>
+            <Link href="/chat" className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Back to chat</Link>
             <h1 className="text-2xl font-semibold">Plan and manage your trip</h1>
             <p className="mt-1 text-sm text-muted-foreground">Find verified KQ information, save trip details, and receive proactive reminders.</p>
           </div>
@@ -335,20 +335,20 @@ export default function TripsPage() {
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative"
             >
-              <Bell className="h-4 w-4 mr-1 text-primary" />
+              <Bell className="text-primary" />
               Alerts
               {notifications.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.2 text-[11px] text-primary-foreground font-bold">
+                <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[11px] text-primary-foreground font-bold">
                   {notifications.length}
                 </span>
               )}
             </Button>
-            <a className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-accent" href={KQ_BOOKING_URL} target="_blank" rel="noreferrer">Kenya Airways booking <ExternalLink className="h-4 w-4" /></a>
+            <a className={buttonVariants({ variant: "outline", size: "sm" })} href={KQ_BOOKING_URL} target="_blank" rel="noreferrer">Kenya Airways booking <ExternalLink className="h-4 w-4" /></a>
           </div>
         </header>
 
         {showNotifications && (
-          <section className="rounded-xl border bg-card p-5 shadow-sm space-y-3">
+          <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <BellRing className="h-5 w-5 text-primary" />
@@ -365,9 +365,9 @@ export default function TripsPage() {
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {notifications.map((n) => (
-                  <div key={n.id} className="rounded-lg border bg-background p-3.5 text-sm space-y-1">
+                  <div key={n.id} className="rounded-2xl border bg-background p-3.5 text-sm space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                         {n.type}
                       </span>
                       <span className="text-xs text-muted-foreground font-mono">{n.route}</span>
@@ -381,17 +381,17 @@ export default function TripsPage() {
           </section>
         )}
 
-        {error && <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
-        {notice && <div role="status" className="rounded-lg border border-green-600/30 bg-green-600/5 px-4 py-3 text-sm">{notice}</div>}
+        {error && <div role="alert" className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
+        {notice && <div role="status" className="rounded-xl border border-green-600/30 bg-green-600/5 px-4 py-3 text-sm">{notice}</div>}
 
-        <section className="rounded-xl border bg-card p-5 shadow-sm">
+        <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6">
           <div className="mb-4 flex items-center gap-2"><Bot className="h-5 w-5" /><h2 className="text-lg font-semibold">Ask the trip assistant</h2></div>
           <p className="mb-4 text-sm text-muted-foreground">Try “Find a KQ flight from Nairobi to London on 20 December” or “What is the status of KQ100 today?” The assistant asks for missing details and only reports provider results.</p>
           <div className="max-h-72 space-y-3 overflow-y-auto">
-            {assistantHistory.map((entry, index) => <div key={`${entry.role}-${index}`} className={`rounded-lg px-4 py-3 text-sm ${entry.role === "user" ? "ml-auto max-w-2xl bg-primary text-primary-foreground" : "max-w-3xl border bg-background"}`}>{entry.role === "assistant" ? <AssistantMarkdown content={entry.content} /> : entry.content}</div>)}
+            {assistantHistory.map((entry, index) => <div key={`${entry.role}-${index}`} className={`rounded-2xl px-4 py-3 text-sm ${entry.role === "user" ? "ml-auto max-w-2xl bg-primary text-primary-foreground" : "max-w-3xl border bg-background"}`}>{entry.role === "assistant" ? <AssistantMarkdown content={entry.content} /> : entry.content}</div>)}
           </div>
           {assistantOffers.map((offer) => <div className="mt-3" key={offer.offer_id}><OfferCard offer={offer} /></div>)}
-          {assistantStatusAction && <div className="mt-3 rounded-lg border bg-background p-4 text-sm">
+          {assistantStatusAction && <div className="mt-3 rounded-2xl border bg-background p-4 text-sm">
             <p>{String(assistantStatusAction.result.message || "Flight status result")}</p>
             {assistantStatus && <div className="mt-2 space-y-1">
               <p className="font-semibold">{assistantStatus.flight_number} · {assistantStatus.status || "Status not provided"}</p>
@@ -404,13 +404,13 @@ export default function TripsPage() {
           {assistantActions.some((action) => action.tool === "search_kq_flights") && assistantOffers.length === 0 && <a href={assistantBookingUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">Continue on Kenya Airways <ExternalLink className="h-4 w-4" /></a>}
           {assistantSources.length > 0 && <p className="mt-3 text-xs text-muted-foreground">Policy sources: {assistantSources.join(", ")}</p>}
           <form onSubmit={askAssistant} className="mt-4 flex gap-2">
-            <input className={fieldClass()} aria-label="Ask about a flight or trip" value={assistantInput} onChange={(event) => setAssistantInput(event.target.value)} placeholder="Tell me where and when you want to travel…" />
+            <input className={fieldClass(true)} aria-label="Ask about a flight or trip" value={assistantInput} onChange={(event) => setAssistantInput(event.target.value)} placeholder="Tell me where and when you want to travel…" />
             <Button type="submit" disabled={busy || !assistantInput.trim()}><Search />Ask</Button>
           </form>
         </section>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-xl border bg-card p-5 shadow-sm">
+          <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6">
             <div className="mb-4 flex items-center gap-2"><Plane className="h-5 w-5" /><h2 className="text-lg font-semibold">Find KQ flights</h2></div>
             <form onSubmit={submitSearch} className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">From (airport code)<input required maxLength={3} className={fieldClass()} placeholder="NBO" value={searchOrigin} onChange={(event) => setSearchOrigin(event.target.value.toUpperCase())} /></label>
@@ -428,14 +428,14 @@ export default function TripsPage() {
             </div>}
           </section>
 
-          <section className="rounded-xl border bg-card p-5 shadow-sm">
+          <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6">
             <div className="mb-4 flex items-center gap-2"><Search className="h-5 w-5" /><h2 className="text-lg font-semibold">Check flight status</h2></div>
             <form onSubmit={submitStatus} className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">KQ flight number<input required pattern="[Kk][Qq][0-9]{1,4}[A-Za-z]?" className={fieldClass()} placeholder="KQ100" value={statusFlight} onChange={(event) => setStatusFlight(event.target.value.toUpperCase())} /></label>
               <label className="text-sm">Departure date<input required type="date" className={fieldClass()} value={statusDate} onChange={(event) => setStatusDate(event.target.value)} /></label>
               <div className="sm:col-span-2"><Button type="submit" disabled={busy} className="w-full"><Search />Check status</Button></div>
             </form>
-            {statusResult && <div className="mt-4 rounded-lg border bg-background p-4" role="status">
+            {statusResult && <div className="mt-4 rounded-2xl border bg-background p-4" role="status">
               <p className="text-sm">{statusResult.message}</p>
               {statusResult.flight && <div className="mt-3 space-y-1 text-sm">
                 <p className="font-semibold">{statusResult.flight.flight_number} · {statusResult.flight.status || "Status not provided"}</p>
@@ -449,7 +449,7 @@ export default function TripsPage() {
           </section>
         </div>
 
-        <section className="rounded-xl border bg-card p-5 shadow-sm">
+        <section className="rounded-3xl border bg-card/90 p-5 shadow-lg shadow-primary/5 backdrop-blur sm:p-6">
           <div className="mb-4 flex items-center gap-2"><Plus className="h-5 w-5" /><h2 className="text-lg font-semibold">My trips and reminders</h2></div>
           {user?.role === "passenger" && token ? <>
             <form onSubmit={saveTrip} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -461,8 +461,8 @@ export default function TripsPage() {
               <div className="sm:col-span-2 lg:col-span-5"><Button type="submit" disabled={busy}><Plus />Save trip</Button><p className="mt-2 text-xs text-muted-foreground">Do not enter a booking reference, passport details, or payment information.</p></div>
             </form>
             <div className="mt-6 space-y-4">
-              {trips.length === 0 && <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">No saved trips yet. Save an itinerary to keep its reminders here.</p>}
-              {trips.map((trip) => <article key={trip.trip_id} className="rounded-lg border p-4 bg-background">
+              {trips.length === 0 && <p className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">No saved trips yet. Save an itinerary to keep its reminders here.</p>}
+              {trips.map((trip) => <article key={trip.trip_id} className="rounded-2xl border p-4 bg-background">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="font-semibold">{trip.label || `${trip.origin} → ${trip.destination}`}</h3>
@@ -476,39 +476,39 @@ export default function TripsPage() {
                       disabled={busy}
                       title="Send real email flight alert & advisory"
                     >
-                      <Mail className="h-3.5 w-3.5 mr-1 text-primary" />
+                      <Mail className="text-primary" />
                       Email Alert
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => void deleteTrip(trip.trip_id)} aria-label="Delete trip"><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
                 {trip.reminders.length > 0 && <ul className="mt-4 space-y-2">
-                  {trip.reminders.map((reminder) => <li key={reminder.reminder_id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2 text-sm">
+                  {trip.reminders.map((reminder) => <li key={reminder.reminder_id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-muted/50 px-3 py-2 text-sm">
                     <label className="flex items-center gap-2"><input type="checkbox" checked={reminder.completed} onChange={(event) => void updateReminder(trip.trip_id, reminder.reminder_id, event.target.checked)} /><span className={reminder.completed ? "line-through text-muted-foreground" : ""}>{reminder.title} · {formatDateTime(reminder.remind_at)}</span></label>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        className="rounded p-1 text-muted-foreground hover:text-primary hover:bg-muted"
+                        className="rounded-full p-1.5 text-muted-foreground hover:text-primary hover:bg-muted"
                         onClick={() => void triggerReminderTest(trip.trip_id, reminder.reminder_id)}
                         title="Send this reminder to email now"
                       >
                         <Send className="h-3.5 w-3.5" />
                       </button>
-                      <button type="button" className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-muted" onClick={() => void deleteReminder(trip.trip_id, reminder.reminder_id)} aria-label="Delete reminder"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button type="button" className="rounded-full p-1.5 text-muted-foreground hover:text-destructive hover:bg-muted" onClick={() => void deleteReminder(trip.trip_id, reminder.reminder_id)} aria-label="Delete reminder"><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                   </li>)}
                 </ul>}
                 <form onSubmit={(event) => void createReminder(event, trip.trip_id)} className="mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-                  <label className="sr-only" htmlFor={`reminder-title-${trip.trip_id}`}>Reminder title</label><input id={`reminder-title-${trip.trip_id}`} className={fieldClass()} placeholder="e.g. Check travel documents" value={reminderTitle[trip.trip_id] || ""} onChange={(event) => setReminderTitle((current) => ({ ...current, [trip.trip_id]: event.target.value }))} />
-                  <label className="sr-only" htmlFor={`reminder-time-${trip.trip_id}`}>Reminder date and time</label><input id={`reminder-time-${trip.trip_id}`} required type="datetime-local" className={fieldClass()} value={reminderTime[trip.trip_id] || ""} onChange={(event) => setReminderTime((current) => ({ ...current, [trip.trip_id]: event.target.value }))} />
+                  <label className="sr-only" htmlFor={`reminder-title-${trip.trip_id}`}>Reminder title</label><input id={`reminder-title-${trip.trip_id}`} className={fieldClass(true)} placeholder="e.g. Check travel documents" value={reminderTitle[trip.trip_id] || ""} onChange={(event) => setReminderTitle((current) => ({ ...current, [trip.trip_id]: event.target.value }))} />
+                  <label className="sr-only" htmlFor={`reminder-time-${trip.trip_id}`}>Reminder date and time</label><input id={`reminder-time-${trip.trip_id}`} required type="datetime-local" className={fieldClass(true)} value={reminderTime[trip.trip_id] || ""} onChange={(event) => setReminderTime((current) => ({ ...current, [trip.trip_id]: event.target.value }))} />
                   <Button type="submit" variant="outline"><Bell />Add reminder</Button>
                 </form>
               </article>)}
             </div>
-          </> : <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">Sign in or create a passenger account to save trips and reminders. <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link> · <Link href="/register" className="font-medium text-primary hover:underline">Create account</Link></div>}
+          </> : <div className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">Sign in or create a passenger account to save trips and reminders. <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link> · <Link href="/register" className="font-medium text-primary hover:underline">Create account</Link></div>}
         </section>
 
-        <footer className="rounded-lg bg-muted p-4 text-xs text-muted-foreground">Flight options and status depend on provider coverage and may change. This assistant does not book, change, or cancel flights. Complete those actions through Kenya Airways.</footer>
+        <footer className="rounded-2xl bg-muted p-4 text-xs text-muted-foreground">Flight options and status depend on provider coverage and may change. This assistant does not book, change, or cancel flights. Complete those actions through Kenya Airways.</footer>
       </div>
     </main>
   );
