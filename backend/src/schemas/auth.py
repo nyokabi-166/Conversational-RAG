@@ -23,9 +23,14 @@ class RegisterRequest(BaseModel):
         return normalized
 
 
-class LoginRequest(BaseModel):
-    username_or_email: str = Field(..., min_length=1, max_length=255)
+class PassengerLoginRequest(BaseModel):
+    email: str = Field(..., min_length=3, max_length=255)
     password: str = Field(..., min_length=1, max_length=128)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        return RegisterRequest.validate_email(value)
 
 
 class TokenResponse(BaseModel):

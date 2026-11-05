@@ -3,14 +3,63 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class StaffLoginRequest(BaseModel):
-    """Staff authentication credentials for POST /api/auth/staff/login."""
+    """Staff authentication credentials for POST /auth/staff/login."""
 
-    username: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=6)
+    username: str = Field(..., min_length=1, max_length=100)
+    password: str = Field(..., min_length=1, max_length=128)
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class AdminBootstrapRequest(BaseModel):
+    """One-time first-admin setup credentials."""
+
+    setup_token: str = Field(..., min_length=32, max_length=512)
+    username: str = Field(..., min_length=3, max_length=100)
+    password: str = Field(..., min_length=12, max_length=128)
+    full_name: Optional[str] = Field(None, max_length=255)
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not normalized.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Use letters, numbers, hyphens, or underscores only.")
+        return normalized
+
+
+class StaffCreateRequest(BaseModel):
+    """Create a policy staff account from the authenticated admin workspace."""
+
+    username: str = Field(..., min_length=3, max_length=100)
+    password: str = Field(..., min_length=12, max_length=128)
+    full_name: Optional[str] = Field(None, max_length=255)
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not normalized.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Use letters, numbers, hyphens, or underscores only.")
+        return normalized
+
+
+class StaffPasswordResetRequest(BaseModel):
+    """Set a new password for an existing policy staff account."""
+
+    password: str = Field(..., min_length=12, max_length=128)
+
+
+class AdminSetupStatus(BaseModel):
+    setup_required: bool
+    setup_enabled: bool
 
 
 class StaffTokenResponse(BaseModel):

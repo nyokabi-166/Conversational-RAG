@@ -1,0 +1,5 @@
+category,system,mean_answer_correctness,ci_95_low,ci_95_high,n,included_in_figure
+table_lookup,RAG,0.8056,0.6813,0.8700,3,False
+table_lookup,Baseline,0.0721,0.0349,0.1281,3,False
+conditional_policy,RAG,0.7519,0.6297,0.8742,2,False
+conditional_policy,Baseline,0.1824,0.1013,0.2635,2,False

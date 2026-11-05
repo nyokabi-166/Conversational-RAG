@@ -9,7 +9,7 @@
 [![Docker Compose](https://img.shields.io/badge/orchestration-Docker%20Compose-2496ED.svg)](https://docs.docker.com/compose/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-grade, full-stack Conversational Retrieval-Augmented Generation (RAG) platform with an interactive **Next.js (React/TypeScript)** interface and a high-performance **Python backend** equipped with enterprise CI/CD automation.
+A locally runnable, full-stack Conversational Retrieval-Augmented Generation (RAG) project with an interactive **Next.js (React/TypeScript)** interface, a **FastAPI backend**, PostgreSQL, and ChromaDB. GitHub Actions checks the code and builds container images; those workflows do not deploy a hosted application.
 
 ---
 
@@ -97,3 +97,10 @@ cd backend && poetry run flake8 . && poetry run black --check .
 # Run frontend linter
 cd frontend && npm run lint
 ```
+
+## 📘 Project Guides
+
+- [User guide](docs/USER_GUIDE.md)
+- [Deployment readiness and operations](docs/DEPLOYMENT_READINESS.md)
+- [Build-phase evidence register](docs/BUILD_PHASE_EVIDENCE.md)
+- [Evaluation workflow](backend/evaluation/README.md)

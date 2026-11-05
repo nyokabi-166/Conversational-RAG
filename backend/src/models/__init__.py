@@ -7,8 +7,10 @@ from src.models.entities import (
     Message,
     PassengerAccount,
     RetrievalMetadata,
+    SavedTrip,
     Session,
     StaffAccount,
+    TripReminder,
     generate_uuid,
 )
 
@@ -21,5 +23,7 @@ __all__ = [
     "EvaluationScore",
     "StaffAccount",
     "DocumentUpload",
+    "SavedTrip",
+    "TripReminder",
     "generate_uuid",
 ]

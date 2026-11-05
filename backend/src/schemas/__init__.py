@@ -3,7 +3,7 @@
 from src.schemas.auth import (
     ConversationHistoryDetail,
     ConversationHistorySummary,
-    LoginRequest,
+    PassengerLoginRequest,
     RegisterRequest,
     TokenResponse,
     UserProfile,
@@ -49,7 +49,7 @@ __all__ = [
     "EvaluationScoreDTO",
     "PillarBenchmarkSummary",
     "RegisterRequest",
-    "LoginRequest",
+    "PassengerLoginRequest",
     "TokenResponse",
     "UserProfile",
     "ConversationHistorySummary",

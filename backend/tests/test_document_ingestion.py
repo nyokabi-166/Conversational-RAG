@@ -25,10 +25,15 @@ def test_html_upload_is_sanitized_extracted_and_indexed(tmp_path, monkeypatch):
     captured = {}
 
     class FakeChroma:
-        @staticmethod
-        def from_documents(documents, embedding, persist_directory):
+        def __init__(self, persist_directory, embedding_function):
+            captured["persist_directory"] = persist_directory
+            captured["embedding"] = embedding_function
+
+        def delete(self, where):
+            captured["deleted"] = where
+
+        def add_documents(self, documents):
             captured["documents"] = documents
-            return object()
 
     monkeypatch.setattr(ingestion, "UPLOAD_DIR", str(tmp_path / "uploads"))
     monkeypatch.setattr(ingestion, "PERSIST_DIR", str(tmp_path / "chroma"))

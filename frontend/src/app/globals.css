@@ -2,19 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Theme: Kenya Airways-inspired white / red / black, softened with warm
+  peach-pink tints. Every colour below is an HSL triplet consumed through the
+  semantic tokens in tailwind.config.ts, so components pick it up automatically.
+*/
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 241, 245, 249;
+  --background: 20 100% 99%;
+  --foreground: 0 0% 7%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 7%;
+  --primary: 353 88% 44%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 14 100% 95%;
+  --secondary-foreground: 0 0% 7%;
+  --muted: 14 70% 96%;
+  --muted-foreground: 10 8% 38%;
+  --accent: 12 100% 93%;
+  --accent-foreground: 0 0% 7%;
+  --destructive: 0 78% 34%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 14 50% 89%;
+  --input: 14 50% 86%;
+  --ring: 353 88% 44%;
+  --radius: 1rem;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  min-height: 100vh;
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+    /* Soft peach / blush glow behind the whole app, like the reference mockup. */
+    background-image:
+      radial-gradient(60rem 40rem at 0% 0%, hsl(18 100% 90% / 0.9), transparent 60%),
+      radial-gradient(55rem 38rem at 100% 0%, hsl(350 100% 92% / 0.85), transparent 60%),
+      radial-gradient(50rem 35rem at 50% 110%, hsl(24 100% 93% / 0.8), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  @keyframes float {
+    0%, 100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, calc(-50% - 6px)); }
+  }
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .animate-float { animation: none; }
+  }
 }

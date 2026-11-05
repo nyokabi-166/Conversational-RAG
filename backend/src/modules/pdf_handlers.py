@@ -3,7 +3,7 @@ import shutil
 
 from fastapi import UploadFile
 
-UPLOAD_DIR = "./uploads"
+UPLOAD_DIR = os.getenv("UPLOAD_DIRECTORY", "./uploads")
 
 
 def save_uploaded_files(files: list[UploadFile]) -> list[str]:

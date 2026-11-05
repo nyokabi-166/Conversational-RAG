@@ -1,15 +1,21 @@
 """FastAPI application endpoints for Airline Customer Support RAG with RBAC, Auth, and DB persistence."""
 
+import json
 import os
+import secrets
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import List, Optional
+from urllib.error import HTTPError, URLError
+from urllib.request import Request as UrlRequest
+from urllib.request import urlopen
 
 from fastapi import (
     Depends,
     FastAPI,
     File,
     Form,
+    Header,
     HTTPException,
     Request,
     UploadFile,
@@ -18,6 +24,8 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from src.core.auth import (
@@ -26,7 +34,12 @@ from src.core.auth import (
     get_current_user_optional,
     require_role,
 )
-from src.core.database import SessionLocal, get_db, init_db
+from src.core.database import (  # noqa: F401 - retained for test monkeypatching
+    SessionLocal,
+    engine,
+    get_db,
+    init_db,
+)
 from src.core.security import create_access_token, hash_password, verify_password
 from src.models.entities import (
     Conversation,
@@ -38,68 +51,61 @@ from src.models.entities import (
 from src.models.entities import Session as DbSession
 from src.models.entities import StaffAccount
 from src.rag_pipeline import MiniLMEmbeddings
+from src.routes.flights import router as flights_router
+from src.routes.trips import router as trips_router
 from src.schemas.auth import (
     ConversationHistoryDetail,
     ConversationHistorySummary,
-    LoginRequest,
+    PassengerLoginRequest,
     RegisterRequest,
     TokenResponse,
     UserProfile,
 )
 from src.schemas.chat import MessageDTO, RetrievalMetadataDTO
+from src.schemas.staff import (
+    AdminBootstrapRequest,
+    AdminSetupStatus,
+    StaffCreateRequest,
+    StaffDTO,
+    StaffLoginRequest,
+    StaffPasswordResetRequest,
+)
 
 from .logger import logger
-from .modules.llm import get_llm_chain
+from .modules.llm import get_llm_chain, get_model_name, get_model_provider
 from .modules.load_vesctorstore import (
     PERSIST_DIR,
     UploadValidationError,
     load_vectorstore,
     validate_uploaded_files,
 )
-from .modules.query_handlers import build_retrieval_query, query_chain
+from .modules.query_handlers import (
+    format_policy_context,
+    get_kq_booking_guidance,
+    query_chain,
+    retrieve_policy_documents,
+)
+from .modules.reminder_worker import start_reminder_worker, stop_reminder_worker
 
 
 def seed_default_accounts():
-    """Seed demo staff accounts in development only."""
-    if os.getenv("APP_ENV", "production").lower() != "development":
-        logger.info("Skipping demo staff account seed outside development")
-        return
-
-    db = SessionLocal()
-    try:
-        # 1. Super Admin
-        admin = db.query(StaffAccount).filter(StaffAccount.username == "admin").first()
-        if not admin:
-            admin = StaffAccount(
-                username="admin",
-                password_hash=hash_password("admin123"),
-                full_name="System Administrator",
-                role="super_admin",
-            )
-            db.add(admin)
-
-        # 2. Policy Admin Staff
-        staff = db.query(StaffAccount).filter(StaffAccount.username == "staff").first()
-        if not staff:
-            staff = StaffAccount(
-                username="staff",
-                password_hash=hash_password("staff123"),
-                full_name="Airline Support Staff",
-                role="policy_admin",
-            )
-            db.add(staff)
-
-        db.commit()
-    finally:
-        db.close()
+    """Keep the old startup hook without creating predictable staff accounts."""
+    logger.info("No demo or staff accounts are seeded during startup")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize tables and seed development demo accounts on startup."""
+    """Initialize the application's database tables on startup."""
     init_db()
     seed_default_accounts()
+    logger.info(
+        "RAG Generation Engine active: Provider=%s, Model=%s",
+        get_model_provider(),
+        get_model_name(),
+    )
+    start_reminder_worker()
     yield
+    stop_reminder_worker()
 
 
 app = FastAPI(
@@ -108,13 +114,23 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+app.include_router(flights_router)
+app.include_router(trips_router)
 
 MAX_CONVERSATION_HISTORY_MESSAGES = 10
 
-# Allow frontend CORS
+
+def _configured_cors_origins() -> list[str]:
+    """Read the explicit browser origins allowed to call this API."""
+    configured = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+    return [
+        origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()
+    ]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_configured_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -125,9 +141,11 @@ app.add_middleware(
 async def catch_exception_middleware(request: Request, call_next):
     try:
         return await call_next(request)
-    except Exception as exc:
+    except Exception:
         logger.exception("UNHANDLED_EXCEPTION")
-        return JSONResponse(content={"error": str(exc)}, status_code=500)
+        return JSONResponse(
+            content={"error": "An internal server error occurred."}, status_code=500
+        )
 
 
 # =====================================================================
@@ -142,6 +160,8 @@ def get_application_status() -> dict:
         "status": "healthy",
         "environment": env,
         "service": "rag-backend",
+        "llm_provider": get_model_provider(),
+        "model": get_model_name(),
     }
 
 
@@ -149,6 +169,24 @@ def get_application_status() -> dict:
 def root():
     """Health check endpoint."""
     return get_application_status()
+
+
+@app.get("/health/live", include_in_schema=False)
+def liveness():
+    """Lightweight process check for the container platform."""
+    return {"status": "alive"}
+
+
+@app.get("/health/ready", include_in_schema=False)
+def readiness():
+    """Verify the API can reach its relational database."""
+    try:
+        with engine.connect() as connection:
+            connection.exec_driver_sql("SELECT 1")
+    except Exception:
+        logger.exception("Readiness check failed: database unavailable")
+        raise HTTPException(status_code=503, detail="Service is not ready")
+    return {"status": "ready"}
 
 
 # =====================================================================
@@ -198,13 +236,12 @@ def register_passenger(payload: RegisterRequest, db: Session = Depends(get_db)):
     )
 
 
-@app.post("/auth/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    """Authenticates both passengers (via email) and staff members (via username)."""
-    # 1. Check Passenger Account
+@app.post("/auth/passenger/login", response_model=TokenResponse)
+def login_passenger(payload: PassengerLoginRequest, db: Session = Depends(get_db)):
+    """Authenticate a passenger using their email address."""
     passenger = (
         db.query(PassengerAccount)
-        .filter(PassengerAccount.email == payload.username_or_email)
+        .filter(PassengerAccount.email == payload.email)
         .first()
     )
     if passenger and verify_password(payload.password, passenger.password_hash):
@@ -223,11 +260,102 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
             full_name=passenger.full_name,
         )
 
-    # 2. Check Staff Account
-    staff = (
-        db.query(StaffAccount)
-        .filter(StaffAccount.username == payload.username_or_email)
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid email or password.",
+    )
+
+
+@app.post("/auth/auth0/exchange", response_model=TokenResponse)
+def exchange_auth0_token(
+    authorization: Optional[str] = Header(None), db: Session = Depends(get_db)
+):
+    """Validate an Auth0 access token and issue this API's passenger session token."""
+    domain = os.getenv("AUTH0_DOMAIN", "").strip().removeprefix("https://").rstrip("/")
+    if not domain:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Auth0 sign-in is not configured on the API.",
+        )
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="A valid Auth0 bearer token is required.",
+        )
+
+    request = UrlRequest(
+        f"https://{domain}/userinfo",
+        headers={"Authorization": authorization, "Accept": "application/json"},
+    )
+    try:
+        with urlopen(request, timeout=5) as response:
+            identity = json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, TimeoutError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Auth0 could not verify this sign-in. Please try again.",
+        ) from None
+
+    email = identity.get("email")
+    subject = identity.get("sub")
+    if (
+        not isinstance(subject, str)
+        or not isinstance(email, str)
+        or identity.get("email_verified") is not True
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="A verified email address is required for passenger sign-in.",
+        )
+
+    normalized_email = email.strip().lower()
+    full_name = identity.get("name")
+    if not isinstance(full_name, str):
+        full_name = None
+    passenger = (
+        db.query(PassengerAccount)
+        .filter(PassengerAccount.email == normalized_email)
         .first()
+    )
+    if passenger is None:
+        passenger = PassengerAccount(
+            email=normalized_email,
+            full_name=full_name,
+            role="passenger",
+        )
+        db.add(passenger)
+        db.commit()
+        db.refresh(passenger)
+    elif passenger.role != "passenger":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This account cannot sign in as a passenger.",
+        )
+    elif not passenger.full_name and full_name:
+        passenger.full_name = full_name
+        db.commit()
+
+    token = create_access_token(
+        data={
+            "sub": passenger.passenger_id,
+            "user_type": "passenger",
+            "role": "passenger",
+        }
+    )
+    return TokenResponse(
+        access_token=token,
+        user_id=passenger.passenger_id,
+        role="passenger",
+        identifier=passenger.email,
+        full_name=passenger.full_name,
+    )
+
+
+@app.post("/auth/staff/login", response_model=TokenResponse)
+def login_staff(payload: StaffLoginRequest, db: Session = Depends(get_db)):
+    """Authenticate a staff member using their username."""
+    staff = (
+        db.query(StaffAccount).filter(StaffAccount.username == payload.username).first()
     )
     if staff and verify_password(payload.password, staff.password_hash):
         token = create_access_token(
@@ -243,8 +371,144 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid credentials. Please verify your email/username and password.",
+        detail="Invalid staff username or password.",
     )
+
+
+@app.get("/auth/admin/setup-status", response_model=AdminSetupStatus)
+def get_admin_setup_status(db: Session = Depends(get_db)):
+    """Tell the setup screen whether the first administrator can be created."""
+    admin_exists = (
+        db.query(StaffAccount).filter(StaffAccount.role == "super_admin").first()
+        is not None
+    )
+    return AdminSetupStatus(
+        setup_required=not admin_exists,
+        setup_enabled=len(os.getenv("ADMIN_SETUP_TOKEN", "")) >= 32,
+    )
+
+
+@app.post("/auth/admin/bootstrap", response_model=TokenResponse)
+def bootstrap_first_admin(
+    payload: AdminBootstrapRequest, db: Session = Depends(get_db)
+):
+    """Create the first administrator using a deployment-configured one-time token."""
+    configured_token = os.getenv("ADMIN_SETUP_TOKEN", "")
+    if len(configured_token) < 32:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="First-admin setup is not enabled. Configure ADMIN_SETUP_TOKEN first.",
+        )
+    if not secrets.compare_digest(payload.setup_token, configured_token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The setup token is invalid.",
+        )
+    admin = db.query(StaffAccount).filter(StaffAccount.role == "super_admin").first()
+    if admin:
+        if admin.username != payload.username:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="That username does not match the existing administrator.",
+            )
+        # A configured setup secret also provides a safe recovery path for the
+        # original demo admin; it never creates a second administrator.
+        admin.password_hash = hash_password(payload.password)
+        if payload.full_name:
+            admin.full_name = payload.full_name
+    else:
+        if db.query(StaffAccount).filter_by(username=payload.username).first():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="That username is already in use.",
+            )
+        admin = StaffAccount(
+            username=payload.username,
+            password_hash=hash_password(payload.password),
+            full_name=payload.full_name,
+            role="super_admin",
+        )
+        db.add(admin)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An administrator or that username was created at the same time.",
+        ) from exc
+    db.refresh(admin)
+    token = create_access_token(
+        data={"sub": admin.staff_id, "user_type": "staff", "role": admin.role}
+    )
+    return TokenResponse(
+        access_token=token,
+        user_id=admin.staff_id,
+        role=admin.role,
+        identifier=admin.username,
+        full_name=admin.full_name,
+    )
+
+
+@app.get("/admin/staff", response_model=List[StaffDTO])
+def list_staff_accounts(
+    current_user: AuthUser = Depends(require_role(["super_admin"])),
+    db: Session = Depends(get_db),
+):
+    """List staff accounts for the administrator's team page."""
+    return db.query(StaffAccount).order_by(StaffAccount.created_at.asc()).all()
+
+
+@app.post("/admin/staff", response_model=StaffDTO, status_code=status.HTTP_201_CREATED)
+def create_staff_account(
+    payload: StaffCreateRequest,
+    current_user: AuthUser = Depends(require_role(["super_admin"])),
+    db: Session = Depends(get_db),
+):
+    """Allow only an administrator to create policy staff accounts."""
+    if db.query(StaffAccount).filter_by(username=payload.username).first():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="That username is already in use.",
+        )
+    staff = StaffAccount(
+        username=payload.username,
+        password_hash=hash_password(payload.password),
+        full_name=payload.full_name,
+        role="policy_admin",
+    )
+    db.add(staff)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="That username was created at the same time.",
+        ) from exc
+    db.refresh(staff)
+    return staff
+
+
+@app.put("/admin/staff/{staff_id}/password", response_model=StaffDTO)
+def reset_staff_password(
+    staff_id: str,
+    payload: StaffPasswordResetRequest,
+    current_user: AuthUser = Depends(require_role(["super_admin"])),
+    db: Session = Depends(get_db),
+):
+    """Let an administrator rotate a policy staff member's password."""
+    staff = (
+        db.query(StaffAccount)
+        .filter(StaffAccount.staff_id == staff_id, StaffAccount.role == "policy_admin")
+        .first()
+    )
+    if not staff:
+        raise HTTPException(status_code=404, detail="Policy staff account not found.")
+    staff.password_hash = hash_password(payload.password)
+    db.commit()
+    db.refresh(staff)
+    return staff
 
 
 @app.get("/auth/me", response_model=UserProfile)
@@ -362,12 +626,11 @@ def get_passenger_conversations(
     current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
-    """Retrieves all past conversation threads for the logged-in passenger."""
-    # Find all sessions belonging to this passenger
-    passenger_sessions = (
+    """Retrieve conversation history for the authenticated passenger only."""
+    sessions = (
         db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
     )
-    session_ids = [s.session_id for s in passenger_sessions]
+    session_ids = [session.session_id for session in sessions]
 
     conversations = (
         db.query(Conversation)
@@ -400,7 +663,7 @@ def get_conversation_detail(
     current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
-    """Retrieves full dialogue history and citation metadata for a specific conversation."""
+    """Retrieve full dialogue history owned by the authenticated passenger."""
     conv = (
         db.query(Conversation)
         .filter(Conversation.conversation_id == conversation_id)
@@ -412,10 +675,11 @@ def get_conversation_detail(
     session_obj = (
         db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
     )
-    if not session_obj or session_obj.passenger_id != current_user.user_id:
-        raise HTTPException(
-            status_code=403, detail="Access denied to this conversation."
-        )
+    owns_conversation = (
+        session_obj is not None and session_obj.passenger_id == current_user.user_id
+    )
+    if not owns_conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
 
     message_dtos = []
     for m in conv.messages:
@@ -472,7 +736,12 @@ async def ask_question(
         # 1. Resolve or Create Session & Conversation
         passenger_id = (
             current_user.user_id
-            if current_user and current_user.role == "passenger"
+            if current_user and current_user.user_type == "passenger"
+            else None
+        )
+        staff_id = (
+            current_user.user_id
+            if current_user and current_user.user_type == "staff"
             else None
         )
 
@@ -498,18 +767,22 @@ async def ask_question(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Conversation not found.",
                 )
-            if current_user and current_user.role != "passenger":
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Only passengers can continue passenger conversations.",
-                )
-            if current_user and owner_session.passenger_id != current_user.user_id:
+            if current_user and current_user.user_type == "passenger":
+                owns_conversation = owner_session.passenger_id == current_user.user_id
+            elif current_user and current_user.user_type == "staff":
+                owns_conversation = owner_session.staff_id == current_user.user_id
+            else:
+                owns_conversation = False
+            if current_user and not owns_conversation:
                 # Do not reveal whether a conversation belongs to another passenger.
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Conversation not found.",
                 )
-            if not current_user and owner_session.passenger_id is not None:
+            if not current_user and (
+                owner_session.passenger_id is not None
+                or owner_session.staff_id is not None
+            ):
                 # Guest conversation IDs can continue only unowned guest sessions.
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -517,7 +790,7 @@ async def ask_question(
                 )
 
         if not conv:
-            db_session = DbSession(passenger_id=passenger_id)
+            db_session = DbSession(passenger_id=passenger_id, staff_id=staff_id)
             db.add(db_session)
             db.commit()
             db.refresh(db_session)
@@ -554,25 +827,65 @@ async def ask_question(
         # 3. Retrieve Context from ChromaDB
         context = ""
         source_docs = []
-        retrieval_query = build_retrieval_query(question, conversation_history)
-        if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
+        booking_guidance = get_kq_booking_guidance(question, conversation_history)
+        if booking_guidance:
+            source_docs = [booking_guidance["document"]]
+            context = source_docs[0].page_content
+        if (
+            not booking_guidance
+            and os.path.exists(PERSIST_DIR)
+            and os.listdir(PERSIST_DIR)
+        ):
             vectorstore = Chroma(
                 persist_directory=PERSIST_DIR,
                 embedding_function=MiniLMEmbeddings(),
             )
-            source_docs = vectorstore.similarity_search(retrieval_query, k=4)
-            context = "\n\n---\n\n".join(doc.page_content for doc in source_docs)
-
-        # 4. Generate Answer via Groq LLM
-        chain = get_llm_chain()
-        result = query_chain(
-            chain,
-            question,
-            context=context,
-            source_docs=source_docs,
-            conversation_history=conversation_history,
+            source_docs = retrieve_policy_documents(
+                vectorstore, question, conversation_history
+            )
+            context = format_policy_context(source_docs)
+        retrieved_sources = sorted(
+            {doc.metadata.get("source", "Unknown source") for doc in source_docs}
         )
+        logger.info(
+            "Retrieved %d policy chunks from: %s",
+            len(source_docs),
+            ", ".join(retrieved_sources) if retrieved_sources else "no documents",
+        )
+
+        # 4. Use verified official-site steps for the booking hand-off; use RAG for
+        # policy and other questions.
+        if booking_guidance:
+            result = {
+                "response": booking_guidance["answer"],
+                "sources": [booking_guidance["document"].metadata["source"]],
+            }
+        else:
+            chain = get_llm_chain()
+            result = query_chain(
+                chain,
+                question,
+                context=context,
+                source_docs=source_docs,
+                conversation_history=conversation_history,
+            )
+        if result.get("error"):
+            logger.error("Answer generation failed: %s", result["error"])
+            return JSONResponse(
+                content={
+                    "error": "The assistant could not generate an answer. Please try again in a moment."
+                },
+                status_code=502,
+            )
         answer_text = result.get("response", "")
+        if not isinstance(answer_text, str) or not answer_text.strip():
+            logger.error("Answer generation produced an empty response.")
+            return JSONResponse(
+                content={
+                    "error": "The assistant returned an empty answer. Please try again."
+                },
+                status_code=502,
+            )
 
         # 5. Record Assistant Message
         assistant_msg = Message(
