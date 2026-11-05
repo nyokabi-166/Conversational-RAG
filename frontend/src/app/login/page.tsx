@@ -2,22 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowLeft, MessageSquareText } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, ready, signIn } = useAuth();
+  const { user, ready, signIn, switchAccount } = useAuth();
   const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (ready && user) router.replace(user.role === "passenger" ? "/chat" : "/staff");
-  }, [ready, user, router]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,10 +43,33 @@ export default function LoginPage() {
           Sign in to return to your saved conversations.
         </p>
 
+        {ready && user ? (
+          <div className="mt-6 space-y-3 rounded-2xl border bg-muted/40 p-4">
+            <p className="text-sm">
+              You’re signed in as <span className="font-medium">{user.identifier}</span>.
+            </p>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => router.replace(user.role === "passenger" ? "/chat" : "/staff")}
+            >
+              Continue to {user.role === "passenger" ? "Pippit" : "staff workspace"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => switchAccount("/login")}
+              className="w-full text-center text-sm font-medium text-primary hover:underline"
+            >
+              Switch account
+            </button>
+          </div>
+        ) : (
+          <>
         <a
-          href="/auth/login?connection=google-oauth2&returnTo=%2Fchat"
+          href="/auth/login?connection=google-oauth2&prompt=select_account&returnTo=%2Fchat"
           className="mt-6 flex h-10 w-full items-center justify-center rounded-full border bg-background px-4 text-sm font-medium transition hover:bg-accent"
         >
+          <GoogleMark />
           Continue with Google
         </a>
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -89,6 +108,8 @@ export default function LoginPage() {
             {submitting ? "Signing in…" : "Sign in"}
           </Button>
         </form>
+          </>
+        )}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Passenger without an account?{" "}
@@ -100,5 +121,16 @@ export default function LoginPage() {
         </p>
       </section>
     </main>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.05 5.05 0 0 1-2.2 3.31v2.77h3.57c2.08-1.91 3.27-4.73 3.27-8.09Z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.15v2.84A11 11 0 0 0 12 23Z" />
+      <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.15a11 11 0 0 0 0 9.88l3.69-2.84Z" />
+      <path fill="#EA4335" d="M12 4.37c1.62 0 3.07.56 4.21 1.66l3.15-3.15A10.55 10.55 0 0 0 12 1a11 11 0 0 0-9.85 6.06l3.69 2.84C6.71 7.3 9.14 4.37 12 4.37Z" />
+    </svg>
   );
 }

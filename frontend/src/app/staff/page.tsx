@@ -68,6 +68,7 @@ export default function StaffPage() {
 
   useEffect(() => {
     if (ready && !user) router.replace("/staff/login");
+    if (ready && user && !STAFF_ROLES.has(user.role)) router.replace("/staff/login");
     if (user && STAFF_ROLES.has(user.role)) void loadDocuments();
   }, [ready, user, router, loadDocuments]);
 

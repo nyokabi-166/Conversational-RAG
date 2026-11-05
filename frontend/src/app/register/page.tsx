@@ -49,7 +49,7 @@ export default function RegisterPage() {
         </p>
 
         <a
-          href="/auth/login?connection=google-oauth2&screen_hint=signup&returnTo=%2Fchat"
+          href="/auth/login?connection=google-oauth2&prompt=select_account&screen_hint=signup&returnTo=%2Fchat"
           className="mt-6 flex h-10 w-full items-center justify-center rounded-full border bg-background px-4 text-sm font-medium transition hover:bg-accent"
         >
           Sign up with Google

@@ -186,7 +186,7 @@ function HeroArt() {
 
 export default function LandingPage() {
   const router = useRouter();
-  const { user, ready } = useAuth();
+  const { user, ready, switchAccount } = useAuth();
   const [today, setToday] = useState("");
   const [question, setQuestion] = useState("");
   const [topicId, setTopicId] = useState(TOPICS[0].id);
@@ -237,13 +237,28 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-2">
             {signedIn ? (
-              <Link href={isStaff ? "/staff" : "/chat"} className={buttonVariants({ variant: "ink", size: "sm" })}>
-                {isStaff ? "Staff workspace" : "Open Pippit"}
-              </Link>
+              <div className="flex items-center gap-2">
+                <span className="hidden max-w-44 truncate text-xs text-muted-foreground sm:inline" title={user?.identifier}>
+                  Signed in as {user?.identifier}
+                </span>
+                <Link href={isStaff ? "/staff" : "/chat"} className={buttonVariants({ variant: "ink", size: "sm" })}>
+                  {isStaff ? "Staff workspace" : "Open Pippit"}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => switchAccount("/login")}
+                  className="px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Switch account
+                </button>
+              </div>
             ) : (
               <>
-                <Link href="/login" className="px-3 text-sm text-muted-foreground hover:text-foreground">
-                  Sign in
+                <Link href="/login" className="px-2 text-xs text-muted-foreground hover:text-foreground sm:px-3 sm:text-sm">
+                  Passenger sign in
+                </Link>
+                <Link href="/staff/login" className="px-2 text-xs text-muted-foreground hover:text-foreground sm:px-3 sm:text-sm">
+                  Staff sign in
                 </Link>
                 <Link href="/chat" className={buttonVariants({ size: "sm" })}>
                   Chat now

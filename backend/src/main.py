@@ -35,8 +35,8 @@ from src.core.auth import (
     require_role,
 )
 from src.core.database import (  # noqa: F401 - retained for test monkeypatching
-    engine,
     SessionLocal,
+    engine,
     get_db,
     init_db,
 )
@@ -119,13 +119,12 @@ app.include_router(trips_router)
 
 MAX_CONVERSATION_HISTORY_MESSAGES = 10
 
+
 def _configured_cors_origins() -> list[str]:
     """Read the explicit browser origins allowed to call this API."""
     configured = os.getenv("CORS_ORIGINS", "http://localhost:3000")
     return [
-        origin.strip().rstrip("/")
-        for origin in configured.split(",")
-        if origin.strip()
+        origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()
     ]
 
 
@@ -624,20 +623,14 @@ def list_documents(
 
 @app.get("/history/conversations", response_model=List[ConversationHistorySummary])
 def get_passenger_conversations(
-    current_user: AuthUser = Depends(get_current_user),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
-    """Retrieves conversations owned by the authenticated passenger or staff user."""
-    sessions_query = db.query(DbSession)
-    if current_user.user_type == "passenger":
-        sessions_query = sessions_query.filter(
-            DbSession.passenger_id == current_user.user_id
-        )
-    elif current_user.user_type == "staff":
-        sessions_query = sessions_query.filter(DbSession.staff_id == current_user.user_id)
-    else:
-        raise HTTPException(status_code=403, detail="Conversation history is unavailable.")
-    session_ids = [session.session_id for session in sessions_query.all()]
+    """Retrieve conversation history for the authenticated passenger only."""
+    sessions = (
+        db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
+    )
+    session_ids = [session.session_id for session in sessions]
 
     conversations = (
         db.query(Conversation)
@@ -667,10 +660,10 @@ def get_passenger_conversations(
 )
 def get_conversation_detail(
     conversation_id: str,
-    current_user: AuthUser = Depends(get_current_user),
+    current_user: AuthUser = Depends(require_role(["passenger"])),
     db: Session = Depends(get_db),
 ):
-    """Retrieves full dialogue history owned by the authenticated account."""
+    """Retrieve full dialogue history owned by the authenticated passenger."""
     conv = (
         db.query(Conversation)
         .filter(Conversation.conversation_id == conversation_id)
@@ -682,21 +675,11 @@ def get_conversation_detail(
     session_obj = (
         db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
     )
-    if current_user.user_type == "passenger":
-        owns_conversation = (
-            session_obj is not None
-            and session_obj.passenger_id == current_user.user_id
-        )
-    elif current_user.user_type == "staff":
-        owns_conversation = (
-            session_obj is not None and session_obj.staff_id == current_user.user_id
-        )
-    else:
-        owns_conversation = False
+    owns_conversation = (
+        session_obj is not None and session_obj.passenger_id == current_user.user_id
+    )
     if not owns_conversation:
-        raise HTTPException(
-            status_code=404, detail="Conversation not found."
-        )
+        raise HTTPException(status_code=404, detail="Conversation not found.")
 
     message_dtos = []
     for m in conv.messages:

@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { apiRequest, type TokenResponse, type UserProfile } from "@/lib/api";
 
 interface AuthContextValue {
@@ -26,6 +27,7 @@ interface AuthContextValue {
     fullName: string,
   ) => Promise<UserProfile>;
   signOut: () => void;
+  switchAccount: (returnTo: string) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -43,42 +45,15 @@ function saveSession(result: TokenResponse) {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const isStaffRoute = pathname === "/staff" || pathname.startsWith("/staff/");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const [auth0Session, setAuth0Session] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const restoreSession = async () => {
-      try {
-        const auth0Response = await fetch("/auth/access-token", {
-          credentials: "same-origin",
-        });
-        if (auth0Response.ok) {
-          const { token: auth0Token } = (await auth0Response.json()) as {
-            token?: string;
-          };
-          if (auth0Token) {
-            const backendSession = await apiRequest<TokenResponse>(
-              "/auth/auth0/exchange",
-              { method: "POST" },
-              auth0Token,
-            );
-            if (!cancelled) {
-              const profile = saveSession(backendSession);
-              setToken(backendSession.access_token);
-              setUser(profile);
-              setAuth0Session(true);
-              setReady(true);
-            }
-            return;
-          }
-        }
-      } catch {
-        // Fall back to the existing email/password session below.
-      }
-
       const storedToken = sessionStorage.getItem(TOKEN_KEY);
       if (storedToken) {
         try {
@@ -86,9 +61,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (!cancelled) {
             setToken(storedToken);
             setUser(profile);
+            setReady(true);
           }
+          return;
         } catch {
           sessionStorage.removeItem(TOKEN_KEY);
+        }
+      }
+
+      // Staff accounts use the application's own credentials. Do not silently
+      // exchange a remembered Google passenger session while visiting staff pages.
+      if (!isStaffRoute) {
+        try {
+          const auth0Response = await fetch("/auth/access-token", {
+            credentials: "same-origin",
+          });
+          if (auth0Response.ok) {
+            const { token: auth0Token } = (await auth0Response.json()) as {
+              token?: string;
+            };
+            if (auth0Token) {
+              const backendSession = await apiRequest<TokenResponse>(
+                "/auth/auth0/exchange",
+                { method: "POST" },
+                auth0Token,
+              );
+              if (!cancelled) {
+                const profile = saveSession(backendSession);
+                setToken(backendSession.access_token);
+                setUser(profile);
+                setReady(true);
+              }
+              return;
+            }
+          }
+        } catch {
+          // Keep the login page available if the Auth0 session cannot be checked.
         }
       }
       if (!cancelled) setReady(true);
@@ -97,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isStaffRoute]);
 
   const signIn = useCallback(
     async (
@@ -120,7 +128,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = saveSession(result);
       setToken(result.access_token);
       setUser(profile);
-      setAuth0Session(false);
       return profile;
     },
     [],
@@ -135,25 +142,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = saveSession(result);
       setToken(result.access_token);
       setUser(profile);
-      setAuth0Session(false);
       return profile;
     },
     [],
   );
 
-  const signOut = useCallback(() => {
+  const switchAccount = useCallback((returnTo: string) => {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem("rag_guest_conversation_id");
     setToken(null);
     setUser(null);
-    if (auth0Session) {
-      window.location.assign("/auth/logout?returnTo=%2F");
-    }
-  }, [auth0Session]);
+    const safeReturnTo =
+      returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+    window.location.assign(`/auth/logout?returnTo=${encodeURIComponent(safeReturnTo)}`);
+  }, []);
+
+  const signOut = useCallback(() => switchAccount("/"), [switchAccount]);
 
   const value = useMemo(
-    () => ({ user, token, ready, signIn, register, signOut }),
-    [user, token, ready, signIn, register, signOut],
+    () => ({ user, token, ready, signIn, register, signOut, switchAccount }),
+    [user, token, ready, signIn, register, signOut, switchAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

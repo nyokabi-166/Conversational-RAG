@@ -10,17 +10,15 @@ import { apiRequest } from "@/lib/api";
 
 export default function StaffLoginPage() {
   const router = useRouter();
-  const { user, ready, signIn } = useAuth();
-  const [username, setUsername] = useState("");
+  const { user, ready, signIn, switchAccount } = useAuth();
+  const [staffNumber, setStaffNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [adminSetupAction, setAdminSetupAction] = useState<"create" | "recover" | "disabled">("disabled");
 
   useEffect(() => {
-    if (ready && user) {
-      router.replace(user.role === "passenger" ? "/chat" : "/staff");
-    }
+    if (ready && user && user.role !== "passenger") router.replace("/staff");
   }, [ready, user, router]);
 
   useEffect(() => {
@@ -40,7 +38,7 @@ export default function StaffLoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await signIn("staff", username.trim(), password);
+      await signIn("staff", staffNumber.trim(), password);
       router.replace("/staff");
     } catch (requestError) {
       setError(
@@ -67,20 +65,36 @@ export default function StaffLoginPage() {
         </div>
         <h1 className="text-2xl font-semibold">Staff sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Use the staff username and password provided by your administrator.
+          Use the staff number or username and password provided by your administrator.
         </p>
+
+        {user?.role === "passenger" && (
+          <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <p className="text-sm">
+              You’re currently signed in as a passenger ({user.identifier}). Staff sign-in uses separate credentials.
+            </p>
+            <button
+              type="button"
+              onClick={() => switchAccount("/staff/login")}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Clear this session and switch account
+            </button>
+          </div>
+        )}
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label htmlFor="staff-username" className="text-sm font-medium">
-              Staff username
+            <label htmlFor="staff-number" className="text-sm font-medium">
+              Staff No. / username
             </label>
             <input
-              id="staff-username"
+              id="staff-number"
               autoComplete="username"
               required
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              value={staffNumber}
+              onChange={(event) => setStaffNumber(event.target.value)}
+              placeholder="Assigned by your administrator"
               className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
