@@ -3,7 +3,7 @@
 # ==========================================
 FROM python:3.11-slim AS builder
 
-ENV POETRY_VERSION=1.8.2 \
+ENV POETRY_VERSION=2.4.1 \
     POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
@@ -45,6 +45,8 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuse
 
 COPY --from=builder /app/.venv /app/.venv
 COPY src/ /app/src/
+# Pre-built policy index (Chroma) so the hosted API answers from the real documents.
+COPY kb_index/ /app/data/chroma_db/
 
 RUN chown -R appuser:appuser /app
 
