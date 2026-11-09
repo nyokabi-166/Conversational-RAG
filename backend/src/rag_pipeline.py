@@ -9,6 +9,7 @@ Aligned with Capstone specifications:
 """
 
 import os
+import threading
 from typing import Generator, List
 
 from dotenv import load_dotenv
@@ -24,11 +25,29 @@ from src.modules.llm import (
 )
 
 
-def SentenceTransformer(model_name: str):
-    """Lazy import proxy that keeps the embedding runtime out of API startup."""
-    from sentence_transformers import SentenceTransformer as SentenceTransformerClass
+# One loaded model per process. Loading all-MiniLM-L6-v2 takes seconds and hundreds
+# of MB, so it must not be repeated for every request.
+_MODEL_CACHE: dict = {}
+_MODEL_LOCK = threading.Lock()
 
-    return SentenceTransformerClass(model_name)
+
+def SentenceTransformer(model_name: str):
+    """Lazy, cached loader that keeps the embedding runtime out of API startup.
+
+    The model is loaded on first use and then reused by every later call.
+    """
+    model = _MODEL_CACHE.get(model_name)
+    if model is None:
+        with _MODEL_LOCK:
+            model = _MODEL_CACHE.get(model_name)
+            if model is None:
+                from sentence_transformers import (
+                    SentenceTransformer as SentenceTransformerClass,
+                )
+
+                model = SentenceTransformerClass(model_name)
+                _MODEL_CACHE[model_name] = model
+    return model
 
 
 class MiniLMEmbeddings(Embeddings):
