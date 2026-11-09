@@ -45,6 +45,8 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuse
 
 COPY --from=builder /app/.venv /app/.venv
 COPY src/ /app/src/
+# Pre-built policy index (Chroma) so the hosted API answers from the real documents.
+COPY kb_index/ /app/data/chroma_db/
 
 RUN chown -R appuser:appuser /app
 
