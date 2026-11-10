@@ -22,13 +22,25 @@ if not DATABASE_URL:
     db_file_path = (data_dir / "airline_rag.db").resolve()
     DATABASE_URL = f"sqlite:///{db_file_path}"
 
+# Hosts such as Neon hand out plain postgres:// or postgresql:// URLs. SQLAlchemy 2.1+
+# would then pick the psycopg (v3) driver, but this project ships psycopg2, so pin it.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql://" + DATABASE_URL[len("postgres://"):]
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len("postgresql://"):]
+
 # SQLite requires check_same_thread=False for multi-threaded/async FastAPI usage
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+# Managed Postgres (e.g. Neon) closes idle connections or suspends the compute;
+# test each pooled connection before use and recycle them periodically.
+engine_options = {} if DATABASE_URL.startswith("sqlite") else {"pool_pre_ping": True, "pool_recycle": 300}
 
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
     echo=os.getenv("SQL_ECHO", "false").lower() == "true",
+    **engine_options,
 )
 
 SessionLocal = sessionmaker(

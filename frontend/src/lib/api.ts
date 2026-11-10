@@ -1,5 +1,10 @@
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+const isProduction = process.env.NODE_ENV === "production";
+
+// Keep the localhost default for local development, but never silently bake it
+// into a hosted build when the deployment variable is missing.
 export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+  configuredApiUrl || (isProduction ? "" : "http://localhost:8000")
 ).replace(/\/$/, "");
 
 export interface UserProfile {
@@ -168,6 +173,12 @@ export async function apiRequest<T>(
   options: RequestInit = {},
   token?: string | null,
 ): Promise<T> {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "The backend URL is not configured for this deployment. Set NEXT_PUBLIC_API_URL in Vercel, then redeploy the frontend.",
+    );
+  }
+
   const headers = new Headers(options.headers);
   const isFormData =
     typeof FormData !== "undefined" && options.body instanceof FormData;
@@ -187,7 +198,7 @@ export async function apiRequest<T>(
     });
   } catch {
     throw new Error(
-      `Could not reach the backend at ${API_BASE_URL}. Check that the API is running.`,
+      `Could not reach the backend at ${API_BASE_URL}. Check that the Render service is running and that its CORS_ORIGINS includes this site's exact Vercel URL.`,
     );
   }
 
