@@ -29,7 +29,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 
 COPY pyproject.toml poetry.lock* ./
 
-RUN poetry install --no-root --only main
+RUN poetry install --no-root --only main,local-embeddings
 
 # ==========================================
 # Stage 2: Runtime image

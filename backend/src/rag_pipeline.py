@@ -8,10 +8,13 @@ Aligned with Capstone specifications:
 - Generator: Configured OpenAI-compatible model provider with real-time streaming
 """
 
+import math
 import os
 import threading
+import time
 from typing import Generator, List
 
+import httpx
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.embeddings import Embeddings
@@ -50,22 +53,159 @@ def SentenceTransformer(model_name: str):
     return model
 
 
+# ---------------------------------------------------------------------------
+# Embedding provider
+#   EMBEDDING_PROVIDER=local     (default) sentence-transformers in this process
+#   EMBEDDING_PROVIDER=deepinfra DeepInfra's hosted copy of the same model, so the
+#                                server never imports PyTorch (small-memory hosts)
+# ---------------------------------------------------------------------------
+EMBEDDING_PROVIDER_ENV = "EMBEDDING_PROVIDER"
+DEEPINFRA_EMBED_URL = "https://api.deepinfra.com/v1/openai/embeddings"
+DEFAULT_DEEPINFRA_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_DIMENSIONS = 384
+DEEPINFRA_EMBED_BATCH_SIZE = 64
+DEEPINFRA_EMBED_TIMEOUT_SECONDS = 30.0
+DEEPINFRA_EMBED_MAX_RETRIES = 3
+_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+
+_EMBED_CLIENT = None
+_EMBED_CLIENT_LOCK = threading.Lock()
+
+
+def get_embedding_provider() -> str:
+    """Return the configured embedding provider: "local" (default) or "deepinfra"."""
+    provider = (os.getenv(EMBEDDING_PROVIDER_ENV) or "local").strip().lower()
+    if provider not in {"local", "deepinfra"}:
+        raise ValueError(
+            f"{EMBEDDING_PROVIDER_ENV} must be 'local' or 'deepinfra', "
+            f"got {provider!r}."
+        )
+    return provider
+
+
+def _get_embed_client() -> httpx.Client:
+    """One shared HTTP client (httpx.Client is thread-safe) to reuse connections."""
+    global _EMBED_CLIENT
+    if _EMBED_CLIENT is None:
+        with _EMBED_CLIENT_LOCK:
+            if _EMBED_CLIENT is None:
+                _EMBED_CLIENT = httpx.Client(timeout=DEEPINFRA_EMBED_TIMEOUT_SECONDS)
+    return _EMBED_CLIENT
+
+
+def _deepinfra_post(payload: dict, api_key: str) -> httpx.Response:
+    return _get_embed_client().post(
+        DEEPINFRA_EMBED_URL,
+        json=payload,
+        headers={"Authorization": f"Bearer {api_key}"},
+        timeout=DEEPINFRA_EMBED_TIMEOUT_SECONDS,
+    )
+
+
+def _parse_embeddings(response, expected_count: int) -> List[List[float]]:
+    try:
+        rows = sorted(response.json()["data"], key=lambda row: row["index"])
+        vectors = [row["embedding"] for row in rows]
+    except (ValueError, KeyError, TypeError) as exc:
+        raise RuntimeError(
+            "DeepInfra embeddings returned an unexpected response format."
+        ) from exc
+    if len(vectors) != expected_count:
+        raise RuntimeError(
+            f"DeepInfra embeddings returned {len(vectors)} vectors for "
+            f"{expected_count} inputs."
+        )
+    normalised = []
+    for vector in vectors:
+        if len(vector) != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"DeepInfra embeddings returned {len(vector)}-dimensional vectors; "
+                f"expected {EMBEDDING_DIMENSIONS}. Check DEEPINFRA_EMBED_MODEL."
+            )
+        norm = math.sqrt(sum(value * value for value in vector)) or 1.0
+        normalised.append([float(value) / norm for value in vector])
+    return normalised
+
+
+def _deepinfra_embed_batch(batch: List[str], api_key: str, model: str):
+    payload = {"model": model, "input": batch, "encoding_format": "float"}
+    last_problem = "unknown error"
+    for attempt in range(DEEPINFRA_EMBED_MAX_RETRIES + 1):
+        try:
+            response = _deepinfra_post(payload, api_key)
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            last_problem = f"network error ({type(exc).__name__})"
+        else:
+            if response.status_code == 200:
+                return _parse_embeddings(response, len(batch))
+            if response.status_code not in _RETRYABLE_STATUS_CODES:
+                raise RuntimeError(
+                    "DeepInfra embeddings request was rejected "
+                    f"(HTTP {response.status_code}). Check DEEPINFRA_API_KEY and "
+                    "DEEPINFRA_EMBED_MODEL."
+                )
+            last_problem = f"HTTP {response.status_code}"
+        if attempt < DEEPINFRA_EMBED_MAX_RETRIES:
+            time.sleep(2**attempt)
+    raise RuntimeError(
+        f"DeepInfra embeddings failed after {DEEPINFRA_EMBED_MAX_RETRIES + 1} "
+        f"attempts ({last_problem})."
+    )
+
+
+def deepinfra_embed(texts: List[str]) -> List[List[float]]:
+    """Embed texts with DeepInfra in batches; returns L2-normalised 384-dim vectors."""
+    texts = list(texts)
+    if not texts:
+        return []
+    api_key = (os.getenv("DEEPINFRA_API_KEY") or "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "DEEPINFRA_API_KEY is not set; it is required when "
+            f"{EMBEDDING_PROVIDER_ENV}=deepinfra."
+        )
+    model = (
+        os.getenv("DEEPINFRA_EMBED_MODEL") or DEFAULT_DEEPINFRA_EMBED_MODEL
+    ).strip()
+    vectors: List[List[float]] = []
+    for start in range(0, len(texts), DEEPINFRA_EMBED_BATCH_SIZE):
+        batch = texts[start : start + DEEPINFRA_EMBED_BATCH_SIZE]
+        vectors.extend(_deepinfra_embed_batch(batch, api_key, model))
+    return vectors
+
+
 class MiniLMEmbeddings(Embeddings):
-    """LangChain-compatible embedding wrapper for Sentence Transformers all-MiniLM-L6-v2."""
+    """LangChain-compatible embeddings for all-MiniLM-L6-v2.
+
+    Uses the local Sentence Transformers model by default, or DeepInfra's hosted
+    copy when EMBEDDING_PROVIDER=deepinfra (no PyTorch import in that mode).
+    """
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        # Load the heavyweight embedding runtime only when an embedding operation
-        # is actually needed. Importing the API should not initialize Torch.
-        self.model = SentenceTransformer(model_name)
+        self.model_name = model_name
+        self.model = None
+        # Default behaviour is unchanged: load the local model up front. In
+        # deepinfra mode the heavyweight runtime is never imported.
+        if get_embedding_provider() == "local":
+            self.model = SentenceTransformer(model_name)
+
+    def _local_model(self):
+        if self.model is None:
+            self.model = SentenceTransformer(self.model_name)
+        return self.model
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        embeddings = self.model.encode(
+        if get_embedding_provider() == "deepinfra":
+            return deepinfra_embed(texts)
+        embeddings = self._local_model().encode(
             texts, batch_size=32, show_progress_bar=False, convert_to_numpy=True
         )
         return embeddings.tolist()
 
     def embed_query(self, text: str) -> List[float]:
-        embedding = self.model.encode(text, convert_to_numpy=True)
+        if get_embedding_provider() == "deepinfra":
+            return deepinfra_embed([text])[0]
+        embedding = self._local_model().encode(text, convert_to_numpy=True)
         return embedding.tolist()
 
 

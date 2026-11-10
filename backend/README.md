@@ -5,12 +5,29 @@ FastAPI backend service for airline customer support conversational AI, providin
 ## 🚀 Setup & Execution
 
 ```bash
-# Install dependencies into virtualenv
-poetry install --with dev
+# Install dependencies into virtualenv (local development)
+poetry install --with dev,local-embeddings
+
+# Local development and evaluation (includes the local embedding runtime)
+poetry install --with local-embeddings,evaluation
+
+# Dependencies only, without the local PyTorch embedding runtime (matches the
+# deployed backend, which embeds through DeepInfra)
+poetry install --only main
 
 # Run locally
 poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+## Embeddings provider
+
+`EMBEDDING_PROVIDER` selects where query and document vectors come from:
+
+- `local` (default): the `all-MiniLM-L6-v2` model runs in-process via `sentence-transformers` (PyTorch). This is what evaluation runs and local development use by default, and it is unchanged behaviour when the variable is unset. It requires the `local-embeddings` Poetry group.
+- `deepinfra`: vectors come from DeepInfra's hosted copy of the same model, so the process never imports PyTorch and fits small memory limits. Requires `DEEPINFRA_API_KEY`. Optional `DEEPINFRA_EMBED_MODEL` overrides the model (default `sentence-transformers/all-MiniLM-L6-v2`).
+
+The deployed backend (Render, Hugging Face Spaces) sets `EMBEDDING_PROVIDER=deepinfra`; evaluation scripts keep using local embeddings. Both routes return normalised 384-dimensional vectors against the same `kb_index`.
+
 
 ## Language models
 
@@ -20,11 +37,11 @@ OpenRouter is the primary generation provider. Set `LLM_PROVIDER=openrouter`, `O
 
 DeepInfra is configured as a manual backup, not an automatic failover. To use it, set `LLM_PROVIDER=deepinfra` and configure `DEEPINFRA_API_KEY` and `DEEPINFRA_MODEL`, then restart the backend. Switch back by restoring `LLM_PROVIDER=openrouter`. The application does not silently switch providers or models. For a formal RAG-versus-baseline evaluation, keep one provider/model fixed for the entire run and record it; do not mix results from the backup model into the same comparison. Docker Compose reads settings from the project-root `.env`.
 
-The same selected provider/model is used by chat, the RAG pipeline, and the no-retrieval baseline. RAGAS uses a separate OpenRouter account for judging; set `OPENROUTER_JUDGE_API_KEY` and `OPENROUTER_JUDGE_MODEL` in `backend/.env`. The default judge route is `google/gemini-3.1-flash-lite`. Gemini remains available for draft evaluation-question generation through `GEMINI_API_KEY` and `GEMINI_TESTSET_MODEL`. Keep keys server-side, keep the generator and judge roles separate, and record both model names and providers when reporting results. Confirm the generation model matches the approved paper methodology before recording formal results.
+The same selected provider/model is used by chat, the RAG pipeline, and the no-retrieval baseline. RAGAS uses an independent Gemini 3.1 Flash Lite judge through DeepInfra by default. Set `RAGAS_JUDGE_PROVIDER=deepinfra` and optionally `DEEPINFRA_JUDGE_MODEL=google/gemini-3.1-flash-lite` in `backend/.env`; the judge uses `DEEPINFRA_JUDGE_API_KEY` when set, otherwise it reuses `DEEPINFRA_API_KEY`. To use OpenRouter instead, set `RAGAS_JUDGE_PROVIDER=openrouter`, `OPENROUTER_JUDGE_API_KEY`, and optionally `OPENROUTER_JUDGE_MODEL`. Gemini remains available for draft evaluation-question generation through `GEMINI_API_KEY` and `GEMINI_TESTSET_MODEL`. Keep keys server-side, keep the generator and judge roles separate, and record both model names and providers when reporting results. Confirm the generation model matches the approved paper methodology before recording formal results.
 
 HTML policy tables are indexed with their row and column labels preserved. Retrieval combines MiniLM semantic search with keyword ranking so exact policy terms and table rows can surface even when a broad question has weak semantic matches. After updating the parser, rebuild the existing local index once with `poetry -C backend run python scripts/reindex_documents.py` from the repository root. Re-uploading a document replaces its existing chunks for that filename instead of adding duplicate chunks.
 
-The RAG chatbot and no-retrieval evaluation baseline use this same configured model. RAGAS uses a separate OpenRouter judge key; set `OPENROUTER_JUDGE_API_KEY` and `OPENROUTER_JUDGE_MODEL` in the backend environment file. Gemini is used only if you generate draft evaluation questions.
+The RAG chatbot and no-retrieval evaluation baseline use this same configured model. RAGAS uses an independent Gemini 3.1 Flash Lite judge through DeepInfra by default. Set `RAGAS_JUDGE_PROVIDER=openrouter` only when intentionally switching the judge back to OpenRouter. Gemini is used separately for draft evaluation-question generation only if you configure `GEMINI_API_KEY`.
 
 ## Passenger and staff accounts
 
