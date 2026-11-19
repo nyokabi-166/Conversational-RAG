@@ -1,0 +1,140 @@
+{
+  "runs_per_question": 3,
+  "questions": [
+    {
+      "id": "D01",
+      "question": "What is my baggage allowance?",
+      "answers": [
+        "- For Africa <-> America/Europe, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> America/Europe, Economy Class: 2 pieces, up to 23kg each.\n- For Africa <-> Middle East /Asia, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> Middle East /Asia, Economy Class: 2 pieces, up to 23kg each.\n- For Bangkok <-> Guangzhou-Bangkok, Business Class: 1 piece, up to 32kg.\n- For Bangkok <-> Guangzhou-Bangkok, Economy Class: 1 piece, up to 23kg.\n\nNext step: Could you please tell me your route and cabin class?",
+        "- For Africa <-> America/Europe, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> America/Europe, Economy Class: 2 pieces, up to 23kg each.\n- For Africa <-> Middle East /Asia, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> Middle East /Asia, Economy Class: 2 pieces, up to 23kg each.\n- For Bangkok <-> Guangzhou-Bangkok, Business Class: 1 piece, up to 32kg.\n- For Bangkok <-> Guangzhou-Bangkok, Economy Class: 1 piece, up to 23kg.\n\nNext step: Could you please tell me your route and cabin class?",
+        "- For Africa <-> America/Europe, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> America/Europe, Economy Class: 2 pieces, up to 23kg each.\n- For Africa <-> Middle East /Asia, Business Class: 2 pieces, up to 32kg each.\n- For Africa <-> Middle East /Asia, Economy Class: 2 pieces, up to 23kg each.\n- For Bangkok <-> Guangzhou-Bangkok, Business Class: 1 piece, up to 32kg.\n- For Bangkok <-> Guangzhou-Bangkok, Economy Class: 1 piece, up to 23kg.\n\nNext step: Could you please tell me your route and cabin class?"
+      ]
+    },
+    {
+      "id": "D03",
+      "question": "How much luggage am I allowed on Kenya Airways?",
+      "answers": [
+        "- For Africa to America/Europe flights, Business Class: 2 pieces, up to 32kg each.\n- For Africa to America/Europe flights, Economy Class: 2 pieces, up to 23kg each.\n- For Africa to Middle East/Asia flights, Business Class: 2 pieces, up to 32kg each.\n- For Africa to Middle East/Asia flights, Economy Class: 2 pieces, up to 23kg each.\n- For Bangkok to Guangzhou flights, Business Class: 1 piece, up to 32kg.\n- For Bangkok to Guangzhou flights, Economy Class: 1 piece, up to 23kg.\n\nNext step: Could you please tell me your route and cabin class?",
+        "- For Africa to America/Europe, Business Class: 2 pieces, up to 32kg/70lbs each.\n- For Africa to America/Europe, Economy Class: 2 pieces, up to 23kg/50lbs each.\n- For Africa to Middle East/Asia, Business Class: 2 pieces, up to 32kg/70lbs each.\n- For Africa to Middle East/Asia, Economy Class: 2 pieces, up to 23kg/50lbs each.\n- For Bangkok to Guangzhou, Business Class: 1 piece, up to 32kg/70lbs.\n- For Bangkok to Guangzhou, Economy Class: 1 piece, up to 23kg/50lbs.\n- For Nairobi to Mumbai, Business Class: 1 piece, up to 32kg/70lbs.\n- For Nairobi to Mumbai, Economy Class: 1 piece, up to 23kg/50lbs.\n\nNext step: Which route and cabin class are you travelling in?",
+        "- For Africa to America/Europe flights, Business Class: 2 pieces, up to 32kg each.\n- For Africa to America/Europe flights, Economy Class: 2 pieces, up to 23kg each.\n- For Africa to Middle East/Asia flights, Business Class: 2 pieces, up to 32kg each.\n- For Africa to Middle East/Asia flights, Economy Class: 2 pieces, up to 23kg each.\n- For Bangkok to Guangzhou flights, Business Class: 1 piece, up to 32kg.\n- For Bangkok to Guangzhou flights, Economy Class: 1 piece, up to 23kg.\n\nNext step: Could you please tell me your route and cabin class?"
+      ]
+    },
+    {
+      "id": "D05",
+      "question": "What is the checked baggage allowance for a flight from Nairobi to Dubai in economy?",
+      "answers": [
+        "- For flights from Nairobi to Dubai, economy class: 2 pieces, up to 23kg each.\n- The combined weight of the 2 bags cannot exceed 46kg.\n- The total dimensions of the 2 bags cannot exceed 158cms (L+W+H).\nNext step: What is your route and cabin class?",
+        "- For a flight from Nairobi to Dubai in economy, the checked baggage allowance is 2 pieces, up to 23kg each.\n- The maximum dimensions for each piece are not specified in the provided policy context.\n- Next step: What is your route and cabin class for this flight?",
+        "- For flights from Nairobi to Dubai in economy, the checked baggage allowance is 2 pieces, up to 23kg each.\n- The maximum combined weight for all checked baggage is not specified in this context.\n- Next step: What is your route and cabin class for this flight?"
+      ]
+    },
+    {
+      "id": "D06",
+      "question": "How many kilos can I check in flying business class to London?",
+      "answers": [
+        "- For flights to/from Europe, the Business Class checked baggage allowance is 2 pieces, up to 32kg each.\n- You can check in 2 pieces of luggage, each weighing up to 32kg.\n- If you are an Asante Silver, Gold, or Platinum tier frequent flyer member, you can check in 1 additional piece of luggage, up to 32kg.\n\nNext step: Please let me know your route and cabin class to confirm the baggage allowance details.",
+        "- For flights to/from Europe, the business class checked baggage allowance is 2 pieces, each up to 32kg/70lbs.\n- The total weight of checked baggage is 64kg/140lbs.\n- You can check in 2 pieces of baggage, each up to 32kg/70lbs.\n- If you are an Asante Silver, Gold, or Platinum tier member, you can check in 1 additional piece of baggage, as per the cabin of travel.\n\nNext step: Can you please tell me your route and cabin class so I can provide more specific information?",
+        "- For flights to/from Europe, the business class allowance is 2 pieces, up to 32kg each.\n- You can check in 2 pieces, each up to 32kg, for your business class flight to London.\n- The total weight of your checked baggage should not exceed 64kg.\nNext step: What is your route and cabin class?"
+      ]
+    },
+    {
+      "id": "D07",
+      "question": "What am I allowed to carry in the cabin when flying business?",
+      "answers": [
+        "- For flights to/from EU, US & UK, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\n- For all other routes, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\nNext step: Which route are you travelling in?",
+        "- For flights to/from EU, US & UK, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\n- For all other routes, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\n- You may also carry personal accessories, such as a handbag, backpack, briefcase, camera, laptop, and 1 duty-free shopping bag per passenger.\n\nNext step: Which route are you travelling in?",
+        "- For flights to/from EU, US & UK, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\n- For all other routes, you may bring 2 pieces of hand luggage (max L55xW25xH35cm each) + 1 accessory (total weight max 18kgs/39lbs).\n- You may also carry personal accessories, such as a handbag, backpack, briefcase, camera, laptop, and 1 duty-free shopping bag per passenger.\n\nNext step: Which route are you travelling in?"
+      ]
+    },
+    {
+      "id": "D10",
+      "question": "Which documents are required to travel internationally with Kenya Airways?",
+      "answers": [
+        "- You are responsible for obtaining all required travel documents and visas for your destination.\n- Present all exit, entry, health, and other documents required by law, regulation, order, demand, or other requirement of the countries concerned.\n- Permit us to take and retain copies of your documents.\n- We reserve the right to refuse carriage if you have not complied with these requirements, or your travel documents do not appear to be in order.\n\nNext step: What are the countries you plan to travel to and from?",
+        "- You are responsible for obtaining all required travel documents and visas for your journey.\n- You must present all exit, entry, health, and other documents required by law, regulation, order, demand, or other requirement of the countries concerned.\n- We reserve the right to refuse carriage if you have not complied with these requirements, or your travel documents do not appear to be in order.\n- You must verify the requirements prior to booking and travel.\n- You are responsible for ensuring that your travel documents are valid and in order.\n\nNext step: Please check the visa and health information for your destination on our website to ensure you have the necessary documents.",
+        "- You are responsible for obtaining all required travel documents and visas for your journey.\n- You must present all exit, entry, health, and other documents required by law, regulation, order, demand, or other requirement of the countries concerned.\n- We reserve the right to refuse carriage if you have not complied with these requirements, or your travel documents do not appear to be in order.\n- You must verify the requirements prior to booking and travel.\n- You are responsible for ensuring that your travel documents are valid and in order.\n\nNext step: Please check the visa and health information for your destination on our website to ensure you have the necessary documents."
+      ]
+    },
+    {
+      "id": "D12",
+      "question": "How much does excess baggage cost?",
+      "answers": [
+        "- Excess baggage charges apply if each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.\n- For flights originating or terminating to the US/CANADA, piece concept applies based on the specified weight.\n- Excess baggage charges are applied through to the final destination.\n- Normal excess baggage charges apply for bags > 23kgs and <32kgs/70lbs.\n- Normal Overweight/Heavy bag charges will apply for bags > 23kgs and <32kgs/70lbs.\n\nNext step: Could you please tell me your route and cabin class?",
+        "- Excess baggage charges apply if each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.\n- The pooling consist in pooling the number of baggage but not the weight per piece for example if Free Baggage Allowance = 2PC of 23 kg each, customers cannot come with 1 bag of 18 kg and another of 26 kg.\n- Normal excess baggage charges apply for bags > 23kgs and <32kgs/70lbs.\n\nNext step: Could you please tell me your route and cabin class so I can provide you with the exact excess baggage charges?",
+        "- Excess baggage charges apply if each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.\n- For flights originating or terminating to the US/CANADA, piece concept applies based on the specified weight.\n- Excess charges apply if each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.\n- Excess charges apply if a special baggage has been checked in, for which a charge is due e.g. sporting equipment.\n- Extra seat(s) can be booked for passenger\u2019s comfort (e.g. leg rest, etc.) or for stowage of cabin baggage (e.g. valuables, diplomatic pouch, fragile items, musical instruments, paintings etc.).\n\nNext step: Could you please tell me your route and cabin class?"
+      ]
+    },
+    {
+      "id": "D13",
+      "question": "How early should I get to the airport for an international flight?",
+      "answers": [
+        "- For international flights, you must complete the check-in process at least 2.5 hours before the flight's departure, regardless of the travel class.\n- The check-in counters close precisely 1 hour before the scheduled departure time.\n- You should also allow additional time to complete security, immigration, and other formalities.\n- We recommend checking the check-in deadlines for your specific flight and airport.\n\nNext step: What is your flight number and departure airport?",
+        "- For international flights, you must complete the check-in process at least 2.5 hours before the flight's departure, regardless of the travel class.\n- The check-in counters close precisely 1 hour before the scheduled departure time.\n- You should also allow additional time to complete security, immigration, and other formalities.\n- We recommend checking the check-in deadlines for your specific flight and airport.\n\nNext step: What is your flight number and departure airport?",
+        "- For international flights, you must complete the check-in process at least 2.5 hours before the flight's departure, regardless of the travel class.\n- The check-in counters close precisely 1 hour before the scheduled departure time.\n- You should also allow additional time to complete security, immigration, and other formalities.\n- We recommend checking the check-in deadlines for your specific flight and airport.\n\nNext step: What is your flight number and departure airport?"
+      ]
+    },
+    {
+      "id": "D15",
+      "question": "Can I get a refund if I cancel my booking?",
+      "answers": [
+        "- If your booking is completely unused, you are entitled to a refund of the fare paid, less any reasonable service charges or cancellation fees.\n- If a portion of the Ticket has been used, the refund will be an amount equal to the difference between the fare paid and the applicable fare for travel between the points for which the Ticket has been used, less any reasonable service charges or cancellation fees.\n- Refunds will only be made subject to the ticket rules.\n- If you cancel your booking, you should contact our Global Contact Centers or local offices to initiate the refund process.\n- The refund will be made in the same manner and the same currency used to pay for the Ticket.\n\nNext step: Please provide your booking reference number so I can assist you further.",
+        "- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: a refund is possible, but fees for booking changes are non-refundable.\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: the amount of the refund shall be an amount equal to the fare paid, less any reasonable service charges or cancellation fees.\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: if a portion of the Ticket has been used, the refund will be an amount equal to the difference between the fare paid and the applicable fare for travel between the points for which the Ticket has been used, less any reasonable service charges or cancellation fees.\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: we may refuse a refund where application is made after the expiry of the validity of the Ticket.\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: you should contact our Global Contact Centers or local offices to request a refund.\n\nNext step: What type of fare did you book?",
+        "- If your booking is completely unused, you are entitled to a refund of the fare paid, less any reasonable service charges or cancellation fees.\n- If a portion of the Ticket has been used, the refund will be an amount equal to the difference between the fare paid and the applicable fare for travel between the points for which the Ticket has been used, less any reasonable service charges or cancellation fees.\n- Refunds will only be made subject to the ticket rules.\n- If you cancel your booking, you should contact our Global Contact Centers or local offices to initiate the refund process.\n- The refund will be made in the same manner and the same currency used to pay for the Ticket.\n\nNext step: Please provide your booking reference number so I can assist you further."
+      ]
+    },
+    {
+      "id": "D16",
+      "question": "How do I change the date of my flight?",
+      "answers": [
+        "You can modify your flight details online through Manage My Booking, if your booking was purchased directly from Kenya-airways.com, Kenya Airways direct offices and preferred travel agents. For flights purchased from travel agents and 3rd party websites, you need to contact your travel agent in case of ticket refund.\n\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: you can change your travel dates online.\n- For Best Buy: you can change your travel dates online, but some special fares may not be changed at all, or may be changed only upon payment of an additional fee.\n\nNext step: Please log in to Manage My Booking to check if you can make changes to your flight details online.",
+        "You can modify your flight details online through Manage My Booking, if your booking was purchased directly from Kenya-airways.com, Kenya Airways direct offices and preferred travel agents. For flights purchased from travel agents and 3rd party websites, you need to contact your travel agent in case of ticket refund.\n\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: you can change your travel dates online.\n- For Best Buy: you can change your travel dates online, but some special fares may not be changed at all, or may be changed only upon payment of an additional fee.\n\nNext step: Please log in to Manage My Booking to check if you can make changes to your flight details online.",
+        "You can modify your flight details online through Manage My Booking, if your booking was purchased directly from Kenya-airways.com, Kenya Airways direct offices and preferred travel agents. For flights purchased from travel agents and 3rd party websites, you need to contact your travel agent in case of ticket refund.\n\n- For Economy, Economy flex, Economy Super flex, Business Best Buy, Business: you can change your travel dates online.\n- For Best Buy: you can change your travel dates online, but some special fares may not be changed at all, or may be changed only upon payment of an additional fee.\n\nNext step: Please log in to Manage My Booking to check if you can make changes to your flight details online."
+      ]
+    },
+    {
+      "id": "D17",
+      "question": "Can I fly while pregnant?",
+      "answers": [
+        "Travel is permitted up to the 36th week (single) or 32nd week (multiple). Beyond these limits, carriage is refused. A medical certificate may be required for travel after the 28th week.\n\n- For uncomplicated pregnancies, travel is permitted up to the 36th week (single) or 32nd week (multiple).\n- Beyond these limits, carriage is refused.\n- A medical certificate may be required for travel after the 28th week.\n\nNext step: What is your expected delivery date?",
+        "Travel is permitted up to the 36th week (single) or 32nd week (multiple). Beyond these limits, carriage is refused. A medical certificate may be required for travel after the 28th week.\n\n- For uncomplicated pregnancies, travel is permitted up to the 36th week (single) or 32nd week (multiple).\n- Beyond these limits, carriage is refused.\n- A medical certificate may be required for travel after the 28th week.\n\nNext step: What is your expected delivery date?",
+        "Travel is permitted up to the 36th week (single) or 32nd week (multiple). Beyond these limits, carriage is refused. A medical certificate may be required for travel after the 28th week.\n\n- For uncomplicated pregnancies, travel is permitted up to the 36th week (single) or 32nd week (multiple).\n- Beyond these limits, carriage is refused.\n- A medical certificate may be required for travel after the 28th week.\n\nNext step: What is your expected delivery date?"
+      ]
+    },
+    {
+      "id": "D19",
+      "question": "Can I travel with my dog in the cabin?",
+      "answers": [
+        "- Only accepted on all KQ Direct (Non-stop) flights. No transfers for service animals will be provided.\n- Maximum of one (1) dog per passenger.\n- Maximum of one (1) dog is accepted on narrow body aircrafts and maximum two (2) dogs are accepted on wide body aircrafts.\n- Assistance dogs permitted must be older than 4 months, except as provided by applicable law.\n- Emotional support animals that do not meet the definition of \u2018service dog,\u2019 and non-service-animal pets, may be transported for a fee if arranged with us.\nNext step: Please tell me your route and cabin class to confirm if it's a direct flight and what type of animal you're planning to travel with.",
+        "- Traveling with a dog in the cabin is not allowed on Kenya Airways flights.\n- However, you can travel with a service dog or an emotional support dog in the cabin, subject to certain conditions.\n- For service dogs, advance booking reservation is required up to 48hrs to departure. Contact KQ Medical team: Doctors.KQ@kenya-airways.com or Contact Centre.\n- For emotional support dogs, you must provide a letter from a veterinary doctor and a dog training certificate.\n- Service and emotional support dogs must always wear a harness and must always remain with the passenger.\n- Valid documentation shall not be older than 1 year from departure dates.\n- Passengers with service animals and emotional support animals will NOT be assigned Emergency Exit seats/rows.\n- Service & Emotional support dogs\u2019 onboard aircrafts MUST be trained to behave in public.\n- Service & Emotional support dogs should not be subjected to using masks and sanitising liquids.\n- Final verification is at the airport, where KQ Customer service representative will authorise service or emotional support dog travel on-board.\n\nNext step: Please let me know if you are traveling with a service dog or an emotional support dog, and provide the necessary documentation.",
+        "- Travel with a dog in the cabin is only allowed for service animals and emotional support animals.\n- Service animals must be trained to do work or perform tasks for the benefit of a qualified individual with a disability.\n- Emotional support animals must meet the definition of a service dog, or be transported for a fee if arranged with us.\n- For flights to and from the United States, you must provide us with a completed U.S. Department of Transportation Service Animal Air Transportation Form and U.S. Department of Transportation Service Animal Relief Attestation Form.\n- Advance booking reservation is required up to 48hrs to departure. Contact KQ Medical team: Doctors.KQ@kenya-airways.com or Contact Centre.\n\nNext step: Which type of animal is your dog, and are you travelling to or from the United States?"
+      ]
+    },
+    {
+      "id": "D20",
+      "question": "Do you serve hot meals in economy on flights to Europe?",
+      "answers": [
+        "I couldn't find that in the Kenya Airways pages I have.",
+        "I couldn't find that in the Kenya Airways pages I have.",
+        "I couldn't find that in the Kenya Airways pages I have."
+      ]
+    },
+    {
+      "id": "D23",
+      "question": "Does Kenya Airways fly to Reykjavik?",
+      "answers": [
+        "I couldn't find that in the Kenya Airways pages I have.",
+        "I couldn't find that in the Kenya Airways pages I have.",
+        "I couldn't find that in the Kenya Airways pages I have."
+      ]
+    },
+    {
+      "id": "D29",
+      "question": "Is there internet on board?",
+      "answers": [
+        "- Internet is available on all KQ flights.\n- The internet connection speed is a minimum of 512kbps.\n- You can access the internet using your internet browser, such as Firefox version 32, Chrome version 37, Safari 7 latest version, or IE versions 7,8,9,10.\n- You can access Msafiriconnect at www.kenya-airways.com/msafiriconnect.\n\nNext step: Which route and cabin class are you travelling in?",
+        "- Internet is available on all KQ flights.\n- The internet connection speed is a minimum of 512kbps.\n- You can access the internet using your internet browser, such as Firefox version 32, Chrome version 37, Safari 7 latest version, or IE versions 7,8,9,10.\n- You can access Msafiriconnect at www.kenya-airways.com/msafiriconnect.\n\nNext step: Which route and cabin class are you travelling in?",
+        "- Internet is available on board, but the speed is not specified.\n- The internet browser options are: Firefox version 32, Chrome version 37, Safari 7 latest version, and IE versions 7,8,9,10.\n- You can access the Msafiriconnect site on board.\nNext step: Which route and cabin class are you travelling in?"
+      ]
+    }
+  ]
+}

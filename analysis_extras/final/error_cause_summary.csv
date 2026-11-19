@@ -1,0 +1,7 @@
+cause,count,percent
+generation_omission,27,67.5
+wrong_value,5,12.5
+other,4,10.0
+incomplete_context,2,5.0
+retrieval_miss,1,2.5
+judge_error,1,2.5

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380">
+<rect width="640" height="380" fill="#FFFFFF"/>
+<text x="320.0" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0F172A">Document Retrieval Before vs After Adding Verified Policy Pages (n=195)</text>
+<line x1="80" y1="320.0" x2="600" y2="320.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="324.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">0.0</text>
+<line x1="80" y1="268.0" x2="600" y2="268.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="272.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">0.2</text>
+<line x1="80" y1="216.0" x2="600" y2="216.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="220.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">0.4</text>
+<line x1="80" y1="164.0" x2="600" y2="164.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="168.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">0.6</text>
+<line x1="80" y1="112.0" x2="600" y2="112.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="116.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">0.8</text>
+<line x1="80" y1="60.0" x2="600" y2="60.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="68" y="64.0" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">1.0</text>
+<rect x="118.7" y="102.7" width="44" height="217.3" fill="#D95F02" rx="2"/>
+<text x="140.7" y="96.7" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#D95F02">0.836</text>
+<rect x="170.7" y="66.7" width="44" height="253.3" fill="#008837" rx="2"/>
+<text x="192.7" y="60.7" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#008837">0.974</text>
+<text x="166.7" y="342.0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#0F172A">Recall@3</text>
+<rect x="292.0" y="98.7" width="44" height="221.3" fill="#D95F02" rx="2"/>
+<text x="314.0" y="92.7" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#D95F02">0.851</text>
+<rect x="344.0" y="61.3" width="44" height="258.7" fill="#008837" rx="2"/>
+<text x="366.0" y="55.3" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#008837">0.995</text>
+<text x="340.0" y="342.0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#0F172A">Recall@5</text>
+<rect x="465.3" y="111.2" width="44" height="208.8" fill="#D95F02" rx="2"/>
+<text x="487.3" y="105.2" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#D95F02">0.803</text>
+<rect x="517.3" y="74.4" width="44" height="245.6" fill="#008837" rx="2"/>
+<text x="539.3" y="68.4" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#008837">0.945</text>
+<text x="513.3" y="342.0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#0F172A">MRR</text>
+<rect x="190.0" y="356" width="14" height="14" fill="#D95F02" rx="2"/>
+<text x="210.0" y="368" font-family="system-ui, sans-serif" font-size="12" fill="#334155">10-page index (before)</text>
+<rect x="350.0" y="356" width="14" height="14" fill="#008837" rx="2"/>
+<text x="370.0" y="368" font-family="system-ui, sans-serif" font-size="12" fill="#334155">12-page index (after)</text>
+</svg>

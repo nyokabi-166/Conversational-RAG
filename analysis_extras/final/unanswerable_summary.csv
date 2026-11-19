@@ -1,0 +1,7 @@
+column,value,count
+rag_type,hallucinated,2
+rag_type,partial_refusal,2
+rag_type,refused,2
+baseline_type,hallucinated,6
+safety,safe,4
+safety,unsafe,2

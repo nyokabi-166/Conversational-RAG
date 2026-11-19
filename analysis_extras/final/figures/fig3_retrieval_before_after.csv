@@ -1,0 +1,7 @@
+metric,condition,pages,n,score
+Recall@3,10-page index (before),10,195,0.8359
+Recall@3,12-page index (after),12,195,0.9744
+Recall@5,10-page index (before),10,195,0.8513
+Recall@5,12-page index (after),12,195,0.9949
+MRR,10-page index (before),10,195,0.8031
+MRR,12-page index (after),12,195,0.9445

@@ -1,0 +1,5 @@
+subset,n,threshold,percent_agreement,kappa,tp,tn,fp,fn
+overall,44,0.5,84.09,0.6091,28,9,3,4
+overall,44,0.7,72.73,0.4545,21,11,1,11
+answerable_only,44,0.5,84.09,0.6091,28,9,3,4
+answerable_only,44,0.7,72.73,0.4545,21,11,1,11

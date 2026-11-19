@@ -1,0 +1,7 @@
+metric,condition,n,score
+Identical Answer Rate,"before (old prompt, temp 0.1)",30,0.187
+Identical Answer Rate,"after (new prompt, temp 0, seed 42)",30,0.793
+Fact-set Jaccard,"before (old prompt, temp 0.1)",30,0.76
+Fact-set Jaccard,"after (new prompt, temp 0, seed 42)",30,0.958
+All-5 Identical Facts,"before (old prompt, temp 0.1)",30,0.467
+All-5 Identical Facts,"after (new prompt, temp 0, seed 42)",30,0.833

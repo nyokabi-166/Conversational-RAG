@@ -1,0 +1,5 @@
+system,answerability,refused,questions,rate
+Baseline,answerable,0,12,0.0
+Baseline,unanswerable,0,3,0.0
+RAG,answerable,0,12,0.0
+RAG,unanswerable,0,3,0.0

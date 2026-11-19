@@ -1,0 +1,13 @@
+category,system,faithfulness_mean,faithfulness_std,faithfulness_count,context_recall_mean,context_recall_std,context_recall_count,answer_relevancy_mean,answer_relevancy_std,answer_relevancy_count,answer_correctness_mean,answer_correctness_std,answer_correctness_count
+conditional_policy,Baseline,,,0,,,0,0.8154,0.105,5,0.2739,0.2008,5
+conditional_policy,RAG,0.6791,0.1451,5,1.0,0.0,5,0.7331,0.1466,5,0.5569,0.2485,5
+navigation,Baseline,,,0,,,0,0.0,,1,0.1318,,1
+navigation,RAG,0.0,,1,1.0,,1,0.5993,,1,0.851,,1
+policy_summary,Baseline,,,0,,,0,0.7586,,1,0.5226,,1
+policy_summary,RAG,0.875,,1,1.0,,1,0.8803,,1,0.8807,,1
+procedure,Baseline,,,0,,,0,0.7782,,1,0.1713,,1
+procedure,RAG,0.75,,1,1.0,,1,0.3346,,1,0.6716,,1
+table_lookup,Baseline,,,0,,,0,0.8509,0.1257,4,0.2049,0.1331,4
+table_lookup,RAG,0.8264,0.1476,4,1.0,0.0,4,0.8147,0.1106,4,0.647,0.23,4
+unanswerable,Baseline,,,0,,,0,0.9074,0.0424,3,0.1349,0.0376,3
+unanswerable,RAG,0.2286,0.206,3,1.0,0.0,3,0.5297,0.4634,3,0.3,0.2043,3
