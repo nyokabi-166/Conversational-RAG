@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+from src.modules.prompts import RAG_SYSTEM_PROMPT
 from langchain_openai import ChatOpenAI
 
 load_dotenv()
@@ -36,6 +38,33 @@ def get_model_name() -> str:
     )
 
 
+def get_llm_temperature() -> float:
+    """Sampling temperature for chat, RAG and evaluation (0 = most repeatable)."""
+    try:
+        return float(os.getenv("LLM_TEMPERATURE", "0"))
+    except ValueError:
+        return 0.0
+
+
+DEFAULT_LLM_SEED = "42"
+
+
+def get_llm_seed() -> int | None:
+    """Sampling seed; supported by DeepInfra/OpenAI-compatible providers.
+
+    Seed support is best-effort (the provider may ignore it). The A5 probe on
+    DeepInfra showed seeded runs agreed 2/2 while unseeded runs differed 0/2, so
+    42 is the default; set LLM_SEED=none/off to disable.
+    """
+    raw = os.getenv("LLM_SEED", DEFAULT_LLM_SEED).strip().casefold()
+    if raw in {"", "none", "off"}:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
 def get_chat_model():
     """Create the shared model client for chat, RAG, and evaluation."""
     provider = get_model_provider()
@@ -56,35 +85,24 @@ def get_chat_model():
             )
         base_url = OPENROUTER_BASE_URL
 
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=base_url,
-        temperature=0.1,
-    )
+    options = {
+        "model": model_name,
+        "api_key": api_key,
+        "base_url": base_url,
+        "temperature": get_llm_temperature(),
+        "request_timeout": 120,
+        "max_retries": 1,
+    }
+    seed = get_llm_seed()
+    if seed is not None:
+        options["seed"] = seed
+    return ChatOpenAI(**options)
 
 
 def get_llm_chain():
     prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                (
-                    "You are the official Kenya Airways Customer Support Virtual Assistant ('Pride of Africa'). "
-                    "Your mission is to provide accurate, warm, polite, and well-structured answers "
-                    "based strictly on official airline policy context.\n\n"
-                    "### How to Format Your Responses:\n"
-                    "1. **Direct Answer First**: Always open with a direct, helpful summary answering the passenger's question.\n"
-                    "2. **Stay on the question**: Answer only what the passenger asked. Avoid generic disclaimers, repeated advice, and unrelated booking or check-in suggestions.\n"
-                    "3. **Clean Structure**: Use concise bullets or a small table when comparing routes, cabin classes, or weight tiers.\n"
-                    "4. **Factual Grounding**: Rely strictly on the provided policy context for airline-specific facts. Never guess or fabricate policies.\n"
-                    "5. **Multiple Options**: When the passenger asks generally and the context contains several route or cabin options, list the relevant options with their labels.\n"
-                    "6. **Baggage Queries**: For a broad baggage question, mention checked and cabin limits only when both are present in the supplied context.\n"
-                    "7. **Next steps**: Give a practical next step only when the context cannot answer the question or the passenger asks what to do.\n"
-                    "8. **Context boundaries**: If the supplied context does not support an answer, say what is missing and do not substitute a rule from another route or cabin.\n\n"
-                    "### Official Policy Context:\n{context}"
-                ),
-            ),
+            ("system", RAG_SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="chat_history", optional=True),
             ("human", "{question}"),
         ]

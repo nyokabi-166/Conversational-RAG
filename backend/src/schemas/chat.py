@@ -27,6 +27,14 @@ class MessageCreate(BaseModel):
     content: str = Field(..., min_length=1, description="Text body of the message")
 
 
+class SourceLinkDTO(BaseModel):
+    """A source page an answer used, with its public Kenya Airways address."""
+
+    title: str
+    url: str
+    file: str = ""
+
+
 class MessageDTO(BaseModel):
     """Full representation of a message turn."""
 
@@ -38,6 +46,7 @@ class MessageDTO(BaseModel):
     content: str
     created_at: datetime
     retrieval_metadata: List[RetrievalMetadataDTO] = Field(default_factory=list)
+    source_links: List[SourceLinkDTO] = Field(default_factory=list)
 
 
 class ConversationCreate(BaseModel):

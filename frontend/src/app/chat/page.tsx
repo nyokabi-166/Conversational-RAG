@@ -10,22 +10,23 @@ import {
 } from "react";
 import {
   ArrowUp,
-  Bot,
   Clock3,
+  ExternalLink,
   FileText,
   LogIn,
   LogOut,
-  MessageSquareText,
   Plus,
-  Plane,
   UserRound,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
+import { LoadingScreen } from "@/components/loading-screen";
 import {
   apiRequest,
   type ChatResponse,
   type HistoryDetail,
   type HistorySummary,
+  type SourceLink,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { AssistantMarkdown } from "@/components/assistant-markdown";
@@ -35,10 +36,23 @@ interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
-  sources?: string[];
+  sourceLinks?: SourceLink[];
 }
 
 const GUEST_CONVERSATION_KEY = "rag_guest_conversation_id";
+
+/** Keep only well-formed https links so a bad value can never become a script link. */
+function safeSourceLinks(links?: SourceLink[]): SourceLink[] {
+  return (links || [])
+    .filter((link) => {
+      try {
+        return new URL(link.url).protocol === "https:";
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, 4);
+}
 
 function shortDate(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -48,12 +62,13 @@ function shortDate(value: string) {
 }
 
 export default function Home() {
-  const { user, token, ready, signOut } = useAuth();
+  const { user, token, ready, authError, signOut } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [history, setHistory] = useState<HistorySummary[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [slowReply, setSlowReply] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const canViewHistory =
@@ -129,11 +144,7 @@ export default function Home() {
             id: message.message_id,
             role: message.role as "user" | "assistant",
             content: message.content,
-            sources: Array.from(
-              new Set(
-                (message.retrieval_metadata || []).map((item) => item.document_source),
-              ),
-            ),
+            sourceLinks: safeSourceLinks(message.source_links),
           })),
       );
     } catch (requestError) {
@@ -175,19 +186,13 @@ export default function Home() {
       if (!canViewHistory) {
         sessionStorage.setItem(GUEST_CONVERSATION_KEY, nextConversationId);
       }
-      const sources = Array.from(
-        new Set([
-          ...(result.citations || []).map((citation) => citation.document_source),
-          ...(result.sources || []),
-        ]),
-      );
       setMessages((current) => [
         ...current,
         {
           id: result.message_id || `assistant-${Date.now()}`,
           role: "assistant",
           content: result.response,
-          sources,
+          sourceLinks: safeSourceLinks(result.source_links),
         },
       ]);
       if (canViewHistory) void loadHistory();
@@ -202,13 +207,25 @@ export default function Home() {
     }
   };
 
+  // Tell the person why a reply is slow: the hosted server sleeps when idle.
+  useEffect(() => {
+    if (!loading) {
+      setSlowReply(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowReply(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
+
+  if (!ready) {
+    return <LoadingScreen message="Signing you in" />;
+  }
+
   return (
     <main className="flex min-h-screen flex-col text-foreground md:h-screen md:flex-row md:gap-4 md:p-4">
       <aside className="flex w-full flex-col border-b bg-card/90 backdrop-blur md:w-72 md:overflow-hidden md:rounded-3xl md:border md:shadow-lg md:shadow-primary/5">
         <div className="flex items-center gap-3 px-5 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <MessageSquareText className="h-5 w-5" aria-hidden="true" />
-          </div>
+          <Logo size={36} />
           <div>
             <p className="font-semibold leading-tight">Pippit</p>
             <p className="text-xs text-muted-foreground">Policy assistant</p>
@@ -300,14 +317,6 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {user?.role === "passenger" && (
-              <Link
-                href="/trips"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <Plane className="h-4 w-4" aria-hidden="true" /> My trips
-              </Link>
-            )}
             {user?.role === "policy_admin" || user?.role === "super_admin" ? (
               <Link
                 href="/staff"
@@ -333,9 +342,7 @@ export default function Home() {
           <div className="mx-auto flex max-w-3xl flex-col gap-5">
             {messages.length === 0 ? (
               <div className="flex min-h-[45vh] flex-col items-center justify-center text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-primary">
-                  <Bot className="h-7 w-7" aria-hidden="true" />
-                </div>
+                <Logo size={64} className="mb-4" priority />
                 <h2 className="text-2xl font-semibold uppercase tracking-[0.12em]">How can I help with your trip?</h2>
                 <p className="mt-2 max-w-md text-sm text-muted-foreground">
                   Ask about policies and travel information in the documents provided to the assistant.
@@ -361,9 +368,7 @@ export default function Home() {
                   className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {message.role === "assistant" && (
-                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                      <Bot className="h-4 w-4" aria-hidden="true" />
-                    </div>
+                    <Logo size={32} className="mt-1 !rounded-full" />
                   )}
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 md:max-w-[75%] ${
@@ -377,14 +382,23 @@ export default function Home() {
                     ) : (
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     )}
-                    {message.role === "assistant" && !!message.sources?.length && (
+                    {message.role === "assistant" && !!message.sourceLinks?.length && (
                       <div className="mt-3 border-t pt-2">
                         <p className="mb-1 text-xs font-medium text-muted-foreground">Sources</p>
                         <ul className="space-y-1">
-                          {message.sources.map((source) => (
-                            <li key={source} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
-                              <span className="break-all">{source}</span>
+                          {message.sourceLinks.map((link) => (
+                            <li key={link.url} className="text-xs">
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                              >
+                                <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
+                                <span className="break-words">{link.title}</span>
+                                <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+                                <span className="sr-only">(opens in a new tab)</span>
+                              </a>
                             </li>
                           ))}
                         </ul>
@@ -401,8 +415,17 @@ export default function Home() {
             )}
             {loading && (
               <div className="flex items-center gap-3 text-sm text-muted-foreground" role="status">
-                <Bot className="h-5 w-5 animate-pulse" aria-hidden="true" />
-                <span>Finding relevant information…</span>
+                <Logo size={20} className="animate-pulse" />
+                <span>
+                  {slowReply
+                    ? "Still working. The server may be waking up after being idle, which can take up to a minute."
+                    : "Finding relevant information…"}
+                </span>
+              </div>
+            )}
+            {!user && authError && (
+              <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                {authError}
               </div>
             )}
             {error && (

@@ -24,11 +24,19 @@ export interface Citation {
   document_source: string;
 }
 
+/** A Kenya Airways page an answer actually used. */
+export interface SourceLink {
+  title: string;
+  url: string;
+  file: string;
+}
+
 export interface ChatResponse {
   conversation_id: string;
   message_id: string;
   response: string;
   sources?: string[];
+  source_links?: SourceLink[];
   citations?: Citation[];
 }
 
@@ -51,6 +59,7 @@ export interface HistoryMessage {
     document_source: string;
     chunk_id: string;
   }>;
+  source_links?: SourceLink[];
 }
 
 export interface HistoryDetail {

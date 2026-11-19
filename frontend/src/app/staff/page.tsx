@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { LoadingScreen } from "@/components/loading-screen";
 import { Button } from "@/components/ui/button";
 import { StaffWorkspaceSidebar } from "@/components/staff-workspace-sidebar";
 import {
@@ -130,9 +131,7 @@ export default function StaffPage() {
 
   if (!ready || !user) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <p className="text-sm text-muted-foreground">Opening staff workspace…</p>
-      </main>
+      <LoadingScreen message="Opening staff workspace" />
     );
   }
 

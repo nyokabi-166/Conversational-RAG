@@ -4,7 +4,7 @@ import json
 import os
 import secrets
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request as UrlRequest
@@ -25,6 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -56,7 +57,10 @@ from src.routes.trips import router as trips_router
 from src.schemas.auth import (
     ConversationHistoryDetail,
     ConversationHistorySummary,
+    ForgotPasswordRequest,
+    MessageResponse,
     PassengerLoginRequest,
+    ResetPasswordRequest,
     RegisterRequest,
     TokenResponse,
     UserProfile,
@@ -80,10 +84,19 @@ from .modules.load_vesctorstore import (
     validate_uploaded_files,
 )
 from .modules.query_handlers import (
+    _display_source_name,
+    build_source_links,
     format_policy_context,
     get_kq_booking_guidance,
+    links_for_saved_sources,
     query_chain,
     retrieve_policy_documents,
+)
+from .modules.password_reset import (
+    create_reset_token,
+    read_reset_token,
+    send_reset_email,
+    token_matches_password,
 )
 from .modules.reminder_worker import start_reminder_worker, stop_reminder_worker
 
@@ -264,6 +277,49 @@ def login_passenger(payload: PassengerLoginRequest, db: Session = Depends(get_db
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid email or password.",
     )
+
+
+@app.post("/auth/forgot-password", response_model=MessageResponse)
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Email a password reset link. Always answers the same way so it cannot be
+    used to find out which email addresses have accounts."""
+    passenger = (
+        db.query(PassengerAccount)
+        .filter(PassengerAccount.email == payload.email)
+        .first()
+    )
+    if passenger and passenger.role == "passenger":
+        token = create_reset_token(passenger.passenger_id, passenger.password_hash)
+        send_reset_email(passenger.email, passenger.full_name, token)
+    return MessageResponse(
+        message="If an account exists for that email, a reset link has been sent."
+    )
+
+
+@app.post("/auth/reset-password", response_model=MessageResponse)
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Set a new passenger password using a valid, unused reset link."""
+    invalid = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="This reset link is invalid or has expired. Please request a new one.",
+    )
+    claims = read_reset_token(payload.token)
+    if not claims:
+        raise invalid
+    passenger = (
+        db.query(PassengerAccount)
+        .filter(PassengerAccount.passenger_id == claims["sub"])
+        .first()
+    )
+    if (
+        passenger is None
+        or passenger.role != "passenger"
+        or not token_matches_password(claims, passenger.password_hash)
+    ):
+        raise invalid
+    passenger.password_hash = hash_password(payload.password)
+    db.commit()
+    return MessageResponse(message="Your password has been changed. You can sign in now.")
 
 
 @app.post("/auth/auth0/exchange", response_model=TokenResponse)
@@ -621,15 +677,23 @@ def list_documents(
 # =====================================================================
 
 
+HISTORY_ROLES = ["passenger", "policy_admin", "super_admin"]
+
+
+def _owned_session_filter(current_user: AuthUser):
+    """SQL condition matching only sessions owned by this account."""
+    if current_user.user_type == "staff":
+        return DbSession.staff_id == current_user.user_id
+    return DbSession.passenger_id == current_user.user_id
+
+
 @app.get("/history/conversations", response_model=List[ConversationHistorySummary])
-def get_passenger_conversations(
-    current_user: AuthUser = Depends(require_role(["passenger"])),
+def get_own_conversations(
+    current_user: AuthUser = Depends(require_role(HISTORY_ROLES)),
     db: Session = Depends(get_db),
 ):
-    """Retrieve conversation history for the authenticated passenger only."""
-    sessions = (
-        db.query(DbSession).filter(DbSession.passenger_id == current_user.user_id).all()
-    )
+    """Retrieve conversation history for the signed-in account only (passenger, staff or admin)."""
+    sessions = db.query(DbSession).filter(_owned_session_filter(current_user)).all()
     session_ids = [session.session_id for session in sessions]
 
     conversations = (
@@ -660,10 +724,10 @@ def get_passenger_conversations(
 )
 def get_conversation_detail(
     conversation_id: str,
-    current_user: AuthUser = Depends(require_role(["passenger"])),
+    current_user: AuthUser = Depends(require_role(HISTORY_ROLES)),
     db: Session = Depends(get_db),
 ):
-    """Retrieve full dialogue history owned by the authenticated passenger."""
+    """Retrieve full dialogue history owned by the signed-in account."""
     conv = (
         db.query(Conversation)
         .filter(Conversation.conversation_id == conversation_id)
@@ -673,12 +737,12 @@ def get_conversation_detail(
         raise HTTPException(status_code=404, detail="Conversation not found.")
 
     session_obj = (
-        db.query(DbSession).filter(DbSession.session_id == conv.session_id).first()
+        db.query(DbSession)
+        .filter(DbSession.session_id == conv.session_id, _owned_session_filter(current_user))
+        .first()
     )
-    owns_conversation = (
-        session_obj is not None and session_obj.passenger_id == current_user.user_id
-    )
-    if not owns_conversation:
+    if session_obj is None:
+        # Same answer as a missing id so another account's chats are not revealed.
         raise HTTPException(status_code=404, detail="Conversation not found.")
 
     message_dtos = []
@@ -695,6 +759,13 @@ def get_conversation_detail(
             )
             for c in m.retrieval_metadata
         ]
+        saved_links = (
+            links_for_saved_sources(
+                [(c.document_source, c.chunk_text) for c in m.retrieval_metadata]
+            )
+            if m.role == "assistant"
+            else []
+        )
         message_dtos.append(
             MessageDTO(
                 message_id=m.message_id,
@@ -703,6 +774,7 @@ def get_conversation_detail(
                 content=m.content,
                 created_at=m.created_at,
                 retrieval_metadata=cit_dtos,
+                source_links=saved_links,
             )
         )
 
@@ -718,6 +790,27 @@ def get_conversation_detail(
 # =====================================================================
 # RAG Chat & Retrieval (Persisted to Database)
 # =====================================================================
+
+
+def _next_message_timestamp(db: Session, conversation_id: str) -> datetime:
+    """Return a timestamp strictly after the conversation's latest message.
+
+    Two quick writes can land on the same clock tick, and message ids are random
+    UUIDs, so equal timestamps would make the saved turn order nondeterministic.
+    Keep timestamps monotonic per conversation instead.
+    """
+    latest = (
+        db.query(func.max(Message.created_at))
+        .filter(Message.conversation_id == conversation_id)
+        .scalar()
+    )
+    now = datetime.now(timezone.utc)
+    if latest is not None:
+        if latest.tzinfo is None:
+            latest = latest.replace(tzinfo=timezone.utc)
+        if now <= latest:
+            now = latest + timedelta(microseconds=1)
+    return now
 
 
 @app.post("/ask/")
@@ -819,7 +912,7 @@ async def ask_question(
             conversation_id=conv.conversation_id,
             role="user",
             content=question,
-            created_at=datetime.now(timezone.utc),
+            created_at=_next_message_timestamp(db, conv.conversation_id),
         )
         db.add(user_msg)
         db.commit()
@@ -859,6 +952,9 @@ async def ask_question(
             result = {
                 "response": booking_guidance["answer"],
                 "sources": [booking_guidance["document"].metadata["source"]],
+                "source_links": build_source_links(
+                    source_docs, [1], booking_guidance["answer"]
+                ),
             }
         else:
             chain = get_llm_chain()
@@ -892,29 +988,36 @@ async def ask_question(
             conversation_id=conv.conversation_id,
             role="assistant",
             content=answer_text,
-            created_at=datetime.now(timezone.utc),
+            created_at=_next_message_timestamp(db, conv.conversation_id),
         )
         db.add(assistant_msg)
         db.commit()
         db.refresh(assistant_msg)
 
-        # 6. Record Retrieval Citations
+        # 6. Record retrieval citations. The response keeps listing every retrieved
+        # chunk (old clients); saved rows keep only chunks from pages the answer used
+        # so reopened history shows the same source links.
+        source_links = result.get("source_links") or []
+        used_files = {link.get("file") for link in source_links}
         citations_data = []
         for i, doc in enumerate(source_docs):
             doc_source = doc.metadata.get("source", "Policy Document")
             chunk_id = f"{doc_source}_chunk_{i}"
-            citation_record = RetrievalMetadata(
-                message_id=assistant_msg.message_id,
-                chunk_id=chunk_id,
-                document_source=doc_source,
-                chunk_text=doc.page_content[:300],
-            )
-            db.add(citation_record)
             citations_data.append(
                 {
                     "chunk_id": chunk_id,
                     "document_source": doc_source,
                 }
+            )
+            if _display_source_name(doc_source) not in used_files:
+                continue
+            db.add(
+                RetrievalMetadata(
+                    message_id=assistant_msg.message_id,
+                    chunk_id=chunk_id,
+                    document_source=doc_source,
+                    chunk_text=doc.page_content[:300],
+                )
             )
         db.commit()
 
@@ -923,6 +1026,7 @@ async def ask_question(
             "message_id": assistant_msg.message_id,
             "response": answer_text,
             "sources": result.get("sources", []),
+            "source_links": source_links,
             "citations": citations_data,
         }
     except HTTPException:

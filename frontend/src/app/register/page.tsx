@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, MessageSquareText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
@@ -40,20 +42,15 @@ export default function RegisterPage() {
         <Link href="/chat" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to chat
         </Link>
-        <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <MessageSquareText className="h-5 w-5" aria-hidden="true" />
-        </div>
+        <Logo size={44} className="mb-6" priority />
         <h1 className="text-2xl font-semibold">Create a passenger account</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Sign in later to return to your saved conversations.
         </p>
 
-        <a
-          href="/auth/login?connection=google-oauth2&prompt=select_account&screen_hint=signup&returnTo=%2Fchat"
-          className="mt-6 flex h-10 w-full items-center justify-center rounded-full border bg-background px-4 text-sm font-medium transition hover:bg-accent"
-        >
+        <GoogleSignInButton href="/auth/login?connection=google-oauth2&prompt=select_account&screen_hint=signup&returnTo=%2Fchat">
           Sign up with Google
-        </a>
+        </GoogleSignInButton>
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           or create an account with email

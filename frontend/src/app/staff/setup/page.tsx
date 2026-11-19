@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 
@@ -66,9 +67,7 @@ export default function FirstAdminSetupPage() {
         <Link href="/staff/login" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Staff sign in
         </Link>
-        <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-        </div>
+        <Logo size={44} className="mb-6" priority />
         <h1 className="text-2xl font-semibold">
           {status && !status.setup_required ? "Recover administrator access" : "Create the first administrator"}
         </h1>

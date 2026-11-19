@@ -25,6 +25,7 @@ DEFAULT_OUTPUT_DIR = BACKEND_DIR / "evaluation" / "results"
 BOOTSTRAP_RESAMPLES = 5000
 BOOTSTRAP_SEED = 169532
 MIN_CATEGORY_N = 5
+SCORE_BOUND_TOLERANCE = 1e-9
 COLORS = {"RAG": "#2878B5", "Baseline": "#9AA6B2"}
 METRICS_BY_SYSTEM = {
     "RAG": [
@@ -138,11 +139,14 @@ def read_scores(report_path: Path, dataset_path: Path) -> pd.DataFrame:
         values = numeric.to_numpy().flat
         if any(not math.isfinite(float(value)) for value in values):
             raise ValueError(f"{system} results contain invalid numeric scores.")
-        if ((numeric < 0) | (numeric > 1)).any().any():
+        if (
+            (numeric < -SCORE_BOUND_TOLERANCE)
+            | (numeric > 1 + SCORE_BOUND_TOLERANCE)
+        ).any().any():
             raise ValueError(
                 f"{system} scores must be between 0 and 1; check the report scale."
             )
-        frame.loc[frame["system"] == system, metrics] = numeric
+        frame.loc[frame["system"] == system, metrics] = numeric.clip(0, 1)
 
     frame = attach_dataset_metadata(frame, dataset_path)
     return frame

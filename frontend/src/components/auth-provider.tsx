@@ -16,6 +16,8 @@ interface AuthContextValue {
   user: UserProfile | null;
   token: string | null;
   ready: boolean;
+  /** Set when a Google/Auth0 sign-in succeeded but the API could not finish it. */
+  authError: string | null;
   signIn: (
     accountType: "passenger" | "staff",
     identifier: string,
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,8 +98,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               return;
             }
           }
-        } catch {
-          // Keep the login page available if the Auth0 session cannot be checked.
+        } catch (exchangeError) {
+          // Keep the login page available, but tell the person what went wrong
+          // instead of looking like they were never signed in.
+          if (!cancelled) {
+            setAuthError(
+              exchangeError instanceof Error && exchangeError.message
+                ? `Sign in could not be completed: ${exchangeError.message}`
+                : "Sign in could not be completed. Please try again.",
+            );
+          }
         }
       }
       if (!cancelled) setReady(true);
@@ -160,8 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(() => switchAccount("/"), [switchAccount]);
 
   const value = useMemo(
-    () => ({ user, token, ready, signIn, register, signOut, switchAccount }),
-    [user, token, ready, signIn, register, signOut, switchAccount],
+    () => ({ user, token, ready, authError, signIn, register, signOut, switchAccount }),
+    [user, token, ready, authError, signIn, register, signOut, switchAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
