@@ -3,14 +3,16 @@
 import Link from "next/link";
 import {
   FileText,
+  History,
   LogOut,
   MessageSquareText,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
 
-type StaffPage = "chat" | "documents" | "team";
+type StaffPage = "chat" | "documents" | "team" | "history";
 
 const STAFF_ROLES = new Set(["policy_admin", "super_admin"]);
 
@@ -20,6 +22,7 @@ export function StaffWorkspaceLinks({ active }: { active: StaffPage }) {
 
   const links: Array<{ page: StaffPage; href: string; label: string; icon: LucideIcon }> = [
     { page: "chat", href: "/chat", label: "Chat assistant", icon: MessageSquareText },
+    { page: "history", href: "/staff/history", label: "Chat history", icon: History },
     { page: "documents", href: "/staff", label: "Policy documents", icon: FileText },
   ];
   if (user.role === "super_admin") {
@@ -55,9 +58,7 @@ export function StaffWorkspaceSidebar({ active }: { active: StaffPage }) {
   return (
     <aside className="flex w-full shrink-0 flex-col border-b bg-card/90 px-3 py-4 backdrop-blur md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:w-64 md:overflow-y-auto md:rounded-3xl md:border md:px-4 md:shadow-lg md:shadow-primary/5">
       <Link href="/chat" className="mb-5 flex items-center gap-3 px-2 py-1">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <MessageSquareText className="h-5 w-5" aria-hidden="true" />
-        </span>
+        <Logo size={36} />
         <span>
           <span className="block text-sm font-semibold">Pippit</span>
           <span className="block text-xs text-muted-foreground">Staff workspace</span>

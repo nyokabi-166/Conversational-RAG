@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 
@@ -60,9 +61,7 @@ export default function StaffLoginPage() {
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to chat
         </Link>
-        <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-        </div>
+        <Logo size={44} className="mb-6" priority />
         <h1 className="text-2xl font-semibold">Staff sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Use the staff number or username and password provided by your administrator.

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, MessageSquareText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { Logo } from "@/components/logo";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
@@ -35,9 +37,7 @@ export default function LoginPage() {
         <Link href="/chat" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to chat
         </Link>
-        <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <MessageSquareText className="h-5 w-5" aria-hidden="true" />
-        </div>
+        <Logo size={44} className="mb-6" priority />
         <h1 className="text-2xl font-semibold">Passenger sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Sign in to return to your saved conversations.
@@ -65,13 +65,10 @@ export default function LoginPage() {
           </div>
         ) : (
           <>
-        <a
-          href="/auth/login?connection=google-oauth2&prompt=select_account&returnTo=%2Fchat"
-          className="mt-6 flex h-10 w-full items-center justify-center rounded-full border bg-background px-4 text-sm font-medium transition hover:bg-accent"
-        >
+        <GoogleSignInButton href="/auth/login?connection=google-oauth2&prompt=select_account&returnTo=%2Fchat">
           <GoogleMark />
           Continue with Google
-        </a>
+        </GoogleSignInButton>
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           or use your passenger account
@@ -102,6 +99,11 @@ export default function LoginPage() {
               onChange={(event) => setPassword(event.target.value)}
               className="h-10 w-full rounded-xl border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
             />
+            <div className="text-right">
+              <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+                Forgot password?
+              </Link>
+            </div>
           </div>
           {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={submitting || !ready}>
