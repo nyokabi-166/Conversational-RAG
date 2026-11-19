@@ -1,0 +1,10 @@
+category,n,is_exploratory,mean_correctness,ci_low,ci_high
+conditional_policy,90,False,0.5753,0.5184,0.6304
+conditional_table,2,True,0.2754,0.1119,0.4388
+direct_fact,52,False,0.702,0.6339,0.7657
+multi_hop,7,True,0.5186,0.3559,0.6801
+navigation,5,True,0.444,0.2349,0.6786
+policy_summary,10,False,0.6064,0.4401,0.7535
+procedure,10,False,0.6545,0.5166,0.7805
+table_lookup,19,False,0.6025,0.5053,0.6839
+unanswerable,6,True,0.2751,0.1698,0.3875

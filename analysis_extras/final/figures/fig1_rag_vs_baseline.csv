@@ -1,0 +1,9 @@
+metric,system,n,mean,ci_low,ci_high
+Faithfulness,RAG,201,0.7778,0.7321,0.8227
+Faithfulness,Baseline,0,N/A,N/A,N/A
+Context Recall,RAG,201,0.7912,0.7363,0.8433
+Context Recall,Baseline,0,N/A,N/A,N/A
+Answer Relevancy,RAG,201,0.8061,0.7797,0.8297
+Answer Relevancy,Baseline,201,0.2375,0.1868,0.2907
+Answer Correctness,RAG,201,0.5989,0.5629,0.6363
+Answer Correctness,Baseline,201,0.2425,0.2228,0.2621

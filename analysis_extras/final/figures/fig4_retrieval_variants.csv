@@ -1,0 +1,7 @@
+dataset,n,variant,recall_at_3,recall_at_5,mrr
+Dev set,25,legacy,0.72,0.84,0.6393
+Dev set,25,topic-only,1.0,1.0,0.98
+Dev set,25,conditional (default),0.96,1.0,0.9213
+Eval set,195,legacy,0.9795,1.0,0.946
+Eval set,195,topic-only,0.9282,0.9744,0.8631
+Eval set,195,conditional (default),0.9692,0.9949,0.9332

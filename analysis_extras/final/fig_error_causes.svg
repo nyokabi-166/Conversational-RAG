@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450">
+<rect width="1000" height="450" fill="#fff"/>
+<text x="40" y="38" font-family="Arial" font-size="22" font-weight="bold" fill="#1f2937">Confirmed error causes (n=40)</text>
+<line x1="300.0" y1="100" x2="300.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="300.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">0</text>
+<line x1="428.0" y1="100" x2="428.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="428.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">5</text>
+<line x1="556.0" y1="100" x2="556.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="556.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">11</text>
+<line x1="684.0" y1="100" x2="684.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="684.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">16</text>
+<line x1="812.0" y1="100" x2="812.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="812.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">22</text>
+<line x1="940.0" y1="100" x2="940.0" y2="400" stroke="#e2e8f0" stroke-width="1"/>
+<text x="940.0" y="416" font-family="Arial" font-size="11" text-anchor="middle" fill="#1f2937">27</text>
+<text x="290" y="129.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">generation omission</text>
+<rect x="300" y="111.0" width="640.0" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="946.0" y="129.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">27</text>
+<text x="290" y="179.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">wrong value</text>
+<rect x="300" y="161.0" width="118.51851851851853" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="424.51851851851853" y="179.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">5</text>
+<text x="290" y="229.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">other</text>
+<rect x="300" y="211.0" width="94.81481481481478" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="400.8148148148148" y="229.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">4</text>
+<text x="290" y="279.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">incomplete context</text>
+<rect x="300" y="261.0" width="47.40740740740739" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="353.4074074074074" y="279.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">2</text>
+<text x="290" y="329.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">retrieval miss</text>
+<rect x="300" y="311.0" width="23.703703703703695" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="329.7037037037037" y="329.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">1</text>
+<text x="290" y="379.0" font-family="Arial" font-size="12" text-anchor="end" fill="#1f2937">judge error</text>
+<rect x="300" y="361.0" width="23.703703703703695" height="28.000000000000004" fill="#b01e28" rx="3"/>
+<text x="329.7037037037037" y="379.0" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">1</text>
+</svg>

@@ -1,0 +1,5 @@
+answerability,system,faithfulness_mean,faithfulness_std,faithfulness_count,context_recall_mean,context_recall_std,context_recall_count,answer_relevancy_mean,answer_relevancy_std,answer_relevancy_count,answer_correctness_mean,answer_correctness_std,answer_correctness_count
+answerable,Baseline,,,0,,,0,0.7514,0.2553,12,0.2513,0.1705,12
+answerable,RAG,0.6938,0.2591,12,1.0,0.0,12,0.7282,0.1777,12,0.648,0.2222,12
+unanswerable,Baseline,,,0,,,0,0.9074,0.0424,3,0.1349,0.0376,3
+unanswerable,RAG,0.2286,0.206,3,1.0,0.0,3,0.5297,0.4634,3,0.3,0.2043,3

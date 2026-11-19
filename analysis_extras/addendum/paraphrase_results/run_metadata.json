@@ -1,0 +1,70 @@
+{
+  "status": "completed",
+  "git_commit": "60f007b88cd959e29d25acc50d5d399cace2cb07",
+  "git_dirty": true,
+  "source_sha256": {
+    "prompts.py": "b54b9d54875f4c1ce68d43f7a246ee48e94c011759303ecb5b6fb5f30766dba8",
+    "llm.py": "c0343fbee9fe91be915a95927399aaded5a1a2ac61b62619dec4eac53aacf3ec",
+    "query_handlers.py": "565d64fc738b8753815a14be4b1ef8f45175a8b47e2fafcb8df86ef20abf0ab5",
+    "answer_quality.py": "675994458d630357d8892e044e02f9e12e60a42aeb7aa4b37b6f67c7a2012a3c",
+    "corpus_vocabulary.json": "c137bcc12565448350995a5457c1f2e7df3574bf2e37c29382697ba8ef8aee20",
+    "evaluate_rag.py": "dc6e134800424eb57cc2e8b322f6119660731378ab20ef90091738546917fee0"
+  },
+  "dataset_path": "analysis_extras\\addendum\\paraphrase_dataset.csv",
+  "dataset_sha256": "cd4ed98ad99383c00ad1e75930c61bc03a00cd447fbbd4e0b91867aa3e4e8ddc",
+  "index_chunk_count": 157,
+  "index_per_source_counts": {
+    "Hand Baggage Information.html": 3,
+    "Kenya Airways PLC _ Conditions of Carriage.html": 72,
+    "Kenya Airways PLC _ Legal Information.html": 3,
+    "Kenya Airways PLC _ Online Check-in.html": 4,
+    "Kenya Airways _ Baggage Allowance.html": 10,
+    "Kenya Airways _ Baggage Information.html": 1,
+    "Kenya Airways _ Baggage Restrictions.html": 4,
+    "Kenya Airways _ FAQs.html": 21,
+    "Kenya Airways _ Special Baggage.html": 18,
+    "Kenya Airways _ Visa and Health Information.html": 6,
+    "Medical and Special Needs.html": 14,
+    "kenya Airways _ Change Booking.html": 1
+  },
+  "retrieval_mode": "conditional",
+  "temperature": 0.0,
+  "seed": 42,
+  "generation_model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+  "generation_provider": "deepinfra",
+  "judge_model": "google/gemini-3.1-flash-lite",
+  "judge_provider": "deepinfra",
+  "ragas_version": "0.4.3",
+  "settings": {
+    "temperature": 0.0,
+    "seed": 42,
+    "generation_provider": "deepinfra",
+    "generation_model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    "retrieval_expansion": "conditional",
+    "retrieval_limit": 8,
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "answerability_guard": true,
+    "detail_hints": true,
+    "answer_relevancy_strictness": 1,
+    "judge_max_tokens": 4096
+  },
+  "start_time": "2026-11-19T07:32:17.998330+00:00",
+  "resumed_at": null,
+  "end_time": "2026-11-19T08:42:47.656867+00:00",
+  "stage_counts": {
+    "dataset_rows": 45,
+    "reused_answers": 0,
+    "rag_generation_calls": 36,
+    "baseline_generation_calls": 45,
+    "judge_calls": 326
+  },
+  "duration_seconds": 4229.7,
+  "call_counts": {
+    "rag_generation": 36,
+    "baseline_generation": 45,
+    "judge": 326,
+    "total": 407
+  },
+  "report_path": "analysis_extras\\addendum\\paraphrase_results\\evaluation_report.csv"
+}

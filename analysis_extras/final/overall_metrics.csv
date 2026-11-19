@@ -1,0 +1,3 @@
+system,faithfulness_mean,faithfulness_std,faithfulness_count,context_recall_mean,context_recall_std,context_recall_count,answer_relevancy_mean,answer_relevancy_std,answer_relevancy_count,answer_correctness_mean,answer_correctness_std,answer_correctness_count
+Baseline,,,0,,,0,0.7781,0.1385,201,0.235,0.1307,201
+RAG,0.7774,0.2313,201,0.9718,0.1335,201,0.706,0.2028,201,0.6176,0.2081,201

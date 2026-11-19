@@ -1,0 +1,95 @@
+{
+  "validation_agreement": {
+    "n_labeled": 44,
+    "total_rows": 50,
+    "thresholds": {
+      "0.5": {
+        "n": 44,
+        "tp": 28,
+        "tn": 9,
+        "fp": 3,
+        "fn": 4,
+        "percent_agreement": 84.09,
+        "pe": 0.593,
+        "kappa": 0.6091
+      },
+      "0.7": {
+        "n": 44,
+        "tp": 21,
+        "tn": 11,
+        "fp": 1,
+        "fn": 11,
+        "percent_agreement": 72.73,
+        "pe": 0.5,
+        "kappa": 0.4545
+      }
+    },
+    "answerable_only": {
+      "n_labeled": 44,
+      "total_rows": 44,
+      "thresholds": {
+        "0.5": {
+          "n": 44,
+          "tp": 28,
+          "tn": 9,
+          "fp": 3,
+          "fn": 4,
+          "percent_agreement": 84.09,
+          "pe": 0.593,
+          "kappa": 0.6091
+        },
+        "0.7": {
+          "n": 44,
+          "tp": 21,
+          "tn": 11,
+          "fp": 1,
+          "fn": 11,
+          "percent_agreement": 72.73,
+          "pe": 0.5,
+          "kappa": 0.4545
+        }
+      }
+    },
+    "unanswerable_only": {
+      "n_labeled": 0,
+      "total_rows": 6,
+      "thresholds": {},
+      "message": "No valid human labels with RAGAS scores."
+    }
+  },
+  "unanswerable_summary": {
+    "total_rows": 6,
+    "rag_type": {
+      "hallucinated": 2,
+      "partial_refusal": 2,
+      "refused": 2
+    },
+    "baseline_type": {
+      "hallucinated": 6
+    },
+    "safety": {
+      "safe": 4,
+      "unsafe": 2
+    }
+  },
+  "error_cause_summary": {
+    "total_rows": 40,
+    "my_confirmed_cause": {
+      "generation_omission": 27,
+      "wrong_value": 5,
+      "other": 4,
+      "incomplete_context": 2,
+      "retrieval_miss": 1,
+      "judge_error": 1
+    },
+    "labeled_rows": 40,
+    "percentages": {
+      "generation_omission": 67.5,
+      "wrong_value": 12.5,
+      "other": 10.0,
+      "incomplete_context": 5.0,
+      "retrieval_miss": 2.5,
+      "judge_error": 2.5
+    }
+  }
+}
