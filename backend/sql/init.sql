@@ -94,3 +94,10 @@ CREATE INDEX IF NOT EXISTS idx_retrieval_message ON retrieval_metadata(message_i
 CREATE INDEX IF NOT EXISTS idx_eval_conversation ON evaluation_scores(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_eval_pillar ON evaluation_scores(pillar);
 CREATE INDEX IF NOT EXISTS idx_uploads_staff ON document_uploads(staff_id);
+
+-- 8. Staff/admin chat history: sessions can be owned by a staff account.
+-- Idempotent: safe to run on an existing Neon database (create_all never alters tables).
+ALTER TABLE sessions
+    ADD COLUMN IF NOT EXISTS staff_id VARCHAR(36)
+    REFERENCES staff_accounts(staff_id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS ix_sessions_staff_id ON sessions(staff_id);

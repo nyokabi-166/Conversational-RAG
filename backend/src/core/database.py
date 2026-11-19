@@ -62,7 +62,12 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Creates registered tables and applies additive local schema upgrades."""
+    """Creates registered tables and applies additive, idempotent schema upgrades.
+
+    ``create_all`` never alters existing tables, so columns added after the first
+    deployment are added here. Every statement is safe to run repeatedly and to run
+    from several app instances starting at once.
+    """
     # Ensure all models are imported prior to table creation
     import src.models.entities  # noqa: F401
 
@@ -71,16 +76,15 @@ def init_db() -> None:
         column["name"] for column in inspect(engine).get_columns("sessions")
     }
     if "staff_id" not in session_columns:
+        # PostgreSQL supports IF NOT EXISTS on ADD COLUMN; SQLite does not, but the
+        # column check above already makes the SQLite path idempotent.
+        if_not_exists = "IF NOT EXISTS " if engine.dialect.name == "postgresql" else ""
         with engine.begin() as connection:
             connection.exec_driver_sql(
-                "ALTER TABLE sessions ADD COLUMN staff_id VARCHAR(36) "
+                f"ALTER TABLE sessions ADD COLUMN {if_not_exists}staff_id VARCHAR(36) "
                 "REFERENCES staff_accounts(staff_id) ON DELETE CASCADE"
             )
-    session_indexes = {
-        index["name"] for index in inspect(engine).get_indexes("sessions")
-    }
-    if "ix_sessions_staff_id" not in session_indexes:
-        with engine.begin() as connection:
-            connection.exec_driver_sql(
-                "CREATE INDEX ix_sessions_staff_id ON sessions (staff_id)"
-            )
+    with engine.begin() as connection:
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_sessions_staff_id ON sessions (staff_id)"
+        )

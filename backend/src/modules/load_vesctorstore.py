@@ -16,6 +16,7 @@ from src.rag_pipeline import MiniLMEmbeddings
 
 PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIRECTORY", "./data/chroma_db")
 UPLOAD_DIR = os.getenv("UPLOAD_DIRECTORY", "./uploads")
+SOURCE_CATALOG_PATH = Path(__file__).resolve().parent.parent / "data" / "source_catalog.json"
 MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024
 MAX_TOTAL_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024
 MAX_UPLOAD_FILES = 10
@@ -23,6 +24,32 @@ ALLOWED_EXTENSIONS = {".pdf", ".html", ".htm"}
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(PERSIST_DIR, exist_ok=True)
+
+_SOURCE_CATALOG_CACHE: Optional[dict] = None
+
+
+def load_source_catalog() -> dict:
+    """Return {filename: {title, url}} from the packaged source catalog."""
+    global _SOURCE_CATALOG_CACHE
+    if _SOURCE_CATALOG_CACHE is None:
+        catalog: dict = {}
+        try:
+            import json
+
+            raw = json.loads(SOURCE_CATALOG_PATH.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                catalog = raw
+        except (OSError, ValueError):
+            catalog = {}
+        _SOURCE_CATALOG_CACHE = catalog
+    return _SOURCE_CATALOG_CACHE
+
+
+def source_catalog_entry(filename: str) -> dict:
+    """Look up {title, url} for a source filename; empty dict when unknown."""
+    name = (filename or "").replace("\\", "/").rsplit("/", maxsplit=1)[-1]
+    entry = load_source_catalog().get(name)
+    return entry if isinstance(entry, dict) else {}
 
 
 class UploadValidationError(ValueError):
@@ -50,31 +77,91 @@ class PreparedUpload:
 
 
 class _HTMLTextExtractor(HTMLParser):
-    """Extract page text while preserving table rows and their column labels."""
+    """Extract page text: keep <main> content only, drop site chrome, preserve tables.
 
-    _IGNORED_TAGS = {"script", "style", "noscript"}
+    Chrome dropped: scripts/styles, nav/footer/aside, the site header outside
+    <main>, and elements whose class/id looks like a cookie banner, consent
+    dialog, skip link, mobile menu, popup, modal, or browser-compat notice.
+    When the page has a <main> element its text is preferred over the rest.
+    Table rows keep the "Header: value | ..." joining from the original
+    extractor so allowance tables stay readable for the LLM.
+    """
+
+    _IGNORED_TAGS = {
+        "script",
+        "style",
+        "noscript",
+        "iframe",
+        "svg",
+        "template",
+        "nav",
+        "footer",
+        "aside",
+    }
+    _CHROME_HINTS = (
+        "cookie",
+        "consent",
+        "skip-to",
+        "mobile-menu",
+        "popup-",
+        "modal-",
+        "browser-compatibility",
+    )
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.parts: List[str] = []
-        self._ignored_depth = 0
+        self._main_parts: List[str] = []
+        self._saw_main = False
+        self._in_main = 0
+        self._skip_stack: List[str] = []
         self._table_depth = 0
         self._table_headers: Optional[List[str]] = None
         self._current_row: Optional[List[str]] = None
         self._current_cell: Optional[List[str]] = None
         self._row_has_header_cells = False
+        self.title: Optional[str] = None
+        self.canonical_url: Optional[str] = None
+        self._in_title = False
+
+    @property
+    def _sink(self) -> List[str]:
+        return self._main_parts if self._in_main else self.parts
+
+    def _is_chrome(self, tag: str, attrs) -> bool:
+        if tag in self._IGNORED_TAGS:
+            return True
+        if tag == "header" and not self._in_main:
+            return True
+        attr_map = {k.lower(): (v or "") for k, v in attrs}
+        hint_text = (
+            f"{attr_map.get('class', '')} {attr_map.get('id', '')}"
+        ).casefold()
+        return any(hint in hint_text for hint in self._CHROME_HINTS)
 
     def handle_starttag(self, tag: str, attrs):
         tag = tag.lower()
-        if tag in self._IGNORED_TAGS:
-            self._ignored_depth += 1
-        elif self._ignored_depth:
+        if tag == "main":
+            self._in_main += 1
+            self._saw_main = True
+        if tag == "title":
+            self._in_title = True
+        if tag == "link":
+            attr_map = {k.lower(): (v or "") for k, v in attrs}
+            if attr_map.get("rel", "").strip().casefold() == "canonical":
+                href = attr_map.get("href", "").strip()
+                if href and not self.canonical_url:
+                    self.canonical_url = href
+        if self._is_chrome(tag, attrs):
+            self._skip_stack.append(tag)
             return
-        elif tag == "table":
+        if self._skip_stack:
+            return
+        if tag == "table":
             self._table_depth += 1
             if self._table_depth == 1:
                 self._table_headers = None
-                self.parts.append("\n")
+                self._sink.append("\n")
         elif self._table_depth:
             if tag == "tr":
                 self._current_row = []
@@ -83,15 +170,24 @@ class _HTMLTextExtractor(HTMLParser):
                 self._current_cell = []
                 self._row_has_header_cells |= tag == "th"
         elif tag in {"br", "p", "div", "li", "h1", "h2", "h3"}:
-            self.parts.append("\n")
+            self._sink.append("\n")
 
     def handle_endtag(self, tag: str):
         tag = tag.lower()
-        if tag in self._IGNORED_TAGS and self._ignored_depth:
-            self._ignored_depth -= 1
-        elif self._ignored_depth:
+        if tag == "title":
+            self._in_title = False
+        if tag == "main" and self._in_main:
+            self._in_main -= 1
+        if self._skip_stack:
+            if tag == self._skip_stack[-1]:
+                self._skip_stack.pop()
+            elif tag in self._skip_stack:
+                while self._skip_stack and self._skip_stack[-1] != tag:
+                    self._skip_stack.pop()
+                if self._skip_stack:
+                    self._skip_stack.pop()
             return
-        elif (
+        if (
             self._table_depth and tag in {"td", "th"} and self._current_cell is not None
         ):
             cell_text = " ".join(" ".join(self._current_cell).split())
@@ -113,23 +209,52 @@ class _HTMLTextExtractor(HTMLParser):
                         f"{header}: {value}"
                         for header, value in zip(self._table_headers, row)
                     ]
-                self.parts.extend(["\n", " | ".join(row), "\n"])
+                self._sink.extend(["\n", " | ".join(row), "\n"])
             self._current_row = None
             self._row_has_header_cells = False
         elif tag == "table" and self._table_depth:
             self._table_depth -= 1
             if self._table_depth == 0:
-                self.parts.append("\n")
+                self._sink.append("\n")
         elif not self._table_depth and tag in {"p", "div", "li", "h1", "h2", "h3"}:
-            self.parts.append("\n")
+            self._sink.append("\n")
 
     def handle_data(self, data: str):
-        if self._ignored_depth or not data.strip():
+        if self._in_title:
+            if self.title is None:
+                self.title = data.strip()
+            else:
+                self.title = f"{self.title}{data}".strip()
+            return
+        if self._skip_stack or not data.strip():
             return
         if self._current_cell is not None:
             self._current_cell.append(data.strip())
         else:
-            self.parts.append(data)
+            self._sink.append(data)
+
+    def get_text(self) -> str:
+        """Return preferred text: <main> content when present, else the rest."""
+        source = self._main_parts if (self._saw_main and self._main_parts) else self.parts
+        raw = "".join(source)
+        lines = [" ".join(line.split()) for line in raw.splitlines()]
+        lines = [line for line in lines if line]
+        return "\n".join(self._strip_page_footer(lines))
+
+    # Lines that open the closing footer of every Kenya Airways page: the newsletter
+    # sign-up form and the "related policies" link list. Nothing after them is policy.
+    _FOOTER_MARKERS = ("get the latest offers", "related policies")
+
+    @classmethod
+    def _strip_page_footer(cls, lines: List[str]) -> List[str]:
+        """Drop the newsletter/related-links footer that closes each page."""
+        for index in range(len(lines) - 1, -1, -1):
+            if (
+                lines[index].casefold() in cls._FOOTER_MARKERS
+                and index >= len(lines) - 12
+            ):
+                return lines[:index]
+        return lines
 
 
 def _safe_display_filename(filename: str) -> str:
@@ -211,18 +336,24 @@ def validate_uploaded_files(files: List[UploadFile]) -> List[PreparedUpload]:
 
 
 def _load_html_document(path: str, display_name: str) -> Document:
-    """Load HTML as text without executing embedded scripts or styles."""
+    """Load HTML as main-content text with title/url metadata (chrome dropped)."""
     content = Path(path).read_text(encoding="utf-8-sig")
     extractor = _HTMLTextExtractor()
     extractor.feed(content)
-    text = "\n".join(
-        " ".join(line.split())
-        for line in "".join(extractor.parts).splitlines()
-        if line.strip()
-    )
+    text = extractor.get_text()
     if not text:
         raise ValueError(f"No readable text could be extracted from {display_name}.")
-    return Document(page_content=text, metadata={"source": display_name})
+    metadata = {"source": display_name}
+    if extractor.title:
+        metadata["title"] = extractor.title
+    if extractor.canonical_url:
+        metadata["url"] = extractor.canonical_url
+    catalog = source_catalog_entry(display_name)
+    metadata.setdefault("title", catalog.get("title", ""))
+    metadata.setdefault("url", catalog.get("url", ""))
+    metadata["title"] = metadata.get("title") or ""
+    metadata["url"] = metadata.get("url") or ""
+    return Document(page_content=text, metadata=metadata)
 
 
 def load_vectorstore(
@@ -263,8 +394,11 @@ def load_vectorstore(
 
         if Path(upload.filename).suffix.lower() == ".pdf":
             documents = PyPDFLoader(str(stored_path)).load()
+            catalog = source_catalog_entry(upload.filename)
             for document in documents:
                 document.metadata["source"] = upload.filename
+                document.metadata.setdefault("title", catalog.get("title", ""))
+                document.metadata.setdefault("url", catalog.get("url", ""))
         else:
             documents = [_load_html_document(str(stored_path), upload.filename)]
 
@@ -273,6 +407,13 @@ def load_vectorstore(
             raise ValueError(
                 f"No readable text could be extracted from {upload.filename}."
             )
+        # Prepend a short page-title header to every chunk so retrieval and the
+        # generator can tell which page a fragment came from even mid-chunk.
+        for chunk in chunks:
+            title = (chunk.metadata or {}).get("title") or ""
+            title = str(title).strip()
+            if title and not chunk.page_content.startswith(f"{title}\n"):
+                chunk.page_content = f"{title}\n{chunk.page_content}"
         all_chunks.extend(chunks)
         indexed_files.append((upload.filename, len(chunks)))
 

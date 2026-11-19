@@ -224,14 +224,20 @@ def test_failed_indexing_is_logged_without_exposing_internal_errors(
 
 
 @pytest.mark.parametrize("role", ["policy_admin", "super_admin"])
-def test_staff_cannot_access_passenger_history(client, test_session_factory, role):
+def test_staff_history_is_allowed_but_starts_empty(
+    client, test_session_factory, role
+):
+    """Staff/admin now have their own history; a new account has none yet."""
     create_staff(test_session_factory, role=role)
     login = client.post(
         "/auth/staff/login",
         json={"username": f"{role}_user", "password": "staff-password"},
     )
     headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
-    assert client.get("/history/conversations", headers=headers).status_code == 403
+    response = client.get("/history/conversations", headers=headers)
+    assert response.status_code == 200
+    assert response.json() == []
+    assert client.get("/history/conversations").status_code == 401
 
 
 def test_passenger_cannot_continue_another_passengers_conversation(
