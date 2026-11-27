@@ -15,16 +15,16 @@
 <line x1="750.0" y1="270" x2="750.0" y2="276" stroke="#56616c"/>
 <text x="750.0" y="296.0" class="small" text-anchor="middle">+1.0</text>
 <text x="24.0" y="135.0" class="label" text-anchor="start">Answer Correctness</text>
-<line x1="643.7" y1="130" x2="710.3" y2="130" stroke="#2878B5" stroke-width="4" stroke-linecap="round"/>
-<line x1="643.7" y1="122" x2="643.7" y2="138" stroke="#2878B5" stroke-width="2"/>
-<line x1="710.3" y1="122" x2="710.3" y2="138" stroke="#2878B5" stroke-width="2"/>
-<circle cx="680.3" cy="130" r="7" fill="#2878B5"/>
-<text x="770.0" y="135.0" class="value" text-anchor="start">Δ +0.668 [+0.494, +0.811] (n=5)</text>
+<line x1="606.4" y1="130" x2="623.2" y2="130" stroke="#2878B5" stroke-width="4" stroke-linecap="round"/>
+<line x1="606.4" y1="122" x2="606.4" y2="138" stroke="#2878B5" stroke-width="2"/>
+<line x1="623.2" y1="122" x2="623.2" y2="138" stroke="#2878B5" stroke-width="2"/>
+<circle cx="614.8" cy="130" r="7" fill="#2878B5"/>
+<text x="770.0" y="135.0" class="value" text-anchor="start">Δ +0.356 [+0.316, +0.396] (n=201)</text>
 <text x="24.0" y="213.0" class="label" text-anchor="start">Answer Relevancy</text>
-<line x1="622.6" y1="208" x2="744.5" y2="208" stroke="#2878B5" stroke-width="4" stroke-linecap="round"/>
-<line x1="622.6" y1="200" x2="622.6" y2="216" stroke="#2878B5" stroke-width="2"/>
-<line x1="744.5" y1="200" x2="744.5" y2="216" stroke="#2878B5" stroke-width="2"/>
-<circle cx="699.3" cy="208" r="7" fill="#2878B5"/>
-<text x="770.0" y="213.0" class="value" text-anchor="start">Δ +0.759 [+0.393, +0.974] (n=5)</text>
+<line x1="646.3" y1="208" x2="672.0" y2="208" stroke="#2878B5" stroke-width="4" stroke-linecap="round"/>
+<line x1="646.3" y1="200" x2="646.3" y2="216" stroke="#2878B5" stroke-width="2"/>
+<line x1="672.0" y1="200" x2="672.0" y2="216" stroke="#2878B5" stroke-width="2"/>
+<circle cx="659.4" cy="208" r="7" fill="#2878B5"/>
+<text x="770.0" y="213.0" class="value" text-anchor="start">Δ +0.569 [+0.506, +0.629] (n=201)</text>
 <text x="540.0" y="324.0" class="small" text-anchor="middle">Mean paired score difference</text>
 </svg>

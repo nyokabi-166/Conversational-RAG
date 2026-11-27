@@ -1,0 +1,202 @@
+case_id,category,answerability,relevant_source,n_retrieved,first_relevant_rank,hit_at_3,hit_at_5,hit_at_all,rr,context_recall,answer_correctness
+Q001,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.6095587950598447
+Q002,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.7046259637470428
+Q003,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.7396447603534434
+Q004,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.7717595980775945
+Q005,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.7923412860580472
+Q006,conditional_table,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.8798107982595602
+Q007,direct_fact,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.8039777478815049
+Q008,policy_summary,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.6785072890995824
+Q009,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.5248235900756767
+Q010,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8214241802590155
+Q011,policy_summary,answerable,Kenya Airways _ Special Baggage.html,8,3,1,1,1,0.3333333333333333,1.0,0.6101256500484941
+Q012,policy_summary,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,0.5,0.3436919410422311
+Q013,conditional_policy,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.6818046997570998
+Q014,conditional_policy,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.8864357875419908
+Q015,direct_fact,answerable,Kenya Airways _ FAQs.html,8,2,1,1,1,0.5,1.0,0.9567307964166604
+Q016,policy_summary,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.9533229194702608
+Q017,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.5378303761171082
+Q018,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.4407829898986849
+Q019,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.4001034918070754
+Q020,navigation,answerable,kenya Airways _ Change Booking.html,8,1,1,1,1,1.0,1.0,0.5686590499702739
+Q021,policy_summary,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8296213115585825
+Q022,direct_fact,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.7714252126044137
+Q023,procedure,answerable,Kenya Airways _ Visa and Health Information.html,8,1,1,1,1,1.0,1.0,0.2805689503944259
+Q024,conditional_policy,answerable,Kenya Airways PLC _ Legal Information.html,8,1,1,1,1,1.0,1.0,0.5263337005208603
+Q025,navigation,answerable,Kenya Airways _ Baggage Information.html,8,1,1,1,1,1.0,1.0,0.8775655533809215
+Q026,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5938497190380114
+Q027,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,2,1,1,1,0.5,1.0,0.7015532782999148
+Q028,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5123518312031344
+Q029,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.497546676581112
+Q030,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.0294220095777966
+Q031,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.8055820387090887
+Q032,procedure,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.942064913686758
+Q033,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.8094149553185707
+Q034,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.9140558058075066
+Q035,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,0.5,0.1607256167684474
+Q036,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5235596667669364
+Q037,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5261705859457296
+Q038,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.4583969849233292
+Q039,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,2,1,1,1,0.5,1.0,0.1475216802944459
+Q040,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.6151099392780854
+Q041,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.6545203954344042
+Q042,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.3069345965093375
+Q043,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.3557192029503154
+Q044,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.704921219194875
+Q045,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.2944193708941617
+Q046,table_lookup,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5939272653383598
+Q047,conditional_policy,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.7631054081483513
+Q048,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.1860838001279103
+Q049,direct_fact,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.5087711838331893
+Q050,procedure,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.8789307582164265
+Q051,policy_summary,answerable,Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.8042852321230968
+Q052,unanswerable,unanswerable,Kenya Airways PLC _ Conditions of Carriage.html;Kenya Airways _ Baggage Allowance.html,8,2,1,1,1,0.5,0.5,0.1798016283800582
+Q053,table_lookup,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.9061075133128312
+Q054,conditional_table,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.5611854279665935
+Q055,direct_fact,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.861404668107002
+Q056,procedure,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.594716490130785
+Q057,conditional_policy,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.4852083347618827
+Q058,conditional_policy,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.5267476062899658
+Q059,direct_fact,answerable,Hand Baggage Information.html,8,1,1,1,1,1.0,1.0,0.4259783654879371
+Q060,conditional_policy,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.54430943026498
+Q061,conditional_policy,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.6609817804276906
+Q062,direct_fact,answerable,Kenya Airways _ Baggage Restrictions.html,8,6,0,0,1,0.16666666666666666,0.0,0.1531834371110001
+Q063,direct_fact,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.4087548314258707
+Q064,direct_fact,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.7753493985228925
+Q065,direct_fact,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.498446365830906
+Q066,direct_fact,answerable,Kenya Airways _ Baggage Restrictions.html,8,1,1,1,1,1.0,1.0,0.4716263375427011
+Q067,direct_fact,answerable,Kenya Airways _ Baggage Information.html,8,1,1,1,1,1.0,1.0,0.9126037378144484
+Q068,navigation,answerable,kenya Airways _ Change Booking.html,8,1,1,1,1,1.0,1.0,0.727143125496762
+Q069,navigation,answerable,kenya Airways _ Change Booking.html,8,2,1,1,1,0.5,1.0,0.6620826005332177
+Q070,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.7597394570880391
+Q071,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,0.5,0.6555736042922098
+Q072,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8472634377873041
+Q073,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.7957389344639878
+Q074,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.2935994024671732
+Q075,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8744142807107274
+Q076,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8741412164312327
+Q077,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,0.5,0.4258251253960022
+Q078,policy_summary,answerable,Kenya Airways _ Special Baggage.html,8,4,0,1,1,0.25,1.0,0.7958487478881351
+Q079,table_lookup,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.3874459592456345
+Q080,table_lookup,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.6399670296386167
+Q081,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.6648540512308911
+Q082,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8058841539240909
+Q083,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.3568770134972771
+Q084,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.3197511268259304
+Q085,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.4271414394723836
+Q086,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.5312614643598557
+Q087,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.6235518311647863
+Q088,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.7937056305935308
+Q089,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,5,0,1,1,0.2,1.0,0.7930018501925942
+Q090,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.8766920022810619
+Q091,direct_fact,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.9432267734620834
+Q092,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.7369585408991435
+Q093,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.5719505009118582
+Q094,table_lookup,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.4263885001114433
+Q095,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,3,1,1,1,0.3333333333333333,1.0,0.4993940549944426
+Q096,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,4,0,1,1,0.25,1.0,0.8366385131532552
+Q097,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.3766869025698666
+Q098,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,2,1,1,1,0.5,1.0,0.4962847591000556
+Q099,conditional_policy,answerable,Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.6270065654716097
+Q100,unanswerable,unanswerable,Kenya Airways _ Special Baggage.html,8,3,1,1,1,0.3333333333333333,1.0,0.5754168826229531
+Q101,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.2864165039287701
+Q102,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.1643309268355906
+Q103,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.4163827695463782
+Q104,procedure,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.65331505958883
+Q105,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.5948521993841029
+Q106,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.6868308994151273
+Q107,policy_summary,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8902004528345868
+Q108,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.5290469522193832
+Q109,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8985421352711473
+Q110,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.9565958595093124
+Q111,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.7655978898466781
+Q112,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8271139334991385
+Q113,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.3863381598180465
+Q114,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.5842712234084235
+Q115,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.7053861580901502
+Q116,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8206955416193289
+Q117,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.2983041829114726
+Q118,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.6447241754912345
+Q119,procedure,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.6246600628381671
+Q120,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.7614593326765682
+Q121,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.7927170821562466
+Q122,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.4603940931653892
+Q123,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.691245955440764
+Q124,conditional_policy,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8439462804951336
+Q125,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.6414024312052973
+Q126,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.8809529154624571
+Q127,procedure,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.5735067483837312
+Q128,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.9515802297879516
+Q129,direct_fact,answerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.2845855665785354
+Q130,unanswerable,unanswerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.1309415225203029
+Q131,unanswerable,unanswerable,Kenya Airways _ FAQs.html,8,1,1,1,1,1.0,1.0,0.1164879890517236
+Q132,direct_fact,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.5322011058604008
+Q133,conditional_policy,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.7630032480927842
+Q134,conditional_policy,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.7116956071676778
+Q135,conditional_policy,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.8483198752984304
+Q136,procedure,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.8208873772956211
+Q137,conditional_policy,answerable,Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.8611805718359439
+Q138,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.6733033945605839
+Q139,procedure,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.7851201379861029
+Q140,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.6317321904357275
+Q141,direct_fact,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.4099884612599488
+Q142,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.9923533460571028
+Q143,direct_fact,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.6254990588050503
+Q144,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.8926360539481513
+Q145,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.7692541023818247
+Q146,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.7577368932269536
+Q147,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.5451762778087808
+Q148,table_lookup,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.8069782265355192
+Q149,table_lookup,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.5204377433678098
+Q150,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.4493361768088709
+Q151,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.4758992872232597
+Q152,conditional_policy,answerable,Medical and Special Needs.html,8,3,1,1,1,0.3333333333333333,1.0,0.306312537652942
+Q153,conditional_policy,answerable,Medical and Special Needs.html,8,2,1,1,1,0.5,1.0,0.353512486530945
+Q154,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.4910076879060976
+Q155,direct_fact,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.7283363202441051
+Q156,conditional_policy,answerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.3737858540844443
+Q157,unanswerable,unanswerable,Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.5227854856576062
+Q158,direct_fact,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.693870521509339
+Q159,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8880594878953997
+Q160,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.690171452159725
+Q161,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.7746900569468378
+Q162,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.512530717713471
+Q163,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8204172173220069
+Q164,table_lookup,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,2,1,1,1,0.5,1.0,0.7547634061599305
+Q165,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.4277622401441346
+Q166,policy_summary,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,2,1,1,1,0.5,0.0,0.7626404761340544
+Q167,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8552573134306134
+Q168,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.7476361954169566
+Q169,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,3,1,1,1,0.3333333333333333,1.0,0.8041508745710215
+Q170,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,2,1,1,1,0.5,1.0,0.6621836467645983
+Q171,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,0.6666666666666666,0.3721353168843959
+Q172,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,4,0,1,1,0.25,1.0,0.5668836997037672
+Q173,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.6585299281798527
+Q174,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.3540352787443233
+Q175,policy_summary,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,5,0,1,1,0.2,1.0,0.5653743012491699
+Q176,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.5393128242864695
+Q177,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.4520576553019771
+Q178,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.6522487109273284
+Q179,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8089960392646527
+Q180,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8664052642690692
+Q181,table_lookup,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.4523932966803732
+Q182,table_lookup,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.339088241289635
+Q183,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,3,1,1,1,0.3333333333333333,1.0,0.8016842383039412
+Q184,direct_fact,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.6860345525751479
+Q185,procedure,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8143685560200087
+Q186,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.6626388320466574
+Q187,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.8089683256943221
+Q188,conditional_policy,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.5276203614973047
+Q189,unanswerable,unanswerable,Kenya Airways PLC _ Conditions of Carriage.html,8,2,1,1,1,0.5,0.5,0.4145505055498953
+Q190,direct_fact,answerable,Kenya Airways PLC _ Legal Information.html,8,1,1,1,1,1.0,1.0,0.5045893573198482
+Q191,conditional_policy,answerable,Kenya Airways PLC _ Legal Information.html,8,1,1,1,1,1.0,1.0,0.5399087902292927
+Q192,navigation,answerable,Kenya Airways PLC _ Legal Information.html,8,1,1,1,1,1.0,1.0,0.5999822421174548
+Q193,conditional_policy,answerable,Kenya Airways _ Visa and Health Information.html,8,1,1,1,1,1.0,1.0,0.2766873543570964
+Q194,direct_fact,answerable,Kenya Airways _ Visa and Health Information.html,8,1,1,1,1,1.0,1.0,0.7160824253854777
+Q195,multi_hop,answerable,Kenya Airways PLC _ Online Check-in.html;Kenya Airways _ Baggage Allowance.html,8,1,1,1,1,1.0,1.0,0.6048908728708514
+Q196,multi_hop,answerable,Kenya Airways PLC _ Conditions of Carriage.html;Medical and Special Needs.html,8,1,1,1,1,1.0,1.0,0.7085146932627582
+Q197,multi_hop,answerable,Kenya Airways _ Special Baggage.html;Medical and Special Needs.html,8,1,1,1,1,1.0,0.6666666666666666,0.4591229735515673
+Q198,multi_hop,answerable,Kenya Airways PLC _ Conditions of Carriage.html;Kenya Airways PLC _ Online Check-in.html,8,1,1,1,1,1.0,1.0,0.2922096082570844
+Q199,multi_hop,answerable,Kenya Airways PLC _ Conditions of Carriage.html,8,1,1,1,1,1.0,1.0,0.3337086568185033
+Q200,multi_hop,answerable,Kenya Airways _ Baggage Restrictions.html;Kenya Airways _ Special Baggage.html,8,1,1,1,1,1.0,1.0,0.7304888151846507
+Q201,multi_hop,answerable,Hand Baggage Information.html;Kenya Airways _ Baggage Allowance.html,8,2,1,1,1,0.5,1.0,0.8455305284037665

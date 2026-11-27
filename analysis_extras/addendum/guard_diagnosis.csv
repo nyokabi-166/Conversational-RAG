@@ -1,0 +1,46 @@
+case_id,question,refuse,reason,missing_terms,question_terms
+H01,"For a Kenya Airways-operated domestic flight in Business Class, how many checked pieces and what maximum weight does the allowance table show?",False,all distinctive terms supported,,operat; clas; check; piec; maximum; weight; allowance; table
+H01_p1,"On a domestic flight run by Kenya Airways in Business Class, what is the checked baggage limit in pieces and weight?",True,terms absent from the whole knowledge base,run,run; clas; check; baggage; limit; piec; weight
+H01_p2,"Business Class, domestic, Kenya Airways operated: how many bags can I check and how heavy can they be?",False,all distinctive terms supported,,clas; operat; baggage; check; weight
+H02,"For a Kenya Airways-operated flight within Africa in Business Class, what is the free checked baggage allowance?",False,all distinctive terms supported,,operat; clas; check; baggage; allowance
+H02_p1,How much checked baggage is free in Business Class on a Kenya Airways flight inside Africa?,False,all distinctive terms supported,,check; baggage; clas; inside
+H02_p2,I am flying Business Class within Africa on a Kenya Airways flight. What checked bags can I take for free?,False,all distinctive terms supported,,clas; check; baggage
+H03,What minimum internet connection and browser versions does Msafiriconnect require?,False,all distinctive terms supported,,minimum; internet; connect; brows; vers; msafiriconnect; require
+H03_p1,Which internet speed and browser versions do I need to use Msafiriconnect?,True,terms absent from the whole knowledge base,speed,internet; speed; brows; vers; msafiriconnect
+H03_p2,What are the minimum connection speed and supported browsers for Msafiriconnect?,True,terms absent from the whole knowledge base,speed,minimum; connect; speed; support; brows; msafiriconnect
+H04,"What is the Airport Medical Review (MEDA) fee for a local flight and for an international flight, one way?",False,all distinctive terms supported,,airport; medical; review; meda; local; way
+H04_p1,"How much is the MEDA (Airport Medical Review) fee one way, for local and international flights?",False,all distinctive terms supported,,meda; airport; medical; review; way; local
+H04_p2,"What does Kenya Airways charge for the Airport Medical Review, on a local flight and on an international flight?",False,all distinctive terms supported,,airport; medical; review; local
+H05,"If a passenger buys an extra seat for a corpulent passenger, does that extra seat add a free checked baggage allowance?",False,all distinctive terms supported,,buy; extra; seat; corpulent; check; baggage; allowance
+H05_p1,Does a seat bought for a corpulent passenger come with its own free checked baggage allowance?,True,terms absent from the whole knowledge base,bought,seat; bought; corpulent; come; its; own; check; baggage; allowance
+H05_p2,"If I pay for an additional seat because of my size, do I get extra free checked baggage with it?",False,all distinctive terms supported,,additional; seat; because; size; extra; check; baggage
+H06,What happens if a passenger changes their transportation without Kenya Airways' agreement?,False,all distinctive terms supported,,chang; transport; agree
+H06_p1,What is the rule if a passenger changes how they travel without getting Kenya Airways' agreement?,False,all distinctive terms supported,,chang; agree
+H06_p2,"If someone switches their transportation without Kenya Airways agreeing to it, what happens?",False,all distinctive terms supported,,switch; transport; agree
+H07,Can delicate musical instruments or high-value fragile equipment be carried in the cabin if they do not meet the normal cabin baggage requirements?,False,all distinctive terms supported,,delicate; musical; instru; high; value; fragile; equip; carri; meet; normal; baggage; require
+H07_p1,Is it allowed to take fragile musical instruments or valuable delicate equipment into the cabin when they are over the normal cabin baggage limits?,False,all distinctive terms supported,,fragile; musical; instru; valu; delicate; equip; normal; baggage; limit
+H07_p2,My musical instrument is too big for normal cabin baggage. Can it still travel in the cabin?,False,all distinctive terms supported,,musical; instru; too; big; normal; baggage
+H08,"Who is entitled to take delivery of checked baggage, and what must a person do if they cannot produce the baggage check and baggage identification tag?",False,all distinctive terms supported,,entitl; delivery; check; baggage; person; cannot; produce; identific; tag
+H08_p1,"Who can collect checked baggage, and what should someone do if they have lost the baggage check and identification tag?",False,all distinctive terms supported,,collect; check; baggage; lost; identific; tag
+H08_p2,"Who has the right to receive checked baggage at arrival, and what happens when the baggage check and tag cannot be shown?",False,all distinctive terms supported,,right; receive; check; baggage; arrival; tag; cannot; shown
+H09,"What may Kenya Airways do if a passenger's conduct on board endangers the aircraft, obstructs the crew, or causes discomfort to others?",False,all distinctive terms supported,,conduct; board; endang; aircraft; obstruct; crew; caus; discomfort
+H09_p1,"What actions can Kenya Airways take when a passenger's behaviour on board puts the aircraft at risk, blocks the crew, or disturbs other passengers?",True,terms absent from the whole knowledge base,behaviour; block,action; behaviour; board; put; aircraft; risk; block; crew; disturb; passeng
+H09_p2,"If a passenger behaves in a way that endangers the plane or upsets others on board, what can Kenya Airways do?",True,terms absent from the whole knowledge base,upset,behav; way; endang; plane; upset; board
+H10,Which three website policies are listed at the top of the Legal Information page?,False,all distinctive terms supported,,policy; top; legal; inform
+H10_p1,What are the three website policies shown at the top of the Legal Information page?,False,all distinctive terms supported,,policy; shown; top; legal; inform
+H10_p2,Which three policies appear first on the Kenya Airways Legal Information page?,False,all distinctive terms supported,,policy; appear; legal; inform
+H11,Can a booking made through a travel agent or a third-party website be modified online?,False,all distinctive terms supported,,book; made; through; agent; third; party; modifi; online
+H11_p1,Can I change a booking online if I bought it from a travel agent or another website?,True,terms absent from the whole knowledge base,bought,rebooking; book; online; bought; agent; anoth
+H11_p2,Is it possible to modify a reservation online when it was made through a travel agent or a third-party site?,False,all distinctive terms supported,,modify; reserv; online; made; through; agent; third; party
+H12,What may happen if a passenger does not arrive at the boarding gate by the time specified at check-in?,False,all distinctive terms supported,,arrive; board; gate; time; specifi; check
+H12_p1,What can happen if a passenger is not at the boarding gate at the time given at check-in?,False,all distinctive terms supported,,board; gate; time; given; check
+H12_p2,"If I get to the boarding gate after the time I was told at check-in, what might Kenya Airways do?",True,terms absent from the whole knowledge base,told,board; gate; time; told; check
+H13,What fee does Kenya Airways charge to lease medical escort equipment?,False,all distinctive terms supported,,lease; medical; escort; equip
+H13_p1,How much does Kenya Airways charge to rent medical escort equipment?,True,terms absent from the whole knowledge base,rent,rent; medical; escort; equip
+H13_p2,What is the price to lease medical escort equipment from Kenya Airways?,False,all distinctive terms supported,,lease; medical; escort; equip
+H14,What is the cancellation charge for a Business Best Buy ticket?,False,all distinctive terms supported,,cancel; best; buy; ticket
+H14_p1,How much is the cancellation fee on a Business Best Buy fare?,False,all distinctive terms supported,,cancel; best; buy; fare
+H14_p2,What do I pay to cancel a Business Best Buy ticket?,False,all distinctive terms supported,,cancel; best; buy; ticket
+H15,How many Asante miles does a passenger earn on a Nairobi to London Economy flight?,False,all distinctive terms supported,,asante; mil; earn; nairobi; london
+H15_p1,How many Asante miles will I earn flying Economy from Nairobi to London?,False,all distinctive terms supported,,asante; mil; earn; nairobi; london
+H15_p2,What is the number of Asante miles earned on an Economy Nairobi to London flight?,False,all distinctive terms supported,,numb; asante; mil; earn; nairobi; london
