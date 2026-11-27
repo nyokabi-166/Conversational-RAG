@@ -1,0 +1,813 @@
+case_id,category,question,reference,rag_response,baseline_response,ragas_answer_correctness,ragas_faithfulness,ragas_context_recall,sampling_seed,my_correct,my_supported,my_complete,notes
+Q013,conditional_policy,"Can a passenger carry medically necessary needles or syringes, and what condition does the restrictions page give?","The page says these are exempt from its prohibitions if the passenger has prescription medication with a professionally printed label identifying the medical office, pharmacy, or manufacturer.","- Medically necessary needles and syringes are allowed if the passenger has prescription medication with a professionally printed label that identifies the medical office, pharmacy, or manufacturer of the medication.
+- The passenger must have the medication in their possession.
+- The restrictions page does not give any condition for carrying medically necessary needles and syringes.
+
+Next step: What type of prescription medication are you carrying?","Passengers are allowed to carry medically necessary needles or syringes, but they must be declared and carried in a protective case.
+
+- The passenger must provide a doctor's note or a medical certificate explaining the need for the needles or syringes.
+- The needles or syringes must be in a protective case and not in a checked bag.
+- The passenger must declare the needles or syringes at check-in and provide the doctor's note or medical certificate.
+- The airline may require additional documentation or approval from a medical professional.
+
+| Route | Cabin Class | Restrictions |
+| --- | --- | --- |
+| Domestic | Economy | No restrictions |
+| International | Business | Requires doctor's note or medical certificate |
+| International | Economy | Requires doctor's note or medical certificate |
+
+Next step: Please provide the details of your medical condition and the type of needles or syringes you need to carry, so I can assist you further.",0.6818046997570998,0.6666666666666666,1.0,42,0.0,,,Gives the correct label condition but then wrongly states 'the restrictions page does not give any condition' – contradictory/unsupported claim.
+Q035,conditional_policy,Can a checked bag weigh more than 23 kg on Kenya Airways?,"Only under special conditions or authorization. The page says non-normal items, motorized wheelchairs, and special sporting equipment may be accepted as checked baggage exceeding 23 kg.","- Yes, for some routes and cabin classes, checked bags can weigh more than 23 kg.
+- For example, on flights from Africa to America/Europe in Business Class, the free checked baggage allowance is 2 pieces of 32 kg each.
+- In Economy Class, the free checked baggage allowance is 2 pieces of 23 kg each on flights from Africa to America/Europe, Africa to Middle East/Asia, and Bangkok to Guangzhou.
+- On flights from Nairobi to Mumbai, the free checked baggage allowance is 1 piece of 32 kg in Business Class and 1 piece of 23 kg in Economy Class.
+- If your checked bag weighs more than the free allowance, you may be charged for excess baggage.
+Next step: Could you please tell me your route and cabin class?","Checked bags on Kenya Airways can weigh up to 32 kg, but excess baggage fees may apply for bags over 23 kg.
+
+- Excess baggage fees are charged per kilogram over 23 kg.
+- The fees are as follows:
+  - Economy class: $1.50 per kilogram
+  - Business class: $1 per kilogram
+  - First class: $0.50 per kilogram
+
+| Route | Economy | Business | First |
+| --- | --- | --- | --- |
+| Short-haul | $1.50 | $1 | $0.50 |
+| Long-haul | $2 | $1.50 | $1 |
+
+Next step: Could you please provide your route and cabin class to confirm the excess baggage fees?",0.1607256167684474,0.8888888888888888,0.5,42,0.0,,,"Answers from route/cabin weight tables and omits the reference key fact: only under special conditions/authorisation (non-normal items, motorised wheelchairs, special sporting equipment)."
+Q039,conditional_policy,"When bags are pooled, can one bag exceed the per-piece weight limit if another is lighter?","No. Pooling combines the number of pieces, not the weight per piece. For example, with a free allowance of 2 pieces of 23 kg each, a passenger cannot bring one 18 kg bag and one 26 kg bag.","- For flights originating or terminating to the US/CANADA, piece concept applies based on the specified weight.
+- Excess baggage charges are applied through to the final destination.
+- Pooling of Allowance
+- Pooling of excess bags is allowed for families or a group or party travelling to a common destination e.g. sportsmen, affinity groups etc.
+- The families or group or party shall be travelling together and check-in their baggage to the same destination on the same flight(s) at the same time.
+- Each individual passenger shall always be given their own individual baggage” claim” tag.
+- For security reasons only families are allowed to register their checked baggage in one check-in record.
+- For groups during check-in, each passenger in the group will check-in their baggage individually but the total allowance for the group applies.
+- Excess charges apply if:
+Next step: What is your cabin class and route?","When bags are pooled, the total weight of all items in the pooled bag cannot exceed the per-piece weight limit, regardless of the individual weights of the items.
+
+- The per-piece weight limit is 32 kg (70 lbs) for Economy and Business Class, and 40 kg (88 lbs) for First Class.
+- The maximum number of pieces allowed per passenger is 3 for Economy and Business Class, and 2 for First Class.
+- The maximum dimensions for a piece of luggage are 158 cm (62 in) in length, 79 cm (31 in) in width, and 29 cm (11 in) in height.
+
+| Class | Weight Limit (kg) | Pieces Allowed |
+| --- | --- | --- |
+| Economy/ Business | 32 | 3 |
+| First | 40 | 2 |
+
+Next step: Can you please confirm your travel class and route to provide more specific guidance?",0.1475216802944459,1.0,1.0,42,0.0,,,"Lists pooling policy text but never answers the question; omits 'pooling combines number of pieces, not weight per piece' and the 18+26 kg example."
+Q044,conditional_policy,What restrictions apply to items stowed on a seat that was purchased for cabin baggage?,"Items must be secured with a safety belt or restraint device, be properly packaged, and not block exits, aisles, or sign visibility. Trunks and crates are not allowed, extra seats for stowage cannot be on the emergency exit row, and the passenger and the baggage must be booked in the same class.","- The items stowed shall not restrict access to or use of any required emergency or regular exit, or aisle(s) in the cabin.
+- The items stowed shall not obscure any passenger’s view of the seat belt sign, no smoking sign or required exit sign.
+- The items stowed may not cause disturbance to other passengers.
+- The items shall be limited to the sizes stipulated below;
+ - For B787: 48X73X40 (width x height x side length) CMS
+ - For B737 Series: 48X60X40 (width x height x side length) CMS
+ - For E190: 43X60X40 (width x height x side length) CMS
+- The items stowed shall be adequately packaged or covered in a manner to avoid possible injury to passengers and cabin crew members.
+- Extra seats for stowage of items shall not be issued on the emergency exit row.
+
+Next step: Could you please tell me your route and cabin class?","Items stowed on a seat purchased as cabin baggage must not exceed the dimensions of the seat, which is typically 56 x 36 x 23 cm.
+
+- The seat must be occupied by a passenger with a valid ticket.
+- The seat cannot be used as a footrest or for storing items that do not fit in the overhead bins or under the seat in front of you.
+- The seat cannot be used to store items that are not allowed in the cabin, such as lithium batteries or flammable liquids.
+- The seat cannot be used to store items that are too large or heavy for the seat.
+
+| Route | Seat Size |
+| --- | --- |
+| Short-haul | 56 x 36 x 23 cm |
+| Long-haul | 56 x 36 x 25 cm |
+
+Next step: Please confirm the route and seat size to provide more specific guidance.",0.704921219194875,0.9444444444444444,1.0,42,0.0,,,"Omits three required conditions: secured with safety belt/restraint, no trunks/crates, passenger and baggage booked in same class."
+Q057,conditional_policy,Can a car seat used on board for a seated infant or child be carried on top of the normal cabin baggage allowance?,Yes. A car seat used on board for a seated infant or small child may be accepted on top of the normal free cabin baggage allowance. The accompanying person is responsible for installing it in line with the manufacturer's instructions.,"- For infants and small children who are seated on a passenger seat and need to be secured with an approved device for their comfort on board, the car seat used on board may be accepted on top of the normal free cabin baggage allowance.
+- The car seat used on board may be accepted on top of the normal free cabin baggage allowance.
+- The car seat used on board may be accepted on top of the normal free cabin baggage allowance.
+- The car seat used on board may be accepted on top of the normal free cabin baggage allowance.
+- The car seat used on board may be accepted on top of the normal free cabin baggage allowance.
+
+Next step: What is your cabin class and route?","A car seat used on board for a seated infant or child can be carried on top of the normal cabin baggage allowance, but it will be subject to the airline's size and weight restrictions.
+
+- The maximum size for a carry-on car seat is 115cm x 76cm x 53cm.
+- The maximum weight is 10kg.
+- The car seat must be able to be stowed in the overhead bin or under the seat in front of the passenger.
+- Some car seats may be too large to fit in the overhead bin, in which case they may need to be checked as baggage.
+
+| Cabin Class | Car Seat Size Limit |
+| --- | --- |
+| Economy | 115cm x 76cm x 53cm |
+| Business | 115cm x 76cm x 53cm |
+| First Class | 115cm x 76cm x 53cm |
+
+Next step: Could you please provide the size and weight of the car seat you plan to bring on board, so I can confirm if it meets our requirements?",0.4852083347618827,0.6666666666666666,1.0,42,0.0,,,"Correct that a car seat may be accepted on top of the allowance, but omits the accompanying person's responsibility to install it per manufacturer instructions; also repeats the same line four times."
+Q058,conditional_policy,What happens if an airport authority or airline imposes stricter cabin baggage limits than Kenya Airways?,"The allowable pieces are checked in free of charge, provided size and weight are within the cabin baggage allowance weight. If not, normal excess baggage charges apply.","- If an airport authority or airline imposes stricter cabin baggage limits, you may be allowed to check in the extra piece within the free baggage allowance weight, provided its size and weight are within the cabin baggage allowance weight.
+- If not, normal excess baggage charges apply.
+- The airport authority or airline's stricter limits will take precedence over Kenya Airways' cabin baggage allowance.
+- You should check with the airport authority or airline for their specific restrictions before your flight.
+
+Next step: Can you please tell me your route and cabin class so I can provide more specific information?","If an airport authority or airline imposes stricter cabin baggage limits than Kenya Airways, you may be required to check your carry-on bags, which could incur additional fees.
+
+- The airport or airline's stricter limits may apply to the total weight, size, or number of bags.
+- You may be able to check with the airport or airline for their specific baggage policies.
+- Kenya Airways' cabin baggage limits are typically 7 kg (15 lbs) and 115 cm (45 in) in size, but these can vary.
+
+| Airport/Airline | Cabin Baggage Limit (kg) | Size Limit (cm) |
+| --- | --- | --- |
+| Kenya Airways | 7 | 115 |
+| Example Airport | 5 | 100 |
+
+Next step: Please provide the airport or airline you are traveling with, so I can assist you further.",0.5267476062899658,0.8333333333333334,1.0,42,1.0,,,Conveys both key facts: pieces within the cabin allowance weight are checked free; otherwise normal excess baggage charges apply.
+Q070,conditional_policy,Can a passenger carry power banks or spare lithium batteries in checked baggage?,"No. Spare lithium batteries and articles whose primary purpose is to power another device, such as power banks, are restricted to carry-on baggage only. Spare batteries must be individually protected against short circuits.","- Power banks or spare lithium batteries are not permitted in checked baggage.
+- They are restricted to carry-on baggage only.
+- Spare batteries must be individually protected to prevent short circuits by placement in the original retail packaging or by otherwise insulating terminals.
+- Articles containing lithium cells or batteries, the primary purpose of which is to provide power to another device, are considered as spare batteries and are restricted to carry-on baggage only.
+
+Next step: Which route and cabin class are you travelling in?","Power banks and spare lithium batteries are subject to specific regulations and restrictions.
+
+- They are generally allowed in checked baggage, but must be protected from accidental activation.
+- The lithium content must not exceed 160Wh.
+- The device must be protected from accidental activation, such as being wrapped in bubble wrap or placed in a protective case.
+- Spare lithium batteries are subject to the same restrictions as power banks.
+
+| Route | Power Banks | Spare Lithium Batteries |
+| --- | --- | --- |
+| Domestic | Allowed | Allowed |
+| International | Allowed, but check with airline | Not allowed |
+
+Next step: Could you please provide the route of your travel and the type of device (power bank or spare lithium battery) you wish to carry in checked baggage?",0.7597394570880391,0.8571428571428571,1.0,42,1.0,,,Matches reference: power banks/spare lithium restricted to carry-on only and must be individually protected against short circuits.
+Q090,conditional_policy,"Who can transport javelin poles as athletic equipment, and what is required?","They are accepted for groups participating in sport events. Advance clearance is needed, the poles must be packed in a soft cover provided by the guest, and a SPEQ JAVELIN remark is entered.","- Javelin poles can be transported for groups participating in sport events.
+- An advance clearance is needed.
+- A message “Authorization for bulky XBAG transportation” shall be sent to the station.
+- The “SPEQ JAVELIN” remark is presented in the PNR.
+- The poles shall be packed in a soft cover provided by the guest.","Javelin poles can be transported as athletic equipment on Kenya Airways, but they are subject to certain requirements.
+
+- Only checked baggage can accommodate javelin poles, and they must be properly packaged to prevent damage.
+- The maximum length for checked baggage is 2.4 meters, and the poles must be securely wrapped to prevent injury to other passengers.
+- A maximum of 2 poles can be transported per passenger, and they must be declared as athletic equipment at check-in.
+- Additional fees may apply for transporting oversized or heavy items.
+
+| Route | Cabin Class | Additional Fees |
+| --- | --- | --- |
+| Economy | Yes | $50-$100 |
+| Business | Yes | $25-$50 |
+| First | No | $0 |
+
+Next step: Please provide your route, cabin class, and the number of javelin poles you plan to transport so I can assist you further.",0.8766920022810619,1.0,1.0,42,1.0,,,"Covers groups/sport events, advance clearance, soft cover provided by guest and SPEQ JAVELIN remark; adds XBAG message detail consistent with the bulky-authorisation process."
+Q095,conditional_policy,What conditions apply to media or entertainment baggage?,A corporate account should be signed with KQ and/or a specific tour code used. Charges are each way. The maximum is 25 bags per account on the long-haul fleet and 5 on the short-haul fleet. Normal overweight charges apply for bags over 23 kg and under 32 kg.,"- Media or entertainment baggage includes audio, camera, lighting and photography equipment, wardrobes, trunks and musical instruments.
+- They must be properly packed to protect their content.
+- Balls which have a pressure valve need to be deflated prior acceptance.
+- The “SPEQ” remark shall be used.
+- An advance clearance is not necessary.
+- Corporate account should be signed with KQ and/or specific tour code used for filing.
+- All baggage charges are each way.
+- Maximum total number of bags on KQ long-haul fleet is 25 per account.
+
+Next step: What is your cabin class and route?","Media or entertainment baggage is subject to certain conditions to ensure safe transportation of these items.
+
+- The maximum weight for media or entertainment baggage is 32 kg (70 lbs) per piece.
+- The maximum dimensions are 158 cm (62 in) in length, 90 cm (35 in) in width, and 75 cm (30 in) in height.
+- Electronic devices, such as laptops and tablets, are allowed in carry-on baggage only.
+- Batteries and power banks must be protected from accidental activation and must comply with IATA regulations.
+
+| Route | Cabin Class | Media/Entertainment Baggage Allowance |
+| --- | --- | --- |
+| Short Haul | Economy | 1 piece, 32 kg (70 lbs) |
+| Short Haul | Business | 2 pieces, 32 kg (70 lbs) each |
+| Long Haul | Economy | 1 piece, 32 kg (70 lbs) |
+| Long Haul | Business | 2 pieces, 32 kg (70 lbs) each |
+
+Next step: Please provide your route and cabin class to determine the specific media or entertainment baggage allowance.",0.4993940549944426,0.5555555555555556,1.0,42,0.0,,,Omits the 5-bag short-haul maximum and the normal overweight charge rule for bags over 23 kg and under 32 kg; includes unrelated ball-deflation detail.
+Q099,conditional_policy,How is authorization recorded for baggage heavier than 32 kg or larger than 300 cm in total dimensions?,"Authorization from the commercial team is needed before travel. It appears in the PNR as an XBAG comment, and a 'bulky XBAG transportation' message with the type and dimensions is sent to the station.","Authorization for baggage heavier than 32 kg or larger than 300 cm in total dimensions is recorded in the PNR with “XBAG comment”. If the baggage exceeds 32 kg or 300 cm, a “bulky XBAG transportation” message specifying the type and the dimensions is sent to the station.
+
+- For bulky baggage, advance clearance is required.
+- The baggage must be packed in a suitable cover provided by the guest.
+- The authorization will appear in the PNR with “XBAG comment”.
+
+Next step: What is your route and cabin class?","Authorization for baggage heavier than 32 kg or larger than 300 cm in total dimensions is recorded through a special baggage handling process.
+
+- The maximum weight is 32 kg, and the maximum dimensions are 300 cm in total.
+- Excess baggage fees apply for weights over 32 kg or dimensions over 300 cm.
+- The fees are calculated based on the excess weight or dimensions.
+- Special handling is required for oversized or overweight baggage.
+
+Next step: Please provide the weight and dimensions of your baggage to determine the excess baggage fees and handling requirements.",0.6270065654716097,0.6666666666666666,1.0,42,1.0,,,Conveys PNR XBAG comment and 'bulky XBAG transportation' message with type and dimensions; approver (commercial team) not named but advance clearance stated.
+Q142,conditional_policy,"Who must approve medical equipment needed in flight, and by when?",All equipment that may be required in flight must be approved by the Kenya Airways Engineering department at least 24 hours before the flight.,"- The Kenya Airways Engineering department must approve all equipment that may be required in-flight.
+- This approval must be done at least 24 hours before the flight.","The passenger's doctor or medical representative must approve the medical equipment needed in flight, and this approval is usually required at least 48 hours prior to the flight.
+
+- The approval is typically done by the passenger's doctor or medical representative.
+- The approval is usually required at least 48 hours prior to the flight.
+- The passenger must provide a medical certificate or a letter from their doctor explaining the equipment and its use.
+- The passenger must also inform the airline about the equipment and its use at least 48 hours prior to the flight.
+
+| Route | Cabin Class | Approval Time |
+| --- | --- | --- |
+| Domestic | All | 48 hours |
+| International | All | 72 hours |
+
+Next step: Please provide the passenger's doctor or medical representative's contact information so we can facilitate the approval process.",0.9923533460571028,1.0,1.0,42,1.0,,,Correct: Engineering department approval at least 24 hours before the flight.
+Q168,conditional_policy,How early must medical clearance be obtained for recent illness or surgery?,Via MEDIF or FREMEC no later than 48 to 96 hours before departure.,"Medical clearance must be obtained no later than 48–96 hours before departure for recent illness, surgery, or medical conditions.
+
+- For recent illness, surgery, or medical conditions, you must obtain prior medical clearance via MEDIF or FREMEC.
+- The clearance process may take up to 48–96 hours before departure.
+- You will be required to carry a Passenger Medical Clearance form (PMC) stating the conditions of clearance throughout your travel.
+
+Next step: What is your recent illness or surgery?","Medical clearance is typically required for passengers who have had recent illness or surgery, and the specific requirements may vary depending on the route and type of travel.
+
+- For domestic flights within Kenya, medical clearance is usually not required, but it's always best to check with your doctor.
+- For international flights, medical clearance is often required for passengers who have had recent illness or surgery, especially if it's related to a contagious disease or requires oxygen therapy.
+- The exact requirements can depend on the route, cabin class, and type of travel (e.g., economy, business, or first class).
+- For example, if you're traveling from Nairobi to London, you may need to provide a doctor's note stating that you're fit to fly.
+
+Next step: Can you please provide more details about your recent illness or surgery, including the type of condition and the date of the incident?",0.7476361954169566,0.6,1.0,42,1.0,,,Correct: MEDIF or FREMEC no later than 48–96 hours before departure; also notes the PMC form.
+Q183,conditional_policy,"By when must a passenger notify Kenya Airways about damaged or delayed checked baggage, and in what form?",Damage: as soon as discovered and at the latest within 7 days of receipt. Delay: within 21 days from when the baggage was placed at the passenger's disposal. Notice must be in writing.,"You must notify us as soon as you discover the Damage, and at the latest, within seven (7) Days of receipt of the Baggage. If you wish to file a claim or an action regarding delay of Checked Baggage, you must notify us within twenty-one (21) Days from the date the Baggage has been placed at your disposal. Every such notification must be made in writing.
+
+- For Damage to Checked Baggage: as soon as you discover the Damage, and at the latest, within 7 Days of receipt of the Baggage.
+- For delay of Checked Baggage: within 21 Days from the date the Baggage has been placed at your disposal.
+- Every notification must be made in writing.
+
+Next step: Please provide the reference number of your flight and a detailed description of the damage or delay, so we can assist you further.","A passenger must notify Kenya Airways about damaged or delayed checked baggage within 48 hours of arrival, in writing, either by email to [baggageclaims@kenya-airways.com](mailto:baggageclaims@kenya-airways.com) or by filling out a Property Irregularity Report (PIR) form at the airport.
+
+- Form: Property Irregularity Report (PIR) form available at the airport or by email.
+- Timeframe: within 48 hours of arrival.
+- Details: include baggage tag number, description of damage or delay, and any supporting documentation.
+- Language: English or local language.
+
+Next step: Please provide your flight details and baggage tag number so we can assist you further.",0.8016842383039412,0.6666666666666666,1.0,42,1.0,,,Correct: damage reported as soon as discovered and at latest within 7 days; delay within 21 days; notice in writing.
+Q193,conditional_policy,Is Kenya Airways responsible for travel problems caused by incomplete or wrong travel documents?,No. The page says Kenya Airways is not responsible for any travel-related problems brought on by incomplete or erroneous travel documentation.,"- You are responsible for obtaining all required travel documents and visas.
+- We shall not be liable for the consequences to any Passenger resulting from his or her failure to obtain such documents or visas.
+- You must present all exit, entry, health and other documents required by law, regulation, order, demand or other requirement of the countries concerned.
+- We reserve the right to refuse carriage if you have not complied with these requirements, or your travel documents do not appear to be in order.
+
+Next step: Please confirm your travel documents are in order.","Travel problems caused by incomplete or wrong travel documents are typically the responsibility of the passenger.
+
+- Incomplete or wrong travel documents may result in denied boarding, delayed travel, or even fines.
+- Passengers are responsible for ensuring they have the required documents for their journey.
+- The type of document required varies by route and destination.
+- For example, some routes may require a visa, while others may require a health certificate.
+
+| Route | Cabin Class | Required Documents |
+| --- | --- | --- |
+| Nairobi to London | Economy | Passport, visa, travel insurance |
+| Nairobi to Dubai | Business | Passport, visa, health certificate |
+
+Next step: Can you please provide the specific route and destination of your travel, as well as the type of cabin class you are booking, so I can better assist you with any document requirements?",0.2766873543570964,1.0,1.0,42,1.0,,,"Correct: passenger responsible, KQ not liable for consequences of incomplete/wrong documents; right to refuse carriage noted."
+Q006,conditional_table,"How does Economy cabin baggage differ between flights to or from the EU, US, or UK and other routes?","The page lists one cabin bag plus one accessory on both route groups. For flights to or from the EU, US, or UK, the combined maximum weight is 12 kg (26 lb); for other routes, it is 10 kg (22 lb). Each cabin bag is listed with maximum dimensions of 55 x 25 x 35 cm.","- For flights to or from the EU, US, or UK, Economy cabin baggage is 1 piece (max L55xW25xH35cm each) + 1 accessory (Total weight max 12kgs/26lbs).
+- For all other routes, Economy cabin baggage is 1 piece (max L55xW25xH35cm each) + 1 accessory (Total weight max 10kgs/22lbs).
+Next step: Which route are you travelling in?","Economy cabin baggage allowance varies by route and destination.
+
+- For flights to or from the EU, US, or UK, the maximum weight is 7 kg (15 lbs) and maximum dimensions are 56 x 45 x 25 cm (22 x 18 x 10 in).
+- For flights to or from other destinations, the maximum weight is 6 kg (13 lbs) and maximum dimensions are 56 x 45 x 25 cm (22 x 18 x 10 in).
+- For all routes, one piece of carry-on baggage is allowed, and a small personal item such as a handbag or laptop bag is also permitted.
+
+| Route | Max Weight | Max Dimensions |
+| --- | --- | --- |
+| EU, US, UK | 7 kg (15 lbs) | 56 x 45 x 25 cm |
+| Other destinations | 6 kg (13 lbs) | 56 x 45 x 25 cm |
+
+Next step: Could you please specify the route you are traveling on to provide more accurate information?",0.8798107982595602,1.0,1.0,42,1.0,,,"Correctly distinguishes EU/US/UK 12 kg (26 lb) from other routes 10 kg (22 lb), with 1 piece + 1 accessory and 55x25x35 cm dimensions."
+Q054,conditional_table,"What is the combined cabin baggage weight limit for Economy on routes other than the EU, US and UK?",10 kg (22 lbs) total for one piece plus one accessory.,"The combined cabin baggage weight limit for Economy on routes other than the EU, US and UK is 10kgs/22lbs.
+- For routes other than the EU, US and UK, Economy Class: 1 piece (max L55xW25xH35cm each) + 1 accessory (Total weight max 10kgs/22lbs).
+- The items below, maximum dimensions L40xW15xH30cms Handbag Backpack Briefcase Camera Laptop 1 duty free shopping bag per passenger.
+
+Next step: Which route are you travelling in?","The combined cabin baggage weight limit for Economy on routes other than the EU, US, and UK is 7 kg.
+
+- The maximum dimensions for cabin baggage are 56 x 45 x 23 cm.
+- Excess baggage fees apply for bags exceeding this limit.
+- Cabin baggage is subject to availability and may be stored in the overhead compartment or under the seat in front of you.
+- Please note that this limit may vary depending on the specific route and aircraft used.
+
+Next step: Could you please confirm the specific route you are traveling on, so I can provide more accurate information?",0.5611854279665935,1.0,1.0,42,1.0,,,Correct: 10 kg (22 lbs) total for one piece plus one accessory on non-EU/US/UK Economy routes.
+Q010,direct_fact,Does the special baggage page set a weight limit for wheelchairs and mobility devices?,"It says there is no weight limitation for wheelchairs and mobility devices, but a comment must be added to the passenger record so the aircraft and ground handling can be planned.","- There is no weight limitation for wheelchairs and mobility devices.
+- A comment has to be given on the PNR to enable planning for the right aircraft and ground handling process.
+- Next step: What is your cabin class and route?","The special baggage page does not set a specific weight limit for wheelchairs and mobility devices, but it does require that they be checked as cargo.
+
+- Wheelchairs and mobility devices are subject to the airline's standard checked baggage fees.
+- They must be properly packaged and prepared for transport as checked baggage.
+- The maximum dimensions for checked wheelchairs and mobility devices are 80 inches (length + width + height).
+- The airline recommends that passengers contact their local Kenya Airways office for specific guidance on transporting wheelchairs and mobility devices.
+
+Next step: Please provide the type of wheelchair or mobility device you are planning to transport, so I can give you more specific guidance on the requirements and any additional fees that may apply.",0.8214241802590155,0.6666666666666666,1.0,42,1.0,,,Correct: no weight limitation; PNR comment required for aircraft/ground-handling planning.
+Q015,direct_fact,Which payment methods does the Kenya Airways FAQ list?,"The FAQ lists credit and debit cards, eWallet, mobile payment, and real-time bank transfer.","- Credit cards
+- Debit cards
+- eWallet
+- Real-time bank transfer
+- Mobile payment","The Kenya Airways FAQ lists the following payment methods: credit cards, debit cards, and online payment platforms such as PayPal.
+
+- Credit cards: Visa, Mastercard, and American Express are accepted.
+- Debit cards: Visa and Mastercard debit cards are accepted.
+- Online payment platforms: PayPal and other online payment services are accepted.
+
+| Payment Method | Accepted Routes | Cabin Classes |
+| --- | --- | --- |
+| Credit Cards | All routes | Economy, Business, First |
+| Debit Cards | Domestic, regional | Economy, Business |
+| Online Payment Platforms | All routes | Economy, Business |
+
+Next step: Please confirm which payment method you would like to use for your booking.",0.9567307964166604,1.0,1.0,42,1.0,,,"Correct: credit cards, debit cards, eWallet, real-time bank transfer and mobile payment."
+Q017,direct_fact,"If I booked through a travel agent or third-party website and need a ticket refund, whom should I contact?",The FAQ says to contact the travel agent for a ticket refund when the flight was purchased through a travel agent or third-party website.,"- For bookings purchased directly from Kenya-airways.com, Kenya Airways direct offices and preferred travel agents, you can modify online through Manage My Booking.
+- For flights purchased from travel agents and 3rd party websites, you need to contact your travel agent in case of ticket refund.
+Next step: Please provide the name of your travel agent so I can assist you further.","You should contact the travel agent or third-party website you booked through, as they are responsible for handling refunds and amendments to bookings made through their platforms.
+
+- The travel agent or website may have their own refund policies and procedures.
+- Refund processing times may vary depending on the agent or website.
+- Some agents or websites may charge a fee for refund processing.
+- Refund amounts may be subject to the original payment method and any applicable exchange rates.
+
+| Travel Agent/Website | Refund Policy | Fee | Processing Time |
+| --- | --- | --- | --- |
+| Travel Agent | 30 days | 5% | 7-10 days |
+| Third-Party Website | 60 days | 3% | 10-14 days |
+
+Next step: Please provide the name and contact details of the travel agent or third-party website you booked through, so I can assist you further.",0.5378303761171082,0.8333333333333334,1.0,42,1.0,,,Correct: contact the travel agent for a refund when the ticket was purchased through a travel agent or third-party website.
+Q030,direct_fact,Which airports does Kenya Airways count as 'Domestic' in the baggage allowance reference table?,"Kisumu, Mombasa, and Malindi.","- For 'Domestic' routes, the baggage allowance is:
+ - BUSINESS CLASS: 1 PC 32kg/70lbs max each
+ - ECONOMY: 1 PC 23kg/50lbs max each
+Next step: What is your cabin class for this trip?","Kenya Airways considers airports within Kenya as 'Domestic' for baggage allowance purposes.
+
+- Nairobi (NBO) is considered Domestic.
+- Mombasa (MBM) is considered Domestic.
+- Malindi (MYD) is considered Domestic.
+- Kisumu (KIS) is considered Domestic.
+- Eldoret (EDW) is considered Domestic.
+
+| Route | Cabin Class | Baggage Allowance |
+| --- | --- | --- |
+| Domestic | Economy | 20 kg |
+| Domestic | Business | 30 kg |
+| Domestic | First Class | 40 kg |
+
+Next step: Could you please provide the route you are flying to determine the exact baggage allowance?",0.0294220095777966,1.0,1.0,42,0.0,,,Does not name the domestic airports; gives the domestic baggage allowance instead – answers a different question.
+Q031,direct_fact,How does the baggage allowance page define '5th freedom sectors'?,"Flights that carry passengers to and from any point without connecting through the hub (Nairobi), for example Accra to Monrovia or Abidjan to Dakar.","- 5th freedom Sectors are flights that carry passengers to and from any point without connecting through the hub (Nairobi), e.g., Accra to Monrovia, Abidjan to Dakar.
+- Next step: Which route and cabin class are you travelling in?","The baggage allowance page defines '5th freedom sectors' as routes where Kenya Airways operates flights between two countries, neither of which is Kenya, and where the airline has a code-share agreement with another airline.
+
+- The baggage allowance for 5th freedom sectors is the same as for regular international flights.
+- The maximum weight for checked baggage is 23kg.
+- Excess baggage fees start at $50 per kilogram.
+- Cabin baggage allowance is 2 pieces, with a maximum weight of 7kg each.
+
+| Route | Economy | Business |
+| --- | --- | --- |
+| Nairobi to London | 23kg | 32kg |
+| Nairobi to Paris | 23kg | 32kg |
+
+Next step: Could you please provide the route you are interested in, so I can give you more specific information about baggage allowance?",0.8055820387090887,0.75,1.0,42,1.0,,,"Correct definition and examples (Accra–Monrovia, Abidjan–Dakar) of 5th freedom sectors."
+Q034,direct_fact,What maximum weight and total dimensions does the baggage allowance page set for each piece of baggage for ease of handling?,"Each piece should not exceed 23 kg (50 lbs), and total dimensions should not exceed 158 cm (62 inches) length + width + height.","For ease of handling, each piece of baggage shall not exceed 23kgs (50Ibs) and total dimensions shall not exceed 158cms (62 inches) (L+W+H).","Each piece of baggage is allowed a maximum weight of 32 kilograms and total dimensions of 158 centimeters, which includes the length, width, and height of the bag.
+
+- The maximum weight is 32 kilograms.
+- The total dimensions are 158 centimeters (length + width + height).
+- The maximum dimensions for checked baggage are 158 centimeters.
+- The maximum dimensions for carry-on baggage are 115 centimeters (length + width + height).
+
+| Route | Economy | Premium Economy | Business | First Class |
+| --- | --- | --- | --- | --- |
+| Domestic | 32 kg | 32 kg | 32 kg | 32 kg |
+| International | 32 kg | 32 kg | 32 kg | 32 kg |
+
+Next step: Could you please provide your route and cabin class so I can give you more specific information about your baggage allowance?",0.9140558058075066,1.0,1.0,42,1.0,,,Correct: 23 kg (50 lbs) per piece and 158 cm (62 in) total dimensions (L+W+H).
+Q048,direct_fact,"Under IATA Resolution 302, what determines whose baggage allowance applies on an interline journey?",IATA Resolution 302 determines the Most Significant Carrier (MSC) whose baggage allowance is applied when the journey involves interline partners.,"The Most Significant Carrier (MSC) determines whose baggage allowance applies on an interline journey.
+
+- For flights originating or terminating to the US/CANADA, piece concept applies based on the specified weight.
+- Excess baggage charges are applied through to the final destination.
+- Pooling of Allowance
+- Pooling of excess bags is allowed for families or a group or party travelling to a common destination e.g. sportsmen, affinity groups etc.
+- The families or group or party shall be travelling together and check-in their baggage to the same destination on the same flight(s) at the same time.
+- Each individual passenger shall always be given their own individual baggage” claim” tag.
+- For security reasons only families are allowed to register their checked baggage in one check-in record.
+- For groups during check-in, each passenger in the group will check-in their baggage individually but the total allowance for the group applies.
+- Excess charges apply if:
+- Each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.
+- Note: The pooling consist in pooling the number of baggage but not the weight per piece for example if Free Baggage Allowance = 2PC of 23 kg each, customers cannot come with 1 bag of 18 kg and another of 26 kg).
+- A special baggage has been checked in, for which a charge is due e.g. sporting equipment
+- Extra Seat for Cabin Baggage, Cargo, Mail (CBBG) or Passenger Comfort (EXST)
+- Extra seat(s) can be booked for passenger’s comfort (e.g. leg rest, etc.) or for stowage of cabin baggage (e.g. valuables, diplomatic pouch, fragile items, musical instruments, paintings etc.)
+- Baggage Allowance for an Extra seat purchased
+- Acceptance Conditions
+- Extra seat(s) shall be requested and paid for in advance. Approval is needed from Revenue Management.
+
+Next step: What is your route and cabin class?","The baggage allowance that applies on an interline journey is determined by the airline operating the first flight.
+
+- The airline operating the first flight is responsible for checking in and tagging the passenger's baggage.
+- The baggage allowance of the first airline applies to the entire journey.
+- If the passenger has a connecting flight, the baggage allowance of the first airline applies to the entire journey, including the connecting flight.
+- However, if the passenger has a long-haul flight and a short-haul connecting flight, the baggage allowance of the first airline may not apply to the short-haul flight.
+
+| Route | Cabin Class | Baggage Allowance |
+| --- | --- | --- |
+| Nairobi to London | Economy | 20 kg |
+| Nairobi to London | Business | 30 kg |
+| Nairobi to London | First Class | 40 kg |
+
+Next step: Could you please provide the route, cabin class, and passenger type (e.g. adult, child, infant) to determine whose baggage allowance applies?",0.1860838001279103,0.95,1.0,42,1.0,,,Correctly names the Most Significant Carrier (MSC) under IATA Resolution 302; response is padded with unrelated baggage text but no wrong claim.
+Q062,direct_fact,What are the aerosol limits for hand baggage?,"Aerosols such as hair sprays, perfumes, and medicines containing alcohol must not exceed 0.5 KG/L per article and 2.0 KG/L in total weight.","- Aerosol containers are allowed in hand baggage, but they must be in a protective case or bag.
+- The maximum size for aerosol containers is 400ml.
+- The maximum number of aerosol containers is 2.
+- The total weight of aerosol containers must not exceed 12kgs.
+- Aerosol containers must be in a protective case or bag to prevent accidental discharge.
+- Aerosol containers are not allowed in checked baggage.
+- Aerosol containers are not allowed in the cargo hold.
+- Aerosol containers are not allowed in the cargo hold.
+- Aerosol containers are not allowed in the cargo hold.
+
+Next step: What is your route and cabin class?","The aerosol limits for hand baggage are 100ml or less per container, and these containers must be placed in a clear, resealable plastic bag.
+
+- The total volume of the containers must not exceed 100ml.
+- Containers larger than 100ml are not allowed in hand baggage.
+- Aerosol containers must be protected by a clear, resealable plastic bag.
+
+| Cabin Class | Aerosol Container Size |
+| --- | --- |
+| Economy | 100ml or less |
+| Business | 100ml or less |
+| First | 100ml or less |
+
+Next step: Could you please confirm which route you are traveling on and what cabin class you have booked?",0.1531834371110001,0.0,0.0,42,0.0,,,"Wrong values: states 400 ml, max 2 containers and 12 kg total; reference is 0.5 kg/L per article and 2.0 kg/L total."
+Q067,direct_fact,What does the Baggage Information overview page say it covers?,"It says it has information on what you can and can't bring on board, how much is too much, and what to do if anything goes astray.","The Baggage Information overview page covers what you can and can't bring on board, how much is too much, and what to do if anything goes astray.","The Baggage Information overview page covers the types and limits of baggage allowed on Kenya Airways flights, including checked baggage, carry-on baggage, and special items.
+
+- Checked baggage: up to 40 kg per piece, with a maximum of 3 pieces per passenger.
+- Carry-on baggage: 1 bag per passenger, with maximum dimensions of 56 x 35 x 23 cm.
+- Special items: musical instruments, sports equipment, and other special items may be subject to additional fees and restrictions.
+
+| Route | Economy | Business |
+| --- | --- | --- |
+| Domestic | 20 kg | 30 kg |
+| International | 20 kg | 30 kg |
+
+Next step: Could you please provide your route and cabin class to give you a more accurate answer?",0.9126037378144484,1.0,1.0,42,1.0,,,"Correct: what you can and can't bring on board, how much is too much, what to do if anything goes astray."
+Q091,direct_fact,Can 'short put' equipment be taken as checked baggage?,"No. Short put (the page's spelling, listed under Athletic Equipment) is accepted as Cargo, not checked baggage, due to area load limitation, since spreader boards must be built.","- 'Short Put' equipment is not accepted as checked baggage due to area load limitation.
+- It can only be accepted via cargo since spreader boards must be built.
+- Acceptance is via cargo only.
+Next step: Which route and cabin class are you travelling in?","Checked baggage policies may vary depending on the route and cabin class, but generally, 'short put' equipment is allowed as checked baggage.
+
+- Maximum weight: 32 kg (70 lbs)
+- Maximum dimensions: 157 cm (62 in) in total (length + width + height)
+- Some routes may have specific restrictions or requirements, such as a maximum of 2 pieces per passenger
+
+| Route | Cabin Class | 'Short put' Equipment Allowance |
+| --- | --- | --- |
+| Nairobi to London | Economy | 1 piece, 32 kg (70 lbs) |
+| Nairobi to New York | Business | 2 pieces, 32 kg (70 lbs) each |
+
+Next step: Could you please provide the route and cabin class of your flight, as well as the specific 'short put' equipment you plan to bring?",0.9432267734620834,1.0,1.0,42,1.0,,,Correct: 'short put' not accepted as checked baggage; cargo only due to area load limitation and spreader boards.
+Q102,direct_fact,Can I pay for a Kenya Airways.com booking in a different currency than the one shown?,No. It is not possible to pay in any currency other than the one indicated on the website during the booking procedure.,"- The currency for payment is automatically displayed based on the country you are booking from.
+- For example, if you are in the United Kingdom, booking a flight from Nairobi to London, the price displayed, and the price you need to pay, will be in British Pound.
+- However, if you’re paying with a different currency from your card, your financial institution may apply different exchange rates to the fare displayed on the booking page. There may be additional charges incurred, so please check with your financial institution before making your booking.
+Next step: Which country are you booking from?","You can pay for a Kenya Airways booking in a different currency than the one shown, but the exchange rate may vary.
+
+- The exchange rate is determined by the payment gateway used by Kenya Airways.
+- You can check the exchange rate before making a payment.
+- The payment gateway may charge a conversion fee.
+- The currency options available for payment may vary depending on the route and cabin class.
+
+| Route | Economy | Business | First Class |
+| --- | --- | --- | --- |
+| Nairobi to London | USD, EUR | USD, EUR | USD, EUR |
+| Nairobi to New York | USD | USD | USD |
+| Nairobi to Dubai | AED | AED | AED |
+
+Next step: Can you please tell me which route and cabin class you are booking, so I can provide more specific information on the available currency options?",0.1643309268355906,0.8571428571428571,1.0,42,0.0,,,Does not state 'No'; explains card-issuer exchange rates instead of answering that payment must be in the currency shown.
+Q110,direct_fact,Which forms of payment can be used to pay for Time to Think?,"Any form accepted on the website, mobile app, and ticketing offices, listed as credit cards, debit cards, M-pesa, Airtel Money, PayPal, cash, etc.","You can use any form of payment acceptable on the Website or Mobile App and any of our Ticketing offices i.e Credit cards, Debit cards, M-pesa, Airtel Money, Paypal, Cash etc.","Time to Think is a service offered by Kenya Airways that allows passengers to cancel or change their flight bookings without incurring a change fee.
+
+- Payment methods accepted for Time to Think include credit cards (Visa, Mastercard, American Express), debit cards, and mobile payments (M-Pesa).
+- No cash payments are accepted for Time to Think.
+- The payment must be made at the time of booking or before the flight departure.
+- The payment amount is non-refundable and non-transferable.
+
+Next step: Please provide the payment method you would like to use for Time to Think, so I can assist you further.",0.9565958595093124,1.0,1.0,42,1.0,,,"Correct: any form accepted on website, app and ticketing offices – credit/debit cards, M-pesa, Airtel Money, PayPal, cash etc."
+Q111,direct_fact,How can I get proof of payment for my ticket?,"The ticket, which states the fare and taxes paid, is the proof of payment and is widely accepted as a receipt. After booking on the website it is emailed once payment is received.","Your ticket states details about the fare and taxes paid for your flight. It is your proof of payment and will be widely accepted as a receipt.
+
+- For tickets booked on Kenya-airways.com, your ticket will be issued via e-mail as soon as we have received the payment.
+- Your ticket will also serve as proof of payment.
+- If you need a physical copy, you can print it out.
+
+Next step: If you need a physical copy, do you want me to guide you on how to print it?","You can obtain proof of payment for your ticket by logging into your Kenya Airways account online, where you can view and print your ticket receipt.
+
+- You can also request a proof of payment from our customer service team via phone or email.
+- If you have already checked in online, you can print your boarding pass, which serves as proof of payment.
+- For tickets purchased at a travel agency, you can contact them directly to request a proof of payment.
+- If you have a mobile boarding pass, you can save it to your device's wallet or print it for future reference.
+
+Next step: Can you please provide your booking reference or ticket number so I can assist you further?",0.7655978898466781,0.6666666666666666,1.0,42,1.0,,,Correct: the ticket (showing fare and taxes) is the proof of payment and is emailed after booking on the website.
+Q128,direct_fact,Which payment options and languages does Msafiriconnect support?,"Payments: on-account, credit card, M-PESA (for Kenya), and invoice. It is currently available in English only.","- Msafiriconnect supports the following payment options: On-account, Credit Card, M-PESA (for Kenya), Invoice.
+- Msafiriconnect is currently available in English ONLY.","Msafiriconnect supports various payment options, including credit cards, debit cards, and online payment services like M-Pesa and PayPal. 
+
+- Credit cards: Visa, Mastercard, and American Express
+- Debit cards: Visa and Mastercard
+- Online payment services: M-Pesa, PayPal, and other local online payment services
+- Currencies: Kenya Shillings (KES), US Dollars (USD), and Euros (EUR)
+
+Next step: To complete your booking, please provide the payment method and currency you prefer.",0.9515802297879516,1.0,1.0,42,1.0,,,"Correct: on-account, credit card, M-PESA (Kenya) and invoice; English only."
+Q155,direct_fact,How can passengers contact Kenya Airways medical services?,"By email at Doctors.KQ@kenya-airways.com or the 24-hour Contact Centre at +254 734 104 747, mobile +254 711 024 747, or WhatsApp +254 705 474 747.","- You can contact Kenya Airways medical services by emailing doctors.kq@kenya-airways.com.
+- You can also contact them through our 24-hour Contact Centre at Tel: +254 734 104 747, Mobile: +254 711 024 747, or WhatsApp: +254 705 474 747.
+- Additionally, you can contact them through our Customer Excellence Center, which is open 24/7.
+- You can also submit a complaint or request for medical assistance through our website or at any local Kenya Airways office across the globe.","Passengers can contact Kenya Airways medical services through our dedicated medical assistance team, available 24/7.
+
+- Phone: +254 20 318 444 (available in Kenya) or +254 20 318 444 (available internationally)
+- Email: [medicalservices@kenya-airways.com](mailto:medicalservices@kenya-airways.com)
+- In-flight: Inform a flight attendant or the cabin crew, who will assist in contacting medical services.
+
+| Route | Economy | Business | First Class |
+| --- | --- | --- | --- |
+| Nairobi to London | 24/7 | 24/7 | 24/7 |
+| Nairobi to New York | 24/7 | 24/7 | 24/7 |
+| Nairobi to Paris | 24/7 | 24/7 | 24/7 |
+
+Next step: Please provide your flight number and a brief description of your medical needs so we can assist you further.",0.7283363202441051,1.0,1.0,42,1.0,,,"Correct: Doctors.KQ@kenya-airways.com, 24-hour Contact Centre +254 734 104 747, mobile +254 711 024 747, WhatsApp +254 705 474 747."
+Q199,multi_hop,"If my checked bag is damaged on an international flight and the Montreal Convention applies, how soon must I report it and what is the liability limit?","Notify Kenya Airways in writing as soon as the damage is discovered and no later than 7 days after receiving the baggage. The liability limit is 1,519 Special Drawing Rights per passenger.","- For international flights where the Montreal Convention applies, you must notify us within 7 days of receipt of the Baggage.
+- The liability limit is the equivalent of 151,880 Special Drawing Rights (or any such sum as provided under Article 21 paragraph 1 of the Montreal Convention).
+- Next step: Please let me know your cabin class and route so I can provide more specific information about your checked baggage allowance and liability limits.","The Montreal Convention requires you to report the damage to your checked bag within 7 days of arrival.
+
+- The liability limit for checked baggage is up to 1,131 Special Drawing Rights (SDR) per passenger, which is approximately $1,300 USD.
+- The liability limit is per passenger, not per bag.
+- The airline is responsible for the actual damage, up to the liability limit.
+- The liability limit does not apply if the damage was caused by the passenger's fault or negligence.
+
+Next step: Please provide the date of your flight and the destination airport to help me assist you further.",0.3337086568185033,0.4,1.0,42,0.0,,,"Correct 7-day written notice but wrong liability limit: states 151,880 SDR instead of 1,519 SDR per passenger."
+Q020,navigation,Where does the Change Booking page direct a passenger who wants to manage an existing reservation?,"It directs passengers to Manage Booking. It says that after logging in to manage flights, passengers can customize the booking, including meal and seat preferences and upgrades.","To manage an existing reservation, you can go to Manage My Booking. Once you are logged into manage your flights, you can customize your booking, choose your preferred meals, seat and add a little extra sparkle to your journey with KQ upgrade.
+
+- For travel dates, you can change travel dates.
+- For class of travel, you can upgrade to business class.
+- For meals, you can request special meals.
+- For seats, you can select preferred seats.
+- For extra baggage, you can purchase extra legroom.
+- For refunds, you can request for refund.
+- For contact information, you can update contact information.
+
+Next step: Which aspect of your existing reservation would you like to modify?","The Change Booking page directs a passenger who wants to manage an existing reservation to the Manage Booking section of the Kenya Airways website.
+
+- You can access Manage Booking by logging into your account on our website.
+- Once logged in, click on 'Manage Booking' and enter your booking reference number.
+- You can then view and modify your existing reservation, including changing flights, seats, or adding services.
+- If you need to make changes to your booking, you can also contact our customer support team for assistance.
+
+| Route | Cabin Class | Change Fee |
+| --- | --- | --- |
+| Nairobi to London | Economy | $50 |
+| Nairobi to London | Business | $100 |
+| Nairobi to Paris | Economy | $75 |
+
+Next step: Please provide your booking reference number so I can assist you with making changes to your existing reservation.",0.5686590499702739,0.9230769230769232,1.0,42,1.0,,,"Correctly directs to Manage Booking and notes post-login customisation (meals, seats, upgrades); adds a few further manage-booking options without contradiction."
+Q025,navigation,What baggage topics are linked from the Kenya Airways Baggage Information overview?,"The overview links to hand baggage, baggage allowance, special baggage, baggage restrictions, pet carriage, baggage conditions of carriage, delayed/lost/damaged baggage, and baggage security guidelines.","- Hand Baggage Information
+- Baggage Allowance
+- Baggage Restrictions
+- Special Baggage
+- Delayed, Lost or Damaged Baggage
+- Pet Carriage
+- Baggage Security Guidelines
+- Baggage Conditions of Carriage
+- Optional Fees
+
+Next step: Which of these topics would you like to know more about?","The Kenya Airways Baggage Information overview links to topics such as baggage allowance, baggage restrictions, baggage fees, and baggage handling.
+
+- Baggage allowance varies by route and cabin class, with Economy passengers allowed 30 kg, Premium Economy 40 kg, Business 50 kg, and First Class 60 kg.
+- Baggage restrictions include items like lithium batteries, sharp objects, and fragile items.
+- Baggage fees are charged for excess baggage, with Economy passengers paying KES 1,500 per kg, Premium Economy KES 1,000 per kg, Business KES 800 per kg, and First Class KES 600 per kg.
+- Baggage handling includes check-in, baggage drop-off, and baggage claim procedures.
+
+Next step: To provide a more accurate answer, could you please specify your route and cabin class, so I can give you more detailed information on baggage topics?",0.8775655533809215,0.9,1.0,42,1.0,,,"Lists all eight linked topics (hand baggage, allowance, special baggage, restrictions, pet carriage, conditions of carriage, delayed/lost/damaged, security guidelines)."
+Q068,navigation,What related options does the Change Booking page list under 'Manage every aspect of your trip online'?,"Upgrade flight, Refund, and Flight Delay and Cancellations.","The Change Booking page lists the following related options under 'Manage every aspect of your trip online':
+- Upgrade flight
+- Refund
+- Flight Delay and Cancellations
+-
+
+Next step: Which option would you like to explore further?","The Change Booking page lists the following options under 'Manage every aspect of your trip online':
+
+- Change flight dates and times
+- Upgrade or downgrade your cabin class
+- Add or remove passengers
+- Change your seat selection
+- Add or remove travel insurance
+- Add or remove extra baggage allowance
+
+You can compare our routes and cabin classes in the following table:
+
+| Route | Economy | Premium Economy | Business |
+| --- | --- | --- | --- |
+| Nairobi to London |  |  | |
+| Nairobi to New York |  |  | |
+| Nairobi to Dubai |  |  | |
+
+Next step: Please let me know your current booking reference number so I can assist you further.",0.727143125496762,0.8,1.0,42,1.0,,,"Exactly the three reference options: Upgrade flight, Refund, Flight Delay and Cancellations."
+Q069,navigation,What quick actions does the Change Booking page offer besides managing a booking?,"Check in online, view the flight schedule, and view the flight status.","- You can view your flight schedule.
+- You can view your flight status.
+- You can check in online.
+- You can upgrade your flight.
+- You can refund your ticket.
+
+Next step: Which of these actions do you need help with?","The Change Booking page offers the following quick actions besides managing a booking:
+
+- You can cancel your booking and receive a refund.
+- You can request a refund for a cancelled booking.
+- You can request a refund for a non-refundable booking.
+- You can request a refund for a booking that has already been cancelled.
+
+Next step: Please provide your booking reference number so I can assist you further.",0.6620826005332177,0.8333333333333334,1.0,42,1.0,,,"Contains the three quick actions (check in online, flight schedule, flight status); upgrade and refund are also listed on the Change Booking page, so not unsupported."
+Q192,navigation,What related policies does the legal information page link to?,"Optional Fees, 24 Hours Refund Policy, Privacy Policy, Conditions of Carriage, Customer Service Plan, and Contingency Plan for Lengthy Tarmac Delays.","- The related policies linked to the Legal Information page are:
+ - Optional Fees
+ - 24 Hours Refund Policy
+ - Privacy Policy
+- Next step: Would you like to know more about any of these policies?","The legal information page links to policies related to baggage allowance, travel documents, and refund and exchange policies.
+
+- Baggage allowance: The airline has a standard baggage allowance of 23 kg for economy class and 32 kg for business class.
+- Travel documents: Passengers are required to have a valid passport and any necessary visas for their destination.
+- Refund and exchange policies: Refunds and exchanges are subject to the airline's refund and exchange policy, which varies depending on the fare type and travel dates.
+
+| Route | Economy Class | Business Class |
+| --- | --- | --- |
+| Nairobi - London | 23 kg | 32 kg |
+| Nairobi - Paris | 23 kg | 32 kg |
+| Nairobi - Dubai | 23 kg | 32 kg |
+
+Next step: Could you please provide your route and cabin class to get more specific information about the related policies?",0.5999822421174548,0.75,1.0,42,0.0,,,"Lists only Optional Fees, 24 Hours Refund Policy and Privacy Policy; omits Conditions of Carriage, Customer Service Plan and Contingency Plan for Lengthy Tarmac Delays."
+Q016,policy_summary,What changes can a passenger make through Manage My Booking according to the FAQ?,"The FAQ lists changing travel dates, upgrading to Business Class, requesting special meals, selecting preferred seats, purchasing extra legroom, updating contact information, paying in advance for excess baggage, and requesting a refund.","- You can change travel dates.
+- You can upgrade to business class.
+- You can request special meals.
+- You can select preferred seats.
+- You can purchase extra legroom.
+- You can update contact information.
+- You can pay in advance for excess baggage.
+- You can request a refund.
+
+Next step: What changes would you like to make to your booking?","Changes to passenger details, such as names, dates of birth, and contact information, can be made through Manage My Booking. 
+
+- Changes to flight dates, routes, or cabin classes cannot be made through Manage My Booking.
+- Changes to seat selection can be made through Manage My Booking.
+- Changes to special meal requests can be made through Manage My Booking.
+- Changes to travel insurance can be made through Manage My Booking.
+
+| Route | Cabin Class | Change through Manage My Booking |
+| --- | --- | --- |
+| Nairobi to London | Economy | Yes |
+| Nairobi to London | Business | No |
+| Nairobi to Paris | Economy | Yes |
+
+Next step: Please provide your booking reference number to confirm the changes you can make through Manage My Booking.",0.9533229194702608,1.0,1.0,42,1.0,,,Covers all eight Manage My Booking changes in the reference.
+Q175,policy_summary,What remedies does Kenya Airways offer if it cancels a flight or causes a missed connection?,"One of: carry the passenger on another of its services or another carrier at no charge (extending ticket validity if necessary); reroute within a reasonable time to the ticketed destination; or refund under Article 10.2. These are the sole and exclusive remedies, except as provided by the Convention.","- If Kenya Airways cancels a flight, fails to operate a flight reasonably according to the schedule, fails to stop at your destination or Stopover destination, or causes you to miss a connecting flight on which you hold a confirmed reservation, the airline will provide one of the following remedies:
+- Carry you at the earliest opportunity on another of our scheduled services on which space is available without additional charge or on a flight of another carrier if necessary, and, where necessary, extend the validity of your ticket.
+- Reroute you to the destination shown on your Ticket, considering your convenience, by our own services or those of another carrier, or by other mutually agreed means and class of transportation without additional charge.
+- Make a refund in accordance with the provisions of Article 10.2.
+
+Next step: Can you please provide your ticket number and flight details so I can assist you further?","If Kenya Airways cancels a flight or causes a missed connection, passengers may be eligible for compensation and assistance.
+
+- Compensation: up to €600 (approximately KES 72,000) per passenger, depending on the route and distance.
+- Rebooking: passengers can be rebooked on the next available flight at no additional cost.
+- Accommodation: passengers may be provided with hotel accommodation and meals if the delay is expected to be overnight.
+- Meal vouchers: passengers may receive meal vouchers for the duration of the delay.
+
+| Route | Compensation |
+| --- | --- |
+| Short-haul | €200-€300 (KES 24,000-KES 36,000) |
+| Medium-haul | €300-€400 (KES 36,000-KES 48,000) |
+| Long-haul | €400-€600 (KES 48,000-KES 72,000) |
+
+Next step: Please provide your flight details, including route and flight number, so I can assist you further.",0.5653743012491699,0.9230769230769232,1.0,42,1.0,,,"Covers all three remedies: carry on another service/carrier at no charge (extending validity), reroute within a reasonable time, refund under Article 10.2."
+Q023,procedure,How does the Kenya Airways Travel Requirements page tell passengers to check passport and visa requirements?,"It says passengers may fill out and submit the form on the page to check the most recent information on the destination's passport and visa requirements before travelling with Kenya Airways. It warns that visa requirements can alter suddenly and without warning, and advises passengers to verify their visa is valid and that they are in good health according to local regulations.","You are responsible for obtaining all required travel documents and visas and for complying with all laws, regulations, orders, demands and travel requirements of countries to be flown from, into or through which you transit. It shall be your responsibility to verify such requirements prior to booking and travel.","Passengers are advised to check the passport and visa requirements for their destination country.
+
+- The Kenya Airways Travel Requirements page advises checking the visa requirements for your destination country at least 2 weeks before travel.
+- Visa requirements may vary depending on your nationality, travel purpose, and destination country.
+- Check the Kenya Airways website for the most up-to-date information on visa requirements.
+- You can also contact the embassy or consulate of your destination country for the latest visa requirements.
+
+Next step: Please provide your destination country and travel dates so I can assist you further.",0.2805689503944259,1.0,1.0,42,0.0,,,"Gives the Conditions of Carriage responsibility wording instead of the Travel Requirements page: omits the on-page form, the warning that visa requirements can change suddenly, and the health check advice."
+Q032,procedure,What must the name label on each piece of checked baggage include?,"Each checked piece must carry a name label, on the outside and also on the inside, showing the passenger's name, physical address, and phone number. The name should match the ticket. An email address is recommended.","The name label on each piece of checked baggage must bear the passenger's name, physical address, and phone number on the outside and also on the inside. The name should be the same as the one mentioned on the ticket. An email address is also recommended.","The name label on each piece of checked baggage must include the passenger's last name and contact information, such as a phone number or email address.
+
+- The label should be clearly visible and securely attached to the baggage.
+- The label should be at least 1 inch (2.5 cm) high and 2 inches (5 cm) wide.
+- The label should include the passenger's last name and contact information, but not their first name.
+- The label should not be covered by any other baggage tags or labels.
+
+| Cabin Class | Checked Baggage Label Requirements |
+| --- | --- |
+| Economy | Last name and contact information (phone number or email) |
+| Business | Last name and contact information (phone number or email) |
+| First | Last name and contact information (phone number or email) |
+
+Next step: Please provide the passenger's last name and contact information so we can ensure the correct label is attached to their checked baggage.",0.942064913686758,1.0,1.0,42,1.0,,,"Correct: name, physical address and phone number on a label outside and inside; name matches ticket; email recommended."
+Q029,table_lookup,What free checked baggage does a Business Class passenger get between Bangkok and Guangzhou?,"One checked piece, up to 32 kg (70 lbs). This table is indicative for Kenya Airways-operated flights only and may change with the aircraft operated on the day.","- For flights between Bangkok and Guangzhou, Business Class passengers get 1 piece of checked baggage, up to 32kg/70lbs.
+- The maximum dimensions for this piece are L55xW25xH35cm.
+- The free checked baggage allowance applies for every extra seat booked in advance, if approved.
+Next step: What is your route and cabin class for this question?","Business Class passengers on Kenya Airways flights between Bangkok and Guangzhou receive 2 pieces of checked baggage, each with a maximum weight of 32 kg.
+
+- The checked baggage allowance is 2 pieces per passenger.
+- Each piece must not exceed 32 kg in weight.
+- The total linear dimension of each piece must not exceed 158 cm.
+- Excess baggage fees will apply for any additional weight or pieces beyond the allowance.
+
+Next step: Please confirm the number of checked bags you plan to bring to ensure we can assist you with any additional requirements.",0.497546676581112,0.75,1.0,42,1.0,,,Correct: 1 piece up to 32 kg (70 lbs); omits only the indicative-table caveat.
+Q042,table_lookup,A passenger books two extra seats for comfort. What is their total checked baggage allowance?,Three times the applicable free baggage allowance (the passenger's own seat plus the two extra seats).,"- For passengers who book extra seats for comfort, the total checked baggage allowance is 3 times the applicable free checked baggage allowance.
+- For flights originating or terminating to the US/CANADA, the piece concept applies based on the specified weight.
+- The free checked baggage allowance for Business Class is 2 PC 32kg/70lbs max each.
+- The free checked baggage allowance for Economy Class is 2 PC 23kg/50lbs max each.
+- The free checked baggage allowance for flights from Africa to the Middle East/Asia (including Bangkok-Guangzhou) is 2 PC 32kg/70lbs max each.
+- The free checked baggage allowance for flights from Africa to the US/Europe is 2 PC 32kg/70lbs max each.
+
+Next step: Could you please tell me your route and cabin class?","The total checked baggage allowance for a passenger is 40 kilograms, regardless of the number of seats booked.
+
+- Economy Class: 40 kg
+- Business Class: 40 kg
+- First Class: 40 kg
+
+| Class | Checked Baggage Allowance |
+| --- | --- |
+| Economy | 40 kg |
+| Business | 40 kg |
+| First | 40 kg |
+
+Next step: Please confirm the class of travel booked for the two extra seats to provide a more accurate answer.",0.3069345965093375,0.4285714285714285,1.0,42,1.0,,,Correct: 3× the applicable free checked baggage allowance (own seat plus two extra seats).
+Q053,table_lookup,"What cabin baggage is a Business Class passenger entitled to, and what is the total weight limit?","Two pieces (each max L55 x W25 x H35 cm) plus one accessory, with a total weight maximum of 18 kg (39 lbs). The page lists the same for flights to/from the EU, US and UK and for all other routes.","- For flights to/from EU, US & UK*: 2 piece (max L55xW25xH35cm each) + 1 Accessory (Total weight max 18kgs/39lbs).
+- For all other routes*: 2 piece (max L55xW25xH35cm each) + 1 Accessory (Total weight max 18kgs/39lbs).
+
+Next step: Which route are you travelling in?","Business Class passengers are entitled to 2 pieces of cabin baggage, each with a maximum weight of 32 kg and maximum dimensions of 56 x 45 x 25 cm.
+
+- Maximum weight per piece: 32 kg
+- Maximum dimensions per piece: 56 x 45 x 25 cm
+- Total weight limit: 64 kg (2 x 32 kg)
+- Total dimensions limit: 112 x 90 x 50 cm (2 x 56 x 45 x 25 cm)
+
+Next step: Please confirm your route and cabin class to provide more accurate information.",0.9061075133128312,1.0,1.0,42,1.0,,,"Correct: 2 pieces (max 55x25x35 cm each) + 1 accessory, total maximum 18 kg (39 lbs)."
+Q052,unanswerable,What is the excess baggage fee per kilogram for a flight from Nairobi to London?,The provided documents do not state a specific excess baggage fee for this route. The Conditions of Carriage only say excess baggage rates are available from Kenya Airways upon request.,"- The excess baggage fee is applied through to the final destination.
+- For flights originating or terminating to the US/CANADA, piece concept applies based on the specified weight.
+- Excess charges apply if each piece checked in exceeds the free weight allowance or piece/s allowed for all the family members, group or party.
+- The applicable limit is normally taken to be 17 Special Drawing Rights per kilo for checked Baggage and 332 Special Drawing Rights in the case of unchecked Baggage, provided that if in accordance with applicable law different limits of liability are applicable such different limits shall apply.
+
+Next step: What is your cabin class for the Nairobi to London flight?","The excess baggage fee per kilogram for a flight from Nairobi to London is charged based on the route and cabin class.
+
+- Economy Class: KES 1,500 per kilogram
+- Business Class: KES 1,000 per kilogram
+- First Class: KES 800 per kilogram
+
+| Route | Economy Class | Business Class | First Class |
+| --- | --- | --- | --- |
+| Nairobi to London | KES 1,500 | KES 1,000 | KES 800 |
+| London to Nairobi | KES 1,500 | KES 1,000 | KES 800 |
+
+Next step: Could you please provide the route and cabin class for your flight so I can give you the exact excess baggage fee?",0.1798016283800582,0.875,0.5,42,,,,see unanswerable_review.csv
+Q100,unanswerable,What is the maximum weight of a pet carrier that can travel in the cabin?,The provided documents do not specify a cabin pet carrier weight limit.,"- The maximum weight of a pet carrier that can travel in the cabin is not specified in the provided policy context.
+- Next step: Can you please provide the weight of your pet carrier so I can assist you further?","The maximum weight of a pet carrier that can travel in the cabin is 8 kilograms (17.6 pounds).
+
+- The pet carrier must fit under the seat in front of you and meet our size requirements.
+- The maximum dimensions are 23 x 16 x 8 inches (58 x 40 x 20 cm).
+- The carrier must be well-ventilated and have enough space for your pet to stand up, turn around, and lie down.
+- You can check our pet policy for more information on traveling with pets.
+
+Next step: Please confirm the weight and dimensions of your pet carrier to ensure it meets our requirements.",0.5754168826229531,0.3333333333333333,1.0,42,,,,see unanswerable_review.csv
+Q130,unanswerable,How much does it cost to change a Kenya Airways Economy Flex ticket to a different date?,"The provided documents do not state change fees for Economy Flex. The FAQ only lists the fare categories (Best Buy, Economy, Economy flex, Economy Super flex, Business Best Buy, Business) and gives no fee amounts.","- The cost to change a Kenya Airways Economy Flex ticket to a different date depends on the fare rules of your ticket.
+- For Economy Flex tickets, the fare rules allow for changes to travel dates.
+- The cost to make changes to your ticket will be calculated and you will be given the option of accepting the new price or maintaining your original transportation as ticketed.
+- If you change your transportation without our agreement, we will assess the correct price for your actual travel and you will have to pay any difference between the price you have paid and the total price applicable for your revised transportation.
+- We will refund you the difference if the new price is lower, but otherwise your unused Coupons have no value.
+
+Next step: Can you please tell me your route and the new travel date you wish to change to?","The cost to change a Kenya Airways Economy Flex ticket to a different date depends on the route and the fare rules of your ticket.
+
+- The change fee for Economy Flex tickets is KES 10,000 (approximately USD 90).
+- The change fee is waived if you change your ticket at least 24 hours before your original flight departure.
+- If you change your ticket within 24 hours of your original flight departure, the change fee is KES 20,000 (approximately USD 180).
+- The change fee is not refundable, but you can use it as credit towards a future ticket purchase.
+
+| Route | Change Fee |
+| --- | --- |
+| Nairobi to London | KES 10,000 |
+| Nairobi to New York | KES 12,000 |
+| Nairobi to Dubai | KES 8,000 |
+
+Next step: Please provide your ticket details, including the route and ticket number, so I can assist you further.",0.1309415225203029,0.6666666666666666,1.0,42,,,,see unanswerable_review.csv
+Q131,unanswerable,Does Kenya Airways offer free Wi-Fi on board?,The provided documents do not say whether Wi-Fi is offered on board.,"- Kenya Airways offers free Wi-Fi on board on all flights.
+- The Wi-Fi is available on most flights, but it's not available on all flights.
+- The Wi-Fi is free for all passengers.
+- The Wi-Fi is available on most flights, but it's not available on all flights.
+
+Next step: Which route and cabin class are you travelling in?","Kenya Airways offers complimentary Wi-Fi on board, but the availability and speed may vary depending on the route and aircraft.
+
+- Complimentary Wi-Fi is available on most long-haul flights, including those to and from Europe and Asia.
+- On short-haul flights, Wi-Fi may be available for purchase.
+- The speed and availability of Wi-Fi may be affected by the aircraft's equipment and the number of passengers online.
+
+| Route | Wi-Fi Availability |
+| --- | --- |
+| Nairobi - London | Complimentary |
+| Nairobi - Paris | Complimentary |
+| Nairobi - Dubai | Complimentary |
+| Nairobi - Dar es Salaam | Not available |
+
+Next step: Could you please provide your route and flight number so I can confirm the Wi-Fi availability on your specific flight?",0.1164879890517236,0.0,1.0,42,,,,see unanswerable_review.csv
+Q157,unanswerable,Does Kenya Airways allow a passenger to bring a personal CPAP machine and what battery size is required?,"The provided documents only say battery-powered medical equipment other than CPAP needs medical clearance, and do not state CPAP battery size or rules.",I couldn't find that in the Kenya Airways pages I have.,"Kenya Airways allows passengers to bring a personal CPAP machine, but it must be declared and approved in advance.
+
+- The machine must be carried in the cabin, not checked baggage.
+- The battery size is limited to 100Wh or less.
+- The machine must be in a protective case and have a clear label indicating its contents.
+- The passenger must provide a doctor's note explaining the medical necessity of the machine.
+
+Next step: Please provide the route and cabin class of your flight, as well as any specific requirements or accommodations you may need, so we can further assist you.",0.5227854856576062,1.0,1.0,42,,,,see unanswerable_review.csv
+Q189,unanswerable,What compensation amount in euros is paid for a three-hour delay on a flight departing from the EU?,The Conditions of Carriage do not give any euro compensation amounts. They only refer to Regulation (EC) 261/2004 as an Applicable Regulation (Art. 1) and to passenger compensation laws such as EU261/UK261 applying where relevant (Art. 17).,I couldn't find that in the Kenya Airways pages I have.,"For a three-hour delay on a flight departing from the EU, passengers are entitled to compensation under EU 261/2004 regulations, which provide for a fixed amount of €250 for flights up to 1,500 km, and €400 for flights over 1,500 km.
+
+- The compensation amount is fixed and does not depend on the route or cabin class.
+- The delay must be at least three hours.
+- The flight must depart from an EU airport.
+- The flight must be operated by an EU airline.
+
+| Route | Compensation Amount |
+| --- | --- |
+| Up to 1,500 km | €250 |
+| Over 1,500 km | €400 |
+
+Next step: Could you please confirm the route and distance of your flight, as well as the airline operating it, to determine the exact compensation amount?",0.4145505055498953,0.0,0.5,42,,,,see unanswerable_review.csv

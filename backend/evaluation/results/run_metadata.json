@@ -1,0 +1,70 @@
+{
+  "status": "completed",
+  "git_commit": "60f007b88cd959e29d25acc50d5d399cace2cb07",
+  "git_dirty": true,
+  "source_sha256": {
+    "prompts.py": "b54b9d54875f4c1ce68d43f7a246ee48e94c011759303ecb5b6fb5f30766dba8",
+    "llm.py": "c0343fbee9fe91be915a95927399aaded5a1a2ac61b62619dec4eac53aacf3ec",
+    "query_handlers.py": "565d64fc738b8753815a14be4b1ef8f45175a8b47e2fafcb8df86ef20abf0ab5",
+    "answer_quality.py": "675994458d630357d8892e044e02f9e12e60a42aeb7aa4b37b6f67c7a2012a3c",
+    "corpus_vocabulary.json": "2c64ab1ca38c351d2cb9786a5af374708c6c1ef54656b01ed40ef489953d4a93",
+    "evaluate_rag.py": "dc6e134800424eb57cc2e8b322f6119660731378ab20ef90091738546917fee0"
+  },
+  "dataset_path": "C:\\Projects\\RAG project\\backend\\evaluation\\dataset.csv",
+  "dataset_sha256": "d0470b6d3020126296ceab9d17643faf35c576d225cb563d9d0ba2ac64fa61ce",
+  "index_chunk_count": 157,
+  "index_per_source_counts": {
+    "Hand Baggage Information.html": 3,
+    "Kenya Airways PLC _ Conditions of Carriage.html": 72,
+    "Kenya Airways PLC _ Legal Information.html": 3,
+    "Kenya Airways PLC _ Online Check-in.html": 4,
+    "Kenya Airways _ Baggage Allowance.html": 10,
+    "Kenya Airways _ Baggage Information.html": 1,
+    "Kenya Airways _ Baggage Restrictions.html": 4,
+    "Kenya Airways _ FAQs.html": 21,
+    "Kenya Airways _ Special Baggage.html": 18,
+    "Kenya Airways _ Visa and Health Information.html": 6,
+    "Medical and Special Needs.html": 14,
+    "kenya Airways _ Change Booking.html": 1
+  },
+  "retrieval_mode": "conditional",
+  "temperature": 0.0,
+  "seed": 42,
+  "generation_model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+  "generation_provider": "deepinfra",
+  "judge_model": "google/gemini-3.1-flash-lite",
+  "judge_provider": "deepinfra",
+  "ragas_version": "0.4.3",
+  "settings": {
+    "temperature": 0.0,
+    "seed": 42,
+    "generation_provider": "deepinfra",
+    "generation_model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    "retrieval_expansion": "conditional",
+    "retrieval_limit": 8,
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "answerability_guard": true,
+    "detail_hints": true,
+    "answer_relevancy_strictness": 1,
+    "judge_max_tokens": 4096
+  },
+  "start_time": "2026-11-13T10:21:41.669465+00:00",
+  "resumed_at": "2026-11-13T13:23:17.053084+00:00",
+  "end_time": "2026-11-13T16:01:15.823103+00:00",
+  "stage_counts": {
+    "dataset_rows": 201,
+    "reused_answers": 201,
+    "rag_generation_calls": 0,
+    "baseline_generation_calls": 0,
+    "judge_calls": 485
+  },
+  "duration_seconds": 20374.2,
+  "call_counts": {
+    "rag_generation": 0,
+    "baseline_generation": 0,
+    "judge": 485,
+    "total": 485
+  },
+  "report_path": "C:\\Projects\\RAG project\\backend\\evaluation\\results\\evaluation_report.csv"
+}
