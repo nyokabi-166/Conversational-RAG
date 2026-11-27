@@ -28,6 +28,19 @@ poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
 The deployed backend (Render, Hugging Face Spaces) sets `EMBEDDING_PROVIDER=deepinfra`; evaluation scripts keep using local embeddings. Both routes return normalised 384-dimensional vectors against the same `kb_index`.
 
+## Retrieval expansion mode
+
+`RETRIEVAL_EXPANSION_MODE` controls the query expansion strategy in `src/modules/query_handlers.py`:
+
+- `conditional` (default): topic expansion runs when the passenger's question is short or under-specified (<= 5 content words), while full multi-word questions search directly to avoid query drift. This combines high MRR on brief queries (+0.28 MRR on dev) with top coverage across specific policy questions.
+- `topic`: always prepends topic-expanded queries for recognized policy intents.
+- `off`: disables query expansion and uses raw passenger questions only.
+
+## LLM generation, temperature and determinism
+
+- `LLM_TEMPERATURE`: sampling temperature for chat, RAG, and baseline evaluation. Defaults to `0` (greedy decoding for maximum repeatability). Can be overridden via environment variable (e.g. `LLM_TEMPERATURE=0.1`).
+- `LLM_SEED`: random seed sent to OpenAI-compatible endpoints (DeepInfra). Defaults to `42` to eliminate stochastic variations across identical prompt inputs. Set `LLM_SEED=none` or `LLM_SEED=off` to disable seed pinning.
+
 
 ## Language models
 

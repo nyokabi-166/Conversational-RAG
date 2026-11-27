@@ -69,3 +69,19 @@ Thumbs.db
 desktop.ini
 /backend/uploads/
 /backend/evaluation/.ragas_judge_cache*/
+/backend/evaluation/results/.checkpoints/
+.neon
+
+# Local session transcripts and scratch (added 2026-11-19)
+session.json
+session-*.md
+*.err
+*.out
+analysis_extras/round3/_smoke/
+analysis_extras/round4/new_index/
+analysis_extras/round4/phase3_index_copy/
+analysis_extras/round4/auth_probe*
+analysis_extras/round5/test_*_scratch/
+analysis_extras/round5/pilot_eval/
+analysis_extras/final/heldout_results/.checkpoints/
+backend/evaluation/.ragas_judge_cache*/
